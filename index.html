@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PolyForge 3D Editor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              editor: {
+                bg: '#18181b', // zinc-950
+                panel: '#27272a', // zinc-800
+                border: '#3f3f46', // zinc-700
+                text: '#d4d4d8', // zinc-300
+                textDim: '#a1a1aa', // zinc-400
+                accent: '#2563eb', // blue-600
+                accentHover: '#3b82f6', // blue-500
+                input: '#18181b', // zinc-950
+              }
+            },
+            fontFamily: {
+              sans: ['Inter', 'system-ui', 'sans-serif'],
+              mono: ['Fira Code', 'monospace'],
+            },
+            fontSize: {
+              xxs: '0.65rem',
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      /* Custom Scrollbar for that dense editor feel */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #18181b; 
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #3f3f46; 
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #52525b; 
+      }
+      body {
+        overflow: hidden; /* Prevent full page scroll */
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0",
+    "react/": "https://aistudiocdn.com/react@^19.2.1/",
+    "react": "https://aistudiocdn.com/react@^19.2.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
+    "react-dom": "https://aistudiocdn.com/react-dom@^19.2.1"
+  }
+}
+</script>
+</head>
+  <body class="bg-editor-bg text-editor-text h-screen w-screen overflow-hidden select-none">
+    <div id="root"></div>
+  </body>
+</html>

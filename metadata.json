@@ -1,0 +1,5 @@
+{
+  "name": "PolyForge 3D Editor",
+  "description": "A sleek, modern, web-based 3D editor UI inspired by Unity and Unreal Engine, featuring a comprehensive layout with object hierarchy, property inspector, scene viewport, and asset browser.",
+  "requestFramePermissions": []
+}
