@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronRight, ChevronDown, Box, Camera, Lightbulb, Folder, Eye, Layers, Circle, Cylinder, Square } from 'lucide-react';
+import { ChevronRight, ChevronDown, Box, Camera, Lightbulb, Folder, Eye, Layers, Circle, Cylinder, Square, List, ListTree } from 'lucide-react';
 import { SceneObject, ObjectType } from '../types';
 import ContextMenu, { MenuItem } from './ContextMenu';
 
@@ -15,6 +15,7 @@ interface HierarchyProps {
 
 const Hierarchy: React.FC<HierarchyProps> = ({ data, selectedId, onSelect, onToggleExpand, onDelete, onDuplicate, onAddObject }) => {
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; targetId: string } | null>(null);
+  const [viewMode, setViewMode] = useState<'SCENE' | 'ENTITY'>('SCENE');
 
   const handleContextMenu = (e: React.MouseEvent, id: string) => {
     e.preventDefault();
@@ -58,7 +59,18 @@ const Hierarchy: React.FC<HierarchyProps> = ({ data, selectedId, onSelect, onTog
     }
   };
 
-  const renderNode = (node: SceneObject, depth: number = 0) => {
+  const flattenNodes = (nodes: SceneObject[]): SceneObject[] => {
+    let result: SceneObject[] = [];
+    nodes.forEach(node => {
+      result.push(node);
+      if (node.children) {
+        result = result.concat(flattenNodes(node.children));
+      }
+    });
+    return result;
+  };
+
+  const renderNode = (node: SceneObject, depth: number = 0, isFlat: boolean = false) => {
     const isSelected = node.id === selectedId;
     const hasChildren = node.children && node.children.length > 0;
 
@@ -69,7 +81,7 @@ const Hierarchy: React.FC<HierarchyProps> = ({ data, selectedId, onSelect, onTog
             flex items-center py-[2px] cursor-pointer text-[11px] select-none group
             ${isSelected ? 'bg-editor-accent text-white' : 'hover:bg-white/5 text-editor-text'}
           `}
-          style={{ paddingLeft: `${depth * 12 + 4}px` }}
+          style={{ paddingLeft: isFlat ? '8px' : `${depth * 12 + 4}px` }}
           onClick={(e) => {
             e.stopPropagation();
             onSelect(node.id);
@@ -81,10 +93,10 @@ const Hierarchy: React.FC<HierarchyProps> = ({ data, selectedId, onSelect, onTog
             className={`w-4 h-4 flex items-center justify-center mr-1 ${isSelected ? 'text-white' : 'text-editor-textDim hover:text-white'}`}
             onClick={(e) => {
               e.stopPropagation();
-              onToggleExpand(node.id);
+              if (!isFlat) onToggleExpand(node.id);
             }}
           >
-            {hasChildren && (
+            {!isFlat && hasChildren && (
               node.expanded ? <ChevronDown size={10} /> : <ChevronRight size={10} />
             )}
           </div>
@@ -101,10 +113,10 @@ const Hierarchy: React.FC<HierarchyProps> = ({ data, selectedId, onSelect, onTog
           </div>
         </div>
 
-        {/* Recursive Children */}
-        {hasChildren && node.expanded && (
+        {/* Recursive Children (Only in Scene Mode) */}
+        {!isFlat && hasChildren && node.expanded && (
           <div>
-            {node.children!.map(child => renderNode(child, depth + 1))}
+            {node.children!.map(child => renderNode(child, depth + 1, false))}
           </div>
         )}
       </div>
@@ -123,8 +135,26 @@ const Hierarchy: React.FC<HierarchyProps> = ({ data, selectedId, onSelect, onTog
       }}
     >
       {/* Header */}
-      <div className="h-8 flex items-center px-3 border-b border-editor-border bg-editor-bg shrink-0">
+      <div className="h-8 flex items-center px-3 border-b border-editor-border bg-editor-bg shrink-0 justify-between">
         <span className="text-xs font-semibold tracking-wide text-editor-textDim uppercase">Hierarchy</span>
+        
+        {/* View Toggle */}
+        <div className="flex bg-editor-input rounded border border-editor-border p-[2px]">
+          <button 
+            className={`p-0.5 rounded ${viewMode === 'SCENE' ? 'bg-editor-accent text-white' : 'text-editor-textDim hover:text-white'}`}
+            onClick={() => setViewMode('SCENE')}
+            title="Scene Hierarchy"
+          >
+            <ListTree size={12} />
+          </button>
+          <button 
+            className={`p-0.5 rounded ${viewMode === 'ENTITY' ? 'bg-editor-accent text-white' : 'text-editor-textDim hover:text-white'}`}
+            onClick={() => setViewMode('ENTITY')}
+            title="Entity List"
+          >
+            <List size={12} />
+          </button>
+        </div>
       </div>
       
       {/* Search */}
@@ -138,7 +168,10 @@ const Hierarchy: React.FC<HierarchyProps> = ({ data, selectedId, onSelect, onTog
 
       {/* Tree Content */}
       <div className="flex-1 overflow-y-auto py-1" onClick={() => onSelect('')}>
-        {data.map(node => renderNode(node))}
+        {viewMode === 'SCENE' 
+          ? data.map(node => renderNode(node, 0, false))
+          : flattenNodes(data).map(node => renderNode(node, 0, true))
+        }
       </div>
 
       {contextMenu && (

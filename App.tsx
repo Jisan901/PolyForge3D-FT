@@ -346,7 +346,11 @@ function App() {
 
            {/* Center Middle: Viewport */}
            <div className="flex-1 relative overflow-hidden">
-               <Viewport mode={viewMode} setMode={setViewMode} />
+               <Viewport 
+                  mode={viewMode} 
+                  setMode={setViewMode} 
+                  selectedObject={selectedObject} 
+               />
            </div>
 
            {/* Handle: Viewport <-> Assets */}
