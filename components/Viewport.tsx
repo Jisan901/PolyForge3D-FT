@@ -114,7 +114,7 @@ const Viewport: React.FC<ViewportProps> = ({ mode, setMode, selectedObject }) =>
   return (
     <div className="w-full h-full flex flex-col bg-[#111] relative overflow-hidden">
       {/* Viewport Toolbar (Floating) */}
-      <div className="absolute top-2 left-2 z-40 flex gap-1 bg-editor-panel/95 backdrop-blur-sm border border-editor-border rounded p-1 shadow-lg items-center">
+      <div className="absolute top-2 left-2 z-10 flex gap-1 bg-editor-panel/95 backdrop-blur-sm border border-editor-border rounded p-1 shadow-lg items-center">
         <ToolButton id="select" icon={MousePointer2} tooltip="Select Tool (Q)" active={toolbarActive === 'select'} setActive={setToolbarActive} />
         <ToolButton id="move" icon={Move} tooltip="Move Tool (W)" active={toolbarActive === 'move'} setActive={setToolbarActive} />
         <ToolButton id="rotate" icon={Rotate3d} tooltip="Rotate Tool (E)" active={toolbarActive === 'rotate'} setActive={setToolbarActive} />
@@ -140,7 +140,7 @@ const Viewport: React.FC<ViewportProps> = ({ mode, setMode, selectedObject }) =>
       </div>
 
       {/* Viewport Actions (Top Right) */}
-      <div className="absolute top-2 right-2 z-40 flex gap-2">
+      <div className="absolute top-2 right-2 z-10 flex gap-2">
          <div className="flex bg-editor-panel/90 backdrop-blur border border-editor-border rounded p-1 shadow-lg">
              <div className="flex items-center gap-2 px-2 border-r border-editor-border cursor-pointer hover:bg-white/5 rounded-sm">
                  <Sun size={12} className="text-yellow-400" />

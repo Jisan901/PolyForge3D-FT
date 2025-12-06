@@ -4,6 +4,7 @@ import Hierarchy from './components/Hierarchy';
 import Inspector from './components/Inspector';
 import Viewport from './components/Viewport';
 import AssetBrowser from './components/AssetBrowser';
+import ConsolePanel, { LogEntry } from './components/ConsolePanel';
 import ContextMenu, { MenuItem } from './components/ContextMenu';
 import { INITIAL_SCENE, MOCK_ASSETS } from './constants';
 import { SceneObject, ViewMode, AssetFile, ObjectType } from './types';
@@ -15,9 +16,13 @@ function App() {
   const [selectedId, setSelectedId] = useState<string | null>('cam-1');
   const [viewMode, setViewMode] = useState<ViewMode>('SCENE');
   const [isPlaying, setIsPlaying] = useState(false);
+  const [activeBottomTab, setActiveBottomTab] = useState<'Project' | 'Console' | 'Animation'>('Project');
+  const [logs, setLogs] = useState<LogEntry[]>([]);
 
   // Menu State
   const [activeMenu, setActiveMenu] = useState<{ id: string; x: number; y: number } | null>(null);
+  const navFileRef = useRef<HTMLDivElement>(null);
+  const navEditRef = useRef<HTMLDivElement>(null);
   const navGameObjectRef = useRef<HTMLDivElement>(null);
 
   // Resize State
@@ -25,6 +30,51 @@ function App() {
   const [rightWidth, setRightWidth] = useState(280);
   const [bottomHeight, setBottomHeight] = useState(300);
   const [isResizing, setIsResizing] = useState<'left' | 'right' | 'bottom' | null>(null);
+
+  // --- Console Logging Effect ---
+  useEffect(() => {
+    // Preserve original console methods
+    const originalLog = console.log;
+    const originalWarn = console.warn;
+    const originalError = console.error;
+
+    const addLog = (type: 'log' | 'warn' | 'error', args: any[]) => {
+      const message = args.map(arg => 
+        typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
+      ).join(' ');
+      
+      const timestamp = new Date().toLocaleTimeString('en-US', { hour12: false });
+
+      setLogs(prev => {
+        const newLogs = [...prev, { type, message, timestamp, count: 1 }];
+        // Keep max 25
+        if (newLogs.length > 25) return newLogs.slice(newLogs.length - 25);
+        return newLogs;
+      });
+    };
+
+    console.log = (...args) => {
+      originalLog(...args);
+      addLog('log', args);
+    };
+
+    console.warn = (...args) => {
+      originalWarn(...args);
+      addLog('warn', args);
+    };
+
+    console.error = (...args) => {
+      originalError(...args);
+      addLog('error', args);
+    };
+
+    return () => {
+      // Restore original console methods
+      console.log = originalLog;
+      console.warn = originalWarn;
+      console.error = originalError;
+    };
+  }, []);
 
   // Helper to find object by ID (simple DFS)
   const findObject = (nodes: SceneObject[], id: string): SceneObject | null => {
@@ -52,6 +102,46 @@ function App() {
   };
 
   // Actions
+  const handleAddComponent = (componentName: string) => {
+    if (!selectedId) return;
+
+    console.log(`Adding component: ${componentName} to object ${selectedId}`);
+
+    const getComponentData = (name: string) => {
+        switch(name) {
+            case 'RigidBody': return { mass: 1, drag: 0, useGravity: true, isKinematic: false };
+            case 'BoxCollider': return { isTrigger: false, center: {x:0, y:0, z:0}, size: {x:1, y:1, z:1} };
+            case 'SphereCollider': return { isTrigger: false, center: {x:0, y:0, z:0}, radius: 0.5 };
+            case 'Light': return { color: '#ffffff', intensity: 1, range: 10, type: 'Point' };
+            case 'Camera': return { fov: 60, near: 0.1, far: 1000 };
+            case 'Script': return { name: 'NewScript.cs', enabled: true };
+            default: return { enabled: true };
+        }
+    };
+
+    const updateObject = (nodes: SceneObject[]): SceneObject[] => {
+        return nodes.map(node => {
+            if (node.id === selectedId) {
+                // Ensure unique key for component if multiple of same type allowed (simplified here)
+                const newKey = componentName.charAt(0).toLowerCase() + componentName.slice(1);
+                return {
+                    ...node,
+                    properties: {
+                        ...node.properties,
+                        [newKey]: getComponentData(componentName)
+                    }
+                };
+            }
+            if (node.children) {
+                return { ...node, children: updateObject(node.children) };
+            }
+            return node;
+        });
+    };
+
+    setSceneData(updateObject(sceneData));
+  };
+
   const handleAddObject = (type: ObjectType, parentId?: string) => {
     const newObject: SceneObject = {
         id: `${type.toLowerCase()}-${Date.now()}`,
@@ -72,7 +162,6 @@ function App() {
         // Add to first scene root or append
         const rootScene = sceneData.find(n => n.type === ObjectType.SCENE);
         if (rootScene) {
-            // Add to the main scene children
              const updateRoot = (nodes: SceneObject[]): SceneObject[] => {
                 return nodes.map(node => {
                     if (node.type === ObjectType.SCENE) {
@@ -105,8 +194,8 @@ function App() {
         setSceneData(addToParent(sceneData));
     }
     
-    // Select the new object
     setSelectedId(newObject.id);
+    console.log(`Created new ${type}`);
   };
 
   const handleDeleteObject = (id: string) => {
@@ -118,6 +207,7 @@ function App() {
     };
     setSceneData(deleteRecursive(sceneData));
     if (selectedId === id) setSelectedId(null);
+    console.log(`Deleted object ${id}`);
   };
 
   const handleDuplicateObject = (id: string) => {
@@ -132,6 +222,7 @@ function App() {
             name: original.name + ' (Copy)'
           };
           newNodes.splice(i + 1, 0, copy);
+          console.log(`Duplicated ${original.name}`);
           return newNodes;
         }
         if (nodes[i].children) {
@@ -148,6 +239,25 @@ function App() {
 
   const handleDeleteAsset = (id: string) => {
     setAssets(assets.filter(a => a.id !== id));
+    console.log(`Deleted asset ${id}`);
+  };
+
+  // --- Menu Handlers ---
+
+  const openFileMenu = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (navFileRef.current) {
+          const rect = navFileRef.current.getBoundingClientRect();
+          setActiveMenu({ id: 'file', x: rect.left, y: rect.bottom + 4 });
+      }
+  };
+
+  const openEditMenu = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (navEditRef.current) {
+          const rect = navEditRef.current.getBoundingClientRect();
+          setActiveMenu({ id: 'edit', x: rect.left, y: rect.bottom + 4 });
+      }
   };
 
   const openGameObjectMenu = (e: React.MouseEvent) => {
@@ -158,6 +268,36 @@ function App() {
       }
   };
 
+  // --- Menu Items ---
+
+  const getFileMenuItems = (): MenuItem[] => [
+    { label: 'New Scene', shortcut: 'Ctrl+N', action: () => console.log('New Scene') },
+    { label: 'Open Scene', shortcut: 'Ctrl+O', action: () => console.log('Open Scene') },
+    { separator: true, label: '', action: () => {} },
+    { label: 'Save Scene', shortcut: 'Ctrl+S', action: () => console.log('Save Scene') },
+    { label: 'Save Scene As...', shortcut: 'Ctrl+Shift+S', action: () => console.log('Save Scene As') },
+    { separator: true, label: '', action: () => {} },
+    { label: 'Build Settings', shortcut: 'Ctrl+Shift+B', action: () => console.log('Build Settings') },
+    { label: 'Build And Run', shortcut: 'Ctrl+B', action: () => console.log('Build And Run') },
+    { separator: true, label: '', action: () => {} },
+    { label: 'Exit', action: () => console.log('Exit') },
+  ];
+
+  const getEditMenuItems = (): MenuItem[] => [
+    { label: 'Undo', shortcut: 'Ctrl+Z', action: () => console.log('Undo') },
+    { label: 'Redo', shortcut: 'Ctrl+Y', action: () => console.log('Redo') },
+    { separator: true, label: '', action: () => {} },
+    { label: 'Cut', shortcut: 'Ctrl+X', action: () => console.log('Cut') },
+    { label: 'Copy', shortcut: 'Ctrl+C', action: () => console.log('Copy') },
+    { label: 'Paste', shortcut: 'Ctrl+V', action: () => console.log('Paste') },
+    { separator: true, label: '', action: () => {} },
+    { label: 'Duplicate', shortcut: 'Ctrl+D', action: () => selectedId && handleDuplicateObject(selectedId) },
+    { label: 'Delete', shortcut: 'Del', danger: true, action: () => selectedId && handleDeleteObject(selectedId) },
+    { separator: true, label: '', action: () => {} },
+    { label: 'Play', shortcut: 'Ctrl+P', action: () => setIsPlaying(true) },
+    { label: 'Pause', shortcut: 'Ctrl+Shift+P', action: () => setIsPlaying(false) },
+  ];
+
   const getGameObjectMenuItems = (): MenuItem[] => [
     { label: 'Create Empty', action: () => handleAddObject(ObjectType.FOLDER) },
     { separator: true, label: '', action: () => {} },
@@ -167,7 +307,7 @@ function App() {
     { label: 'Cylinder', action: () => handleAddObject(ObjectType.CYLINDER) },
     { label: 'Plane', action: () => handleAddObject(ObjectType.PLANE) },
     { separator: true, label: '', action: () => {} },
-    { label: 'Import New Asset...', action: () => console.log('Import') },
+    { label: 'Import New Asset...', action: () => console.log('Import triggered') },
   ];
 
   // Resize Handlers
@@ -187,15 +327,13 @@ function App() {
 
     const handleMouseMove = (e: MouseEvent) => {
       if (!isResizing) return;
-      e.preventDefault(); // Prevent text selection while dragging
+      e.preventDefault(); 
       handleMove(e.clientX, e.clientY);
     };
 
     const handleTouchMove = (e: TouchEvent) => {
       if (!isResizing) return;
-      // Prevent scrolling on touch devices while resizing
       if (e.cancelable) e.preventDefault();
-      
       if (e.touches.length > 0) {
         const touch = e.touches[0];
         handleMove(touch.clientX, touch.clientY);
@@ -231,11 +369,22 @@ function App() {
              <span className="font-bold tracking-wide">PolyForge</span>
          </div>
          <div className="flex gap-1 text-editor-textDim">
-            <div className="px-3 py-1 hover:bg-white/10 rounded cursor-pointer transition-colors">File</div>
-            <div className="px-3 py-1 hover:bg-white/10 rounded cursor-pointer transition-colors">Edit</div>
+            <div 
+                ref={navFileRef}
+                className={`px-3 py-1 rounded cursor-pointer transition-colors ${activeMenu?.id === 'file' ? 'bg-white/10 text-white' : 'hover:bg-white/10 hover:text-white'}`}
+                onClick={openFileMenu}
+            >
+                File
+            </div>
+            <div 
+                ref={navEditRef}
+                className={`px-3 py-1 rounded cursor-pointer transition-colors ${activeMenu?.id === 'edit' ? 'bg-white/10 text-white' : 'hover:bg-white/10 hover:text-white'}`}
+                onClick={openEditMenu}
+            >
+                Edit
+            </div>
             <div className="px-3 py-1 hover:bg-white/10 rounded cursor-pointer transition-colors">Assets</div>
             
-            {/* GameObject Menu Trigger */}
             <div 
                 ref={navGameObjectRef}
                 className={`px-3 py-1 rounded cursor-pointer transition-colors ${activeMenu?.id === 'gameobject' ? 'bg-white/10 text-white' : 'hover:bg-white/10 hover:text-white'}`}
@@ -261,7 +410,24 @@ function App() {
          </div>
       </div>
 
-      {/* Render Main Menu Dropdown */}
+      {activeMenu && activeMenu.id === 'file' && (
+          <ContextMenu 
+            x={activeMenu.x} 
+            y={activeMenu.y} 
+            items={getFileMenuItems()} 
+            onClose={() => setActiveMenu(null)} 
+          />
+      )}
+      
+      {activeMenu && activeMenu.id === 'edit' && (
+          <ContextMenu 
+            x={activeMenu.x} 
+            y={activeMenu.y} 
+            items={getEditMenuItems()} 
+            onClose={() => setActiveMenu(null)} 
+          />
+      )}
+
       {activeMenu && activeMenu.id === 'gameobject' && (
           <ContextMenu 
             x={activeMenu.x} 
@@ -281,20 +447,23 @@ function App() {
          <div className="flex items-center bg-black/20 rounded p-1 gap-1 border border-editor-border/50">
             <button 
               className={`p-1.5 rounded ${isPlaying ? 'bg-editor-accent text-white' : 'hover:bg-white/10 text-editor-textDim'}`}
-              onClick={() => setIsPlaying(!isPlaying)}
+              onClick={() => {
+                  setIsPlaying(!isPlaying);
+                  console.log(isPlaying ? "Game Stopped" : "Game Started");
+              }}
             >
                <Play size={16} fill={isPlaying ? "currentColor" : "none"} />
             </button>
-            <button className="p-1.5 rounded hover:bg-white/10 text-editor-textDim">
+            <button className="p-1.5 rounded hover:bg-white/10 text-editor-textDim" onClick={() => console.log('Paused')}>
                <Pause size={16} fill="currentColor" />
             </button>
-            <button className="p-1.5 rounded hover:bg-white/10 text-editor-textDim">
+            <button className="p-1.5 rounded hover:bg-white/10 text-editor-textDim" onClick={() => setIsPlaying(false)}>
                <Square size={14} fill="currentColor" />
             </button>
          </div>
 
          <div className="absolute right-2 flex gap-1">
-             <button className="flex items-center gap-1 px-2 py-1 rounded hover:bg-white/10 text-editor-textDim text-xs border border-transparent hover:border-editor-border">
+             <button className="flex items-center gap-1 px-2 py-1 rounded hover:bg-white/10 text-editor-textDim text-xs border border-transparent hover:border-editor-border" onClick={() => console.log('Build started...')}>
                  <FilePlus size={14} />
                  <span>Build</span>
              </button>
@@ -317,7 +486,6 @@ function App() {
            />
         </div>
 
-        {/* Handle: Left <-> Center */}
         <div 
           className="w-[2px] bg-editor-bg hover:bg-editor-accent cursor-col-resize z-20 flex-shrink-0 transition-colors border-r border-editor-border touch-none"
           onMouseDown={() => setIsResizing('left')}
@@ -353,28 +521,48 @@ function App() {
                />
            </div>
 
-           {/* Handle: Viewport <-> Assets */}
            <div 
               className="h-[2px] bg-editor-bg hover:bg-editor-accent cursor-row-resize z-20 flex-shrink-0 transition-colors border-t border-editor-border touch-none"
               onMouseDown={() => setIsResizing('bottom')}
               onTouchStart={() => setIsResizing('bottom')}
            />
 
-           {/* Center Bottom: Asset Explorer */}
+           {/* Center Bottom: Asset Explorer / Console */}
            <div style={{ height: bottomHeight }} className="flex-shrink-0 flex flex-col">
               <div className="h-full flex flex-col">
                   {/* Tabs for Bottom Panel */}
-                  <div className="flex items-center bg-editor-panel border-b border-editor-border h-7 px-1 flex-shrink-0">
-                      <button className="px-3 text-[10px] h-full border-b-2 border-editor-accent text-white font-medium bg-[#1e1e1e]">Project</button>
-                      <button className="px-3 text-[10px] h-full border-b-2 border-transparent text-editor-textDim hover:text-white">Console</button>
-                      <button className="px-3 text-[10px] h-full border-b-2 border-transparent text-editor-textDim hover:text-white">Animation</button>
+                  <div className="flex items-center bg-editor-panel border-b border-editor-border h-7 px-1 flex-shrink-0 select-none">
+                      <button 
+                        className={`px-3 text-[10px] h-full border-b-2 font-medium ${activeBottomTab === 'Project' ? 'border-editor-accent text-white bg-[#1e1e1e]' : 'border-transparent text-editor-textDim hover:text-white'}`}
+                        onClick={() => setActiveBottomTab('Project')}
+                      >
+                        Project
+                      </button>
+                      <button 
+                        className={`px-3 text-[10px] h-full border-b-2 font-medium ${activeBottomTab === 'Console' ? 'border-editor-accent text-white bg-[#1e1e1e]' : 'border-transparent text-editor-textDim hover:text-white'}`}
+                        onClick={() => setActiveBottomTab('Console')}
+                      >
+                        Console
+                      </button>
+                      <button 
+                        className={`px-3 text-[10px] h-full border-b-2 font-medium ${activeBottomTab === 'Animation' ? 'border-editor-accent text-white bg-[#1e1e1e]' : 'border-transparent text-editor-textDim hover:text-white'}`}
+                        onClick={() => setActiveBottomTab('Animation')}
+                      >
+                        Animation
+                      </button>
                   </div>
-                  <AssetBrowser assets={assets} onDelete={handleDeleteAsset} />
+                  
+                  {activeBottomTab === 'Project' ? (
+                     <AssetBrowser assets={assets} onDelete={handleDeleteAsset} />
+                  ) : activeBottomTab === 'Console' ? (
+                     <ConsolePanel logs={logs} onClear={() => setLogs([])} />
+                  ) : (
+                     <div className="flex items-center justify-center h-full text-editor-textDim text-xs">Animation Timeline (Placeholder)</div>
+                  )}
               </div>
            </div>
         </div>
 
-        {/* Handle: Center <-> Right */}
         <div 
            className="w-[2px] bg-editor-bg hover:bg-editor-accent cursor-col-resize z-20 flex-shrink-0 transition-colors border-l border-editor-border touch-none"
            onMouseDown={() => setIsResizing('right')}
@@ -383,7 +571,7 @@ function App() {
 
         {/* Right: Inspector */}
         <div style={{ width: rightWidth }} className="flex-shrink-0 z-10 flex flex-col">
-           <Inspector object={selectedObject} />
+           <Inspector object={selectedObject} onAddComponent={handleAddComponent} />
         </div>
       </div>
 
