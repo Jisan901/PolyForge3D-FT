@@ -47,6 +47,22 @@ export const INITIAL_SCENE: SceneObject[] = [
   }
 ];
 
+
+
+export const nameCodes = {
+    Transform: 1,
+    Camera: 2,
+    MeshRenderer: 3,
+    Light: 4,
+    Rigidbody: 5,
+    Collider: 6,
+    Script: 7,
+    Animation: 8,
+    Audio: 9,
+    UIElement: 10
+} as const;
+
+
 export const MOCK_ASSETS: AssetFile[] = [
   { id: 'f1', name: 'Scripts', type: 'folder' },
   { id: 'f2', name: 'Materials', type: 'folder' },

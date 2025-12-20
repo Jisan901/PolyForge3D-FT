@@ -1,0 +1,68 @@
+{
+  "metadata": {
+    "version": 4.7,
+    "type": "Object",
+    "generator": "Object3D.toJSON"
+  },
+  "geometries": [
+    {
+      "uuid": "7a89a60d-73af-4e77-9010-7152816d6ee4",
+      "type": "PlaneGeometry",
+      "width": 1,
+      "height": 1,
+      "widthSegments": 1,
+      "heightSegments": 1
+    }
+  ],
+  "materials": [
+    {
+      "uuid": "09d9f032-0209-4a57-bde6-5b5ad763d3e1",
+      "type": "MeshStandardMaterial",
+      "color": 11184810,
+      "roughness": 1,
+      "metalness": 0,
+      "emissive": 0,
+      "envMapRotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "envMapIntensity": 1,
+      "side": 2,
+      "blendColor": 0
+    }
+  ],
+  "object": {
+    "uuid": "31ec6fa3-f80a-443e-99e3-8851e187b69e",
+    "type": "Mesh",
+    "name": "Plane",
+    "receiveShadow": true,
+    "layers": 1,
+    "matrix": [
+      5,
+      0,
+      0,
+      0,
+      0,
+      1.1102230246251565e-15,
+      5,
+      0,
+      0,
+      -1,
+      2.220446049250313e-16,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    "up": [
+      0,
+      1,
+      0
+    ],
+    "geometry": "7a89a60d-73af-4e77-9010-7152816d6ee4",
+    "material": "09d9f032-0209-4a57-bde6-5b5ad763d3e1"
+  }
+}

@@ -1,15 +1,16 @@
 export enum ObjectType {
-  SCENE = 'SCENE',
+  SCENE = 'Scene',
   CUBE = 'CUBE',
   SPHERE = 'SPHERE',
   CYLINDER = 'CYLINDER',
   PLANE = 'PLANE',
   CAPSULE = 'CAPSULE',
-  LIGHT = 'LIGHT',
+  LIGHT = 'Light',
   CAMERA = 'CAMERA',
-  FOLDER = 'FOLDER',
+  FOLDER = 'Group',
   MATERIAL = 'MATERIAL',
-  SCRIPT = 'SCRIPT'
+  SCRIPT = 'SCRIPT',
+  LOD = 'DLOD'
 }
 
 export interface Transform {

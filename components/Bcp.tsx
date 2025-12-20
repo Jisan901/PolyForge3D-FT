@@ -7,13 +7,11 @@ import ContextMenu, { MenuItem } from './ContextMenu';
 import { ObjectSelector, SelectorItem } from './ObjectSelector';
 import { useEditor } from '../contexts/EditorContext';
 import * as THREE from "three";
-import {PolyForge} from "../PolyForge"
-import {useObserver} from "../PolyModule/Hooks"
 
 
-const editor = PolyForge.editor;
 
 interface InspectorProps {
+    object: SceneObject | null;
     onAddComponent?: (componentName: string) => void;
 }
 
@@ -39,60 +37,10 @@ const AVAILABLE_COMPONENTS: SelectorItem[] = [
     { id: 'GameManager', name: 'Game Manager', category: 'Scripts', icon: FileCode, description: 'Custom script' },
 ];
 
-
-const RenderPropertyInput:React.FC<{path: string, val: any}> = ({path:key, val:v2}) => {
-    const { setSelectedObjectProperties: sSOP, selectedObject:object, mappedObject } = useEditor()
-    const val = useObserver(object, key);
-    
-    const handleOnChange = (key)=>{
-        return (valS)=>{
-            editor.setProperty(object, key, valS)
-        }
-    }
-        if (typeof val === 'boolean') return <Checkbox key={`${val}`}  label={key} checked={val} onChange={handleOnChange(key)}/>;
-        if (typeof val === 'number') return <NumberInput  label={key} value={val} onChange={handleOnChange(key)}/>;
-        if (typeof val === 'object' && val?.isColor) return <ColorInput  label={key} value={val as string} onChange={(vec)=>{
-                editor.setProperty(object, key+'.r', vec.r/255)
-                editor.setProperty(object, key+'.g', vec.g/255)
-                editor.setProperty(object, key+'.b', vec.b/255)
-            }} />;
-        if ((typeof val === 'object' && val?.isVector3)) {
-            return <Vector3Input key={`${key}-${val.x}-${val.y}-${val.z}`}   label={key} value={val}
-            onChange={(vec)=>{
-                
-                editor.setProperty(object, key+'.x', vec.x)
-                editor.setProperty(object, key+'.y', vec.y)
-                editor.setProperty(object, key+'.z', vec.z)
-                
-            }}
-            />;
-        }
-        if ((typeof val === 'object' && val?.isEuler)) {
-            return <Vector3Input key={`${key}-${val.x}-${val.y}-${val.z}`}   label={key} value={{
-                x:THREE.MathUtils.radToDeg(val.x),
-                y:THREE.MathUtils.radToDeg(val.y),
-                z:THREE.MathUtils.radToDeg(val.z),
-            }}
-            
-            onChange={(vec)=>{
-                
-                editor.setProperty(object, key+'.x', THREE.MathUtils.degToRad(vec.x))
-                editor.setProperty(object, key+'.y',THREE.MathUtils.degToRad (vec.y))
-                editor.setProperty(object, key+'.z',THREE.MathUtils.degToRad (vec.z))
-                
-            }}
-            />;
-        }
-         return <TextInput key={val}  label={key} value={String(val)} onChange={handleOnChange(key)}/>;
-        //return <TextInput key={key} label={key} value={String(val)} />;
-    };
-
-const Inspector: React.FC<InspectorProps> = ({ onAddComponent }) => {
+const Inspector: React.FC<InspectorProps> = ({ object99, onAddComponent }) => {
     const [contextMenu, setContextMenu] = useState<{ x: number; y: number; component: string } | null>(null);
     const [showAddComponent, setShowAddComponent] = useState(false);
     const { setSelectedObjectProperties: sSOP, selectedObject:object, mappedObject } = useEditor()
-    
-    const selectedName = useObserver(object, 'name');
     const handleContextMenu = (e: React.MouseEvent, component: string) => {
         e.preventDefault();
         e.stopPropagation();
@@ -118,14 +66,19 @@ const Inspector: React.FC<InspectorProps> = ({ onAddComponent }) => {
         if (name.includes('Script')) return Cpu;
         return Layers;
     };
-    const handleOnChange = (key)=>{
-        return (val)=>{
-            editor.setProperty(object, key, val)
-        }
-    }
-    
 
-    if (!mappedObject||!object) {
+    const renderPropertyInput = (key: string, val: any) => {
+        if (typeof val === 'boolean') return <Checkbox key={key} label={key} checked={val} />;
+        if (typeof val === 'number') return <NumberInput key={key} label={key} value={val} />;
+        if (key === 'color') return <ColorInput key={key} label={key} value={val as string} />;
+        if (key.toLowerCase().includes('position') || key.toLowerCase().includes('rotation') || key.toLowerCase().includes('scale') || (typeof val === 'object' && val?.x)) {
+            return <Vector3Input key={key} label={key} value={val} />;
+        }
+        if (typeof val === 'string') return <TextInput key={key} label={key} value={String(val)} />;
+        //return <TextInput key={key} label={key} value={String(val)} />;
+    };
+
+    if (!object) {
         return (
             <div className="h-full flex flex-col items-center justify-center bg-editor-panel border-l border-editor-border text-editor-textDim">
                 <Box size={32} className="mb-2 opacity-20" />
@@ -134,34 +87,64 @@ const Inspector: React.FC<InspectorProps> = ({ onAddComponent }) => {
         );
     }
 
+    // Split properties into "simple" (generic properties) and "complex" (components)
+    const simpleProps: Record<string, any> = {};
+    const components: Record<string, any> = {};
 
+    if (object) {
+        Object.entries(object).forEach(([key, val]) => {
+            if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
+                components[key] = val;
+            } else {
+                simpleProps[key] = val;
+            }
+        });
+    }
 
     return (
-        <div className="h-full flex flex-col bg-editor-panel overflow-y-auto" key={object.uuid}>
+        <div className="h-full flex flex-col bg-editor-panel overflow-y-auto" >
             {/* Header */}
             <div className="h-10 flex items-center px-4 border-b border-editor-border bg-editor-bg sticky top-0 z-10 shrink-0">
                 <div className="w-4 h-4 rounded-sm bg-editor-accent mr-2" />
                 <div className="flex flex-col">
-                    <span className="text-xs font-bold text-white">{selectedName}</span>
+                    <span className="text-xs font-bold text-white">{object.name}</span>
                     <span className="text-[9px] text-editor-textDim uppercase">{object.type}</span>
                 </div>
                 <div className="flex-1" />
-                <Checkbox label="Active" checked={object.visible} />
+                <Checkbox label="Active" checked={true} />
             </div>
 
             <div className="p-1 pb-10">
+                {/* Transform Component */}
+                {(object && object.position && object.rotation)  && (
+                    <PropertySection
+                        title="Transform"
+                        icon={Globe}
+                        onContextMenu={(e) => handleContextMenu(e, 'Transform')}
+                    >
+                        <Vector3Input label="Position" value={object.position} onChange={val=>{
+                        sSOP('position.x',val.x)
+                        sSOP('position.y',val.y)
+                        sSOP('position.z',val.z)
+                            
+                        }} />
+                        <Vector3Input label="Rotation" value={object.rotation} />
+                        <Vector3Input label="Scale" value={object.scale} />
+                    </PropertySection>
+                )}
+
                 {/* General Properties Section */}
-                {Object.keys(mappedObject?.map).length > 0 && (
+                {Object.keys(simpleProps).length > 0 && (
                     <PropertySection
                         title="Properties"
                         icon={Layers}
                         onContextMenu={(e) => handleContextMenu(e, 'Properties')}
                     >
-                        {Object.entries(mappedObject?.map).map(([key, val]) => <RenderPropertyInput key={key} path={key} val={val}/>)}
+                        {Object.entries(simpleProps).map(([key, val]) => renderPropertyInput(key, val))}
                     </PropertySection>
                 )}
 
-                {/* Dynamic Component Sections }
+                {/* Dynamic Component Sections */}
                 {Object.entries(components).map(([compName, compData]) => (
                     <PropertySection
                         key={compName}
@@ -172,7 +155,6 @@ const Inspector: React.FC<InspectorProps> = ({ onAddComponent }) => {
                         {Object.entries(compData).map(([propKey, propVal]) => renderPropertyInput(propKey, propVal))}
                     </PropertySection>
                 ))}
-                */}
 
                 <div className="px-3 mt-4">
                     <button
@@ -198,7 +180,6 @@ const Inspector: React.FC<InspectorProps> = ({ onAddComponent }) => {
                     title="Add Component"
                     items={AVAILABLE_COMPONENTS}
                     onClose={() => setShowAddComponent(false)}
-                    grid
                     onSelect={(item) => {
                         onAddComponent && onAddComponent(item.id);
                         setShowAddComponent(false);

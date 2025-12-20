@@ -1,0 +1,125 @@
+{
+    "transform": {
+        "nameCode": 1,
+        "name": "Transform",
+        "description": "Position, rotation, scale",
+        "default": {
+            "position": { "x": 0, "y": 0, "z": 0 },
+            "rotation": { "x": 0, "y": 0, "z": 0 },
+            "scale":    { "x": 1, "y": 1, "z": 1 }
+        }
+    },
+
+    "camera": {
+        "nameCode": 2,
+        "name": "Camera",
+        "description": "Scene camera settings",
+        "default": {
+            "fov": 60,
+            "near": 0.1,
+            "far": 1000,
+            "orthographic": false,
+            "size": 5
+        }
+    },
+
+    "meshRenderer": {
+        "nameCode": 3,
+        "name": "MeshRenderer",
+        "description": "Mesh and material renderer",
+        "default": {
+            "mesh": null,
+            "material": null,
+            "visible": true,
+            "castShadow": true,
+            "receiveShadow": true
+        }
+    },
+
+    "light": {
+        "nameCode": 4,
+        "name": "Light",
+        "description": "Light source settings",
+        "default": {
+            "type": "directional",
+            "color": { "r": 1, "g": 1, "b": 1 },
+            "intensity": 1,
+            "range": 10,
+            "spotAngle": 30
+        }
+    },
+
+    "rigidbody": {
+        "nameCode": 5,
+        "name": "Rigidbody",
+        "description": "Physics body properties",
+        "default": {
+            "mass": 1,
+            "useGravity": true,
+            "isKinematic": false,
+            "drag": 0,
+            "angularDrag": 0.05
+        }
+    },
+
+    "collider": {
+        "nameCode": 6,
+        "name": "Collider",
+        "description": "Collision shape settings",
+        "default": {
+            "shape": "box",
+            "size": { "x": 1, "y": 1, "z": 1 },
+            "radius": 0.5,
+            "height": 2,
+            "isTrigger": false
+        }
+    },
+
+    "script": {
+        "nameCode": 7,
+        "name": "Script",
+        "description": "Attach custom behavior",
+        "default": {
+            "path": null,
+            "enabled": true,
+            "variables": {}
+        }
+    },
+
+    "animation": {
+        "nameCode": 8,
+        "name": "Animation",
+        "description": "Animation control",
+        "default": {
+            "clips": [],
+            "current": null,
+            "speed": 1,
+            "loop": true,
+            "playing": false
+        }
+    },
+
+    "audio": {
+        "nameCode": 9,
+        "name": "Audio",
+        "description": "Play sound clips",
+        "default": {
+            "clip": null,
+            "volume": 1,
+            "loop": false,
+            "playOnStart": false
+        }
+    },
+
+    "uiElement": {
+        "nameCode": 10,
+        "name": "UI Element",
+        "description": "UI size, color, pivot",
+        "default": {
+            "size": { "x": 100, "y": 50 },
+            "anchor": "top-left",
+            "pivot": { "x": 0.5, "y": 0.5 },
+            "color": { "r": 1, "g": 1, "b": 1, "a": 1 }
+        }
+    }
+}

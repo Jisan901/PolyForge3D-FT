@@ -1,0 +1,44 @@
+@import "tailwindcss";
+@custom-variant hover (&:hover);
+@theme {
+    /* Colors */
+    --color-editor-bg: #18181b;
+    --color-editor-panel: #27272a;
+    --color-editor-border: #3f3f46;
+    --color-editor-text: #d4d4d8;
+    --color-editor-textDim: #a1a1aa;
+    --color-editor-accent: #2563eb;
+    --color-editor-accentHover: #3b82f6;
+    --color-editor-input: #18181b;
+    
+    /* Fonts */
+    --font-sans: Inter, system-ui, sans-serif;
+    --font-mono: "Fira Code", monospace;
+    
+    /* Extra font size */
+    --font-size-xxs: 0.65rem;
+}
+
+/* Custom Scrollbar for that dense editor feel */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #18181b;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #3f3f46;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #52525b;
+}
+
+body {
+    overflow: hidden;
+    /* Prevent full page scroll */
+}

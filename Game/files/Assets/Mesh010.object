@@ -1,0 +1,75 @@
+{
+  "metadata": {
+    "version": 4.7,
+    "type": "Object",
+    "generator": "Object3D.toJSON"
+  },
+  "geometries": [
+    {
+      "uuid": "96c8584a-f58b-4b8c-81f1-362640e39699",
+      "type": "CylinderGeometry",
+      "radiusTop": 0.5,
+      "radiusBottom": 0.5,
+      "height": 1,
+      "radialSegments": 32,
+      "heightSegments": 1,
+      "openEnded": false,
+      "thetaStart": 0,
+      "thetaLength": 6.283185307179586
+    }
+  ],
+  "materials": [
+    {
+      "uuid": "93c9014c-f1dc-41ac-853e-6f8289cb82eb",
+      "type": "MeshStandardMaterial",
+      "color": 11184810,
+      "roughness": 1,
+      "metalness": 0,
+      "emissive": 0,
+      "envMapRotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "envMapIntensity": 1,
+      "blendColor": 0
+    }
+  ],
+  "object": {
+    "uuid": "101d36e1-714c-4032-b7c7-e708472b5f99",
+    "type": "Mesh",
+    "name": "Mesh010",
+    "castShadow": true,
+    "receiveShadow": true,
+    "userData": {
+      "expanded": true
+    },
+    "layers": 1,
+    "matrix": [
+      2.220446049250313e-16,
+      -1,
+      0,
+      0,
+      1,
+      2.220446049250313e-16,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      1.8370423137043193,
+      0,
+      1
+    ],
+    "up": [
+      0,
+      1,
+      0
+    ],
+    "geometry": "96c8584a-f58b-4b8c-81f1-362640e39699",
+    "material": "93c9014c-f1dc-41ac-853e-6f8289cb82eb"
+  }
+}
