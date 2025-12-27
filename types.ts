@@ -5,12 +5,13 @@ export enum ObjectType {
   CYLINDER = 'CYLINDER',
   PLANE = 'PLANE',
   CAPSULE = 'CAPSULE',
-  LIGHT = 'Light',
-  CAMERA = 'CAMERA',
+  LIGHT = 'PointLight',
+  CAMERA = 'PerspectiveCamera',
   FOLDER = 'Group',
   MATERIAL = 'MATERIAL',
   SCRIPT = 'SCRIPT',
-  LOD = 'DLOD'
+  LOD = 'DLOD',
+  OBJECT3D = 'Object3D'
 }
 
 export interface Transform {

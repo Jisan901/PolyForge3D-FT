@@ -6,11 +6,17 @@ import Viewport from './components/Viewport';
 import AssetBrowserImport from './components/AssetBrowser';
 import ConsolePanelImport, { LogEntry } from './components/ConsolePanel';
 import ContextMenu, { MenuItem } from './components/ContextMenu';
+import TimelineEditorImport from './components/TimelineEditor';
+import SettingsModalImport  from './components/SettingsModal';
+
 
 import { SceneObject, ViewMode, AssetFile, ObjectType } from './types';
 import { PolyForge, toast } from "./PolyForge"
+import { useEditorStates, useEditorActions } from './contexts/EditorContext';
+
+
 const editor = PolyForge.editor;
-import { useEditor } from './contexts/EditorContext';
+const three = editor.api.three;
 
 
 // memo 
@@ -18,25 +24,28 @@ const Hierarchy = React.memo(HierarchyImport)
 const Inspector = React.memo(InspectorImport)
 const AssetBrowser = React.memo(AssetBrowserImport)
 const ConsolePanel = React.memo(ConsolePanelImport)
+const TimelineEditor = React.memo(TimelineEditorImport)
+const SettingsModal = React.memo(SettingsModalImport)
 
 function App() {
     const {
         scene,
         selectedId,
         selectedObject,
-        addObject,
-        selectObject,
-        deleteObject,
         toastData
-    } = useEditor();
+    } = useEditorStates();
+    
+    const { addObject,
+        selectObject,
+        deleteObject} = useEditorActions();
     // Application State
     
     
     
     const [viewMode, setViewMode] = useState<ViewMode>('SCENE');
-    const [isPlaying, setIsPlaying] = useState(false);
+    const [isPlaying, setIsPlaying] = useState(null);
     const [activeBottomTab, setActiveBottomTab] = useState<'Project' | 'Console' | 'Animation'>('Project');
-
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
     // Menu State
     const [activeMenu, setActiveMenu] = useState<{ id: string; x: number; y: number } | null>(null);
@@ -53,33 +62,27 @@ function App() {
 
 
 
-
+    useEffect(()=>{
+        const actve = PolyForge.api.getActiveCamera()
+        if (!actve) return
+        if (viewMode==='GAME'){
+            three.renderer.togglePreviewCamera(actve)
+            three.toggleHelpers(false)
+            
+        }
+        else {
+            if (!three.renderer.isPreviewMode) return
+            three.renderer.togglePreviewCamera(null)
+            three.toggleHelpers(true)
+        }
+    },[viewMode])
 
 
 
     // Actions
-    const handleAddComponent = (componentName: string) => {
-        if (!selectedId) return;
+    
 
-        console.log(`Adding component: ${componentName} to object ${selectedId}`);
-
-        const getComponentData = (name: string) => {
-            switch (name) {
-                case 'RigidBody': return { mass: 1, drag: 0, useGravity: true, isKinematic: false };
-                case 'BoxCollider': return { isTrigger: false, center: { x: 0, y: 0, z: 0 }, size: { x: 1, y: 1, z: 1 } };
-                case 'SphereCollider': return { isTrigger: false, center: { x: 0, y: 0, z: 0 }, radius: 0.5 };
-                case 'Light': return { color: '#ffffff', intensity: 1, range: 10, type: 'Point' };
-                case 'Camera': return { fov: 60, near: 0.1, far: 1000 };
-                case 'Script': return { name: 'NewScript.cs', enabled: true };
-                default: return { enabled: true };
-            }
-        };
-    };
-
-    const handleAddObject = (type: ObjectType, parentId?: string) => {
-        
-        console.log(`Created new ${type}`);
-    };
+    
 
     const handleDeleteObject = (id: string) => {
         
@@ -132,7 +135,6 @@ function App() {
         { separator: true, label: '', action: () => { } },
         { label: 'Exit', action: () => console.log('Exit') },
     ];
-
     const getEditMenuItems = (): MenuItem[] => [
         { label: 'Undo', shortcut: 'Ctrl+Z', action: () => editor.undo() },
         { label: 'Redo', shortcut: 'Ctrl+Y', action: () => editor.redo() },
@@ -146,8 +148,9 @@ function App() {
         { separator: true, label: '', action: () => { } },
         { label: 'Play', shortcut: 'Ctrl+P', action: () => setIsPlaying(true) },
         { label: 'Pause', shortcut: 'Ctrl+Shift+P', action: () => setIsPlaying(false) },
+        { separator: true, label: '', action: () => {} },
+        { label: 'Settings', shortcut: 'Ctrl+,', action: () => setIsSettingsOpen(true) },
     ];
-
     const getGameObjectMenuItems = (): MenuItem[] => {
         let id = null
         return [
@@ -306,17 +309,25 @@ function App() {
                 <div className="flex items-center bg-black/20 rounded p-1 gap-1 border border-editor-border/50">
                     <button
                         className={`p-1.5 rounded ${isPlaying ? 'bg-editor-accent text-white' : 'hover:bg-white/10 text-editor-textDim'}`}
-                        onClick={() => {
-                            setIsPlaying(!isPlaying);
-                            console.log(isPlaying ? "Game Stopped" : "Game Started");
+                        onClick={async () => {
+                            isPlaying===null?await PolyForge.enterPlayMode():PolyForge.resumePlayMode()
+                            isPlaying===null&&setViewMode('GAME')
+                            setIsPlaying(true);
                         }}
                     >
                         <Play size={16} fill={isPlaying ? "currentColor" : "none"} />
                     </button>
-                    <button className="p-1.5 rounded hover:bg-white/10 text-editor-textDim" onClick={() => console.log('Paused')}>
+                    <button className="p-1.5 rounded hover:bg-white/10 text-editor-textDim" onClick={() => {
+                    PolyForge.pausePlayMode()
+                        isPlaying&&setIsPlaying(false);
+                    }}>
                         <Pause size={16} fill="currentColor" />
                     </button>
-                    <button className="p-1.5 rounded hover:bg-white/10 text-editor-textDim" onClick={() => setIsPlaying(false)}>
+                    <button className="p-1.5 rounded hover:bg-white/10 text-editor-textDim" onClick={async () => {
+                        await PolyForge.exitPlayMode()
+                        setIsPlaying(null)
+                        setViewMode('SCENE')
+                    }}>
                         <Square size={14} fill="currentColor" />
                     </button>
                 </div>
@@ -408,7 +419,7 @@ function App() {
                             ) : activeBottomTab === 'Console' ? (
                                 <ConsolePanel />
                             ) : (
-                                <div className="flex items-center justify-center h-full text-editor-textDim text-xs">Animation Timeline (Placeholder)</div>
+                                <TimelineEditor selectedObject={selectedObject} />
                             )}
                         </div>
                     </div>
@@ -422,7 +433,7 @@ function App() {
 
                 {/* Right: Inspector */}
                 <div style={{ width: rightWidth }} className="flex-shrink-0 flex flex-col">
-                    <Inspector onAddComponent={handleAddComponent} />
+                    <Inspector />
                 </div>
             </div>
 
@@ -437,6 +448,10 @@ function App() {
                     <span>v1.0.0</span>
                 </div>
             </div>
+        {/* Settings Modal */}
+      {isSettingsOpen && (
+        <SettingsModal onClose={() => setIsSettingsOpen(false)} />
+      )}
         </div>
     );
 }

@@ -1,13 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
     MousePointer2, Move, Rotate3d, Maximize, Grid3X3, Sun, Video, PlayCircle,
-    Eye, Target, ArrowDownToLine, LightbulbOff, Lock, Copy
+    Eye, Target, ArrowDownToLine, LightbulbOff, Lock, Copy, Move3d
 } from 'lucide-react';
 import { ViewMode, SceneObject, ObjectType } from '../types';
 import { PolyForge, BusHub, mutationCall, toast } from "../PolyForge"
-import {DragAndDropZone} from "./Utils/DragNDrop";
+import { DragAndDropZone } from "./Utils/DragNDrop";
 import * as THREE from 'three'
-const handleCameraMode = ()=> PolyForge.api.three.toggleCameraViewMode.bind(PolyForge.api.three)
+const handleHelperMode = () => PolyForge.api.three.toggleHelpers()
 const editor = PolyForge.editor;
 const three = editor.api.three;
 
@@ -55,17 +55,18 @@ const ToolButton: React.FC<{
 
 const Viewport: React.FC<ViewportProps> = ({ mode, setMode, selectedObject }) => {
     const [toolbarActive, setToolbarActive] = useState('select');
+    const [space, setSpace] = useState('world');
     const canvasParentRef = useRef();
-    
+
     useEffect(() => {
         let el = canvasParentRef.current
-        
+
         if (!el) return
-        
-        
-            if (!el.hasChildNodes()) el?.appendChild?.(PolyForge.editor.renderer.three.renderer.domElement)
-    
-        
+
+
+        if (!el.hasChildNodes()) el?.appendChild?.(PolyForge.editor.renderer.three.renderer.domElement)
+
+
         const resizer = () => {
             const width = el.offsetWidth;
             const height = el.offsetHeight;
@@ -77,13 +78,16 @@ const Viewport: React.FC<ViewportProps> = ({ mode, setMode, selectedObject }) =>
         const height = el.offsetHeight;
 
         PolyForge.editor.renderer.setSize(width, height)
-        
-        return () => { window.removeEventListener("canvasresize", resizer);  }
+
+        return () => { window.removeEventListener("canvasresize", resizer); }
 
     }, [canvasParentRef])
-    useEffect(()=>{
+    useEffect(() => {
         PolyForge.api.three.setTool(toolbarActive)
-    },[toolbarActive])
+    }, [toolbarActive])
+    useEffect(() => {
+        PolyForge.api.three.setSpace(space)
+    }, [space])
 
     const getDynamicTools = (): DynamicTool[] => {
         if (!selectedObject) return [];
@@ -91,14 +95,16 @@ const Viewport: React.FC<ViewportProps> = ({ mode, setMode, selectedObject }) =>
         const tools: DynamicTool[] = [];
 
         // Common tools for all transformable objects
-        if (selectedObject.transform) {
-            tools.push({ id: 'focus', icon: Target, tooltip: 'Focus Object (F)', action: () => console.log('Focus') });
+        if (selectedObject.isObject3D) {
+            tools.push({ id: 'focus', icon: Target, tooltip: 'Focus Object (F)', action: () => PolyForge.api.three.focusObject(selectedObject) });
         }
 
         switch (selectedObject.type) {
             case ObjectType.CAMERA:
                 tools.push(
-                    { id: 'preview', icon: Eye, tooltip: 'Preview Camera' },
+                    { id: 'preview', icon: Eye, tooltip: 'Preview Camera' , action:()=>{
+                        three.renderer.togglePreviewCamera(three.renderer.isPreviewMode ? null:selectedObject)
+                    }},
                     { id: 'align_view', icon: Video, tooltip: 'Align View to Camera' }
                 );
                 break;
@@ -108,11 +114,7 @@ const Viewport: React.FC<ViewportProps> = ({ mode, setMode, selectedObject }) =>
                     { id: 'shadows', icon: Sun, tooltip: 'Toggle Shadows' }
                 );
                 break;
-            case ObjectType.CUBE:
-            case ObjectType.SPHERE:
-            case ObjectType.CYLINDER:
-            case ObjectType.CAPSULE:
-            case ObjectType.PLANE:
+            case ObjectType.OBJECT3D:
                 tools.push(
                     { id: 'snap_ground', icon: ArrowDownToLine, tooltip: 'Snap to Ground' },
                     { id: 'lock_mesh', icon: Lock, tooltip: 'Lock Mesh' }
@@ -139,7 +141,7 @@ const Viewport: React.FC<ViewportProps> = ({ mode, setMode, selectedObject }) =>
                 <ToolButton id="rotate" icon={Rotate3d} tooltip="Rotate Tool (E)" active={toolbarActive === 'rotate'} setActive={setToolbarActive} />
                 <ToolButton id="scale" icon={Maximize} tooltip="Scale Tool (R)" active={toolbarActive === 'scale'} setActive={setToolbarActive} />
                 <div className="w-[1px] h-4 bg-editor-border mx-1" />
-                <ToolButton id="grid" icon={Grid3X3} tooltip="Toggle Grid" onClick={e=>{PolyForge.api.three.toggleGrid()}}   />
+                <ToolButton id="grid" icon={Grid3X3} active={space==='world'} tooltip="Toggle World/Local" onClick={e => { setSpace(s=>s==='world'?'local':'world') }} />
 
                 {/* Dynamic Section */}
                 {dynamicTools.length > 0 && (
@@ -165,57 +167,59 @@ const Viewport: React.FC<ViewportProps> = ({ mode, setMode, selectedObject }) =>
                         <Sun size={12} className="text-yellow-400" />
                         <span className="text-[10px] text-white">Lit</span>
                     </div>
-                    <div className="flex items-center gap-2 px-2 cursor-pointer hover:bg-white/5 rounded-sm" onClick={handleCameraMode}>
-                        <Video size={12} className="text-blue-400" />
-                        <span className="text-[10px] text-white">Perspective</span>
+                    <div className="flex items-center gap-2 px-2 cursor-pointer hover:bg-white/5 rounded-sm" onClick={handleHelperMode}>
+                        <Move3d size={12} className="text-blue-400" />
+                        <span className="text-[10px] text-white">Helpers</span>
                     </div>
                 </div>
             </div>
 
             {/* The "3D" Scene */}
-<DragAndDropZone
-  highlight = {false}
-  onDrop={async (e, mouseEvent) => {
-    if (e.type !== 'Asset') return;
+            <DragAndDropZone
+                highlight={false}
+                onDrop={async (e, mouseEvent) => {
+                
+                    if (e.type !== 'Asset') return ;
+                    if (e.data.type !== 'model') return ;
+                    
+                    
+                    const hit = three.getHitFromMouse(mouseEvent);
+                    
 
-    const hit = three.getHitFromMouse(mouseEvent);
-    if (!hit) return;
+                    const object = await editor.api.loadObjectFile(e.data.fullPath);
 
-    const object = await editor.api.loadObjectFile(e.data.fullPath);
+                
 
-    /* ---------------- Position ---------------- */
-    object.position.copy(hit.point);
+                    /* ---------------- Rotation position ---------------- */
+                    // Default up direction of the asset
+                    const up = new THREE.Vector3(0, 1, 0);
+                    if (hit) {
+                        // Surface normal (ensure world space)
+                        const normal = hit.normal.clone().normalize();
+    
+                        // Quaternion that rotates up -> normal
+                        const quat = new THREE.Quaternion().setFromUnitVectors(object.up, normal);
+                        object.position.copy(hit.point);
+                        object.quaternion.copy(quat);
+                    }
+                    /* ---------------- Add to scene ---------------- */
+                    const scene = editor.api.sceneManager.activeScene;
+                    editor.addObject(scene, object);
 
-    /* ---------------- Rotation ---------------- */
-    // Default up direction of the asset
-    const up = new THREE.Vector3(0, 1, 0);
-
-    // Surface normal (ensure world space)
-    const normal = hit.normal.clone().normalize();
-
-    // Quaternion that rotates up -> normal
-    const quat = new THREE.Quaternion().setFromUnitVectors(object.up, normal);
-
-    object.quaternion.copy(quat);
-
-    /* ---------------- Add to scene ---------------- */
-    const scene = editor.api.sceneManager.activeScene;
-    editor.addObject(scene,object);
-
-    mutationCall(scene);
-    toast('Loaded and placed');
-  }}
-  className='h-full w-full relative flex-1 flex'
->
-            <div className="flex-1 relative overflow-hidden flex items-center justify-center bg-gradient-to-b from-[#1e1e20] to-[#111] z-0" ref={canvasParentRef}>
+                    mutationCall(scene);
+                    toast('Loaded and placed');
+                }}
+                className='h-full w-full relative flex-1 flex'
+            >
+                <div className="flex-1 relative overflow-hidden flex items-center justify-center bg-gradient-to-b from-[#1e1e20] to-[#111] z-0" ref={canvasParentRef}>
 
 
 
-            </div>
+                </div>
             </DragAndDropZone>
             {/* Game View Overlay Mock */}
             {mode === 'GAME' && (
-                <div className="absolute inset-0 bg-black z-50 flex items-center justify-center">
+                <div className="absolute inset-0 bg-transparent z-50 flex items-center justify-center" onClick={e=>canvasParentRef.current.requestFullscreen()}>
                     <div className="text-center">
                         <PlayCircle size={48} className="text-editor-accent mx-auto mb-2 opacity-50" />
                         <p className="text-editor-textDim text-sm">Game View Active</p>

@@ -26,7 +26,7 @@ export function getFileType(ext: string): FileType {
 
   const registry: Record<FileType, string[]> = {
     image:    ['png', 'jpg', 'jpeg', 'webp', 'hdr', 'exr'],
-    model:    ['glb', 'gltf', 'fbx', 'obj', 'dae', 'blend', 'object'],
+    model:    ['object'],
     script:   ['js', 'ts', 'lua', 'py'],
     material: ['mat', 'material'],
     geometry: ['geo'],

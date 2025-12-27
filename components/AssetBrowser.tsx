@@ -4,7 +4,7 @@ import { AssetFile } from '../types';
 import ContextMenu, { MenuItem } from './ContextMenu';
 import {DragAndDropZone} from "./Utils/DragNDrop";
 
-import { PolyForge } from "../PolyForge"
+import { PolyForge, toast } from "../PolyForge"
 const editor = PolyForge.editor;
 const browser = editor.assetBrowser;
 
@@ -13,8 +13,9 @@ const AssetBrowser: React.FC = () => {
     const [contextMenu, setContextMenu] = useState<{ x: number; y: number; targetId: string } | null>(null);
     const [assets, setAssets] = useState([]);
 
-    const onDelete = () => {
-        console.log('filedelete request 1')
+    const onDelete = async (id) => {
+        await browser.file.rm(assets.find(e => e.id === id).id)
+        browser.reload()
     }
 
     useEffect(() => {
@@ -45,7 +46,7 @@ const AssetBrowser: React.FC = () => {
     };
 
     const handleOpen = useCallback((id: string) => {
-        browser.openDirectory(assets.find(e => e.id === id).id)
+        browser.openDirectory(id)
     }, [assets])
 
     const getContextMenuItems = (id: string): MenuItem[] => [
@@ -89,9 +90,20 @@ const AssetBrowser: React.FC = () => {
             </div>
 
             {/* Asset Grid */}
-            <DragAndDropZone onDrop={(e)=>{
+            <DragAndDropZone onDrop={async (e)=>{
                     if (e.type==='Object'){
-                        editor.api.saveObjectFile(e.data, browser.activeDirName)
+                        const scene = PolyForge.api.sceneManager.activeScene;
+                        const draggedNode = scene.getObjectByProperty('uuid', e.data.uuid);
+                        
+                              if (!draggedNode) {
+                                toast('Invalid drag operation');
+                                return;
+                              }
+                        let temp = draggedNode.userData.helper
+                        draggedNode.userData.helper = null
+                        await editor.api.saveObjectFile(draggedNode, browser.activeDirName)
+                        draggedNode.userData.helper = temp
+                        await browser.reload()
                     }
                 }} className="flex-1 flex overflow-hidden">
             <div className="flex-1 flex overflow-hidden" >
@@ -111,7 +123,7 @@ const AssetBrowser: React.FC = () => {
                         onContextMenu={(e) => {
                             if (e.target === e.currentTarget) {
                                 e.preventDefault();
-                                setContextMenu({ x: e.clientX, y: e.clientY, targetId: 'fg' });
+                                setContextMenu({ x: e.clientX, y: e.clientY, targetId: 'bg' });
                             }
                         }}
                     >
@@ -120,6 +132,7 @@ const AssetBrowser: React.FC = () => {
                             <div
                                 className="group flex flex-col items-center p-2 rounded hover:bg-white/5 cursor-pointer border border-transparent hover:border-editor-accent/50 transition-all select-none"
                                 onContextMenu={(e) => handleContextMenu(e, asset.id)}
+                                onDoubleClick={e=>handleOpen(asset.id)}
                             >
                                 <div className="mb-2 transition-transform group-hover:scale-110 pointer-events-none">
                                     {getIcon(asset.type)}

@@ -1,4 +1,6 @@
 import React from 'react';
+import { Target, File } from 'lucide-react';
+import { DragAndDropZone } from "./Utils/DragNDrop";
 
 export const Vector3Input: React.FC<{
     label: string;
@@ -6,7 +8,7 @@ export const Vector3Input: React.FC<{
     onChange?: (v: { x: number; y: number; z: number }) => void;
 }> = ({ label, value, onChange }) => {
 
-    const [state, setState] = React.useState({x:value.x, y:value.y, z: value.z});
+    const [state, setState] = React.useState({ x: value.x, y: value.y, z: value.z });
 
 
     const update = (key: "x" | "y" | "z", newVal: number) => {
@@ -102,9 +104,9 @@ export const ColorInput: React.FC<{
 }> = ({ label, value, onChange }) => {
 
     const [state, setState] = React.useState({
-        r: value.r*255,
-        b: value.b*255,
-        g: value.g*255,
+        r: value.r * 255,
+        b: value.b * 255,
+        g: value.g * 255,
     });
 
 
@@ -201,3 +203,63 @@ export const TextInput: React.FC<{
         </div>
     );
 };
+
+
+export const AssetInput: React.FC<{ label: string; value: string; onChange?: (v: string) => void; }> = ({ label, value, onChange }) => {
+    const [state, setState] = React.useState(value);
+
+
+    const update = (v: string) => {
+        setState(v);
+        onChange?.(v);
+    };
+    return (
+        <div className="flex items-center mb-2">
+            <span className="w-24 text-[10px] text-editor-textDim capitalize">{label}</span>
+            <DragAndDropZone
+                highlight={false}
+                onDrop={(e) => {
+                    if (e.type === 'Asset') update({ ...state, value: e.data.id })
+                }} className="flex-1 flex items-center bg-editor-input border border-editor-border rounded overflow-hidden group">
+                <div className="px-2 py-1 flex-1 text-[10px] text-editor-text truncate">
+                    {state.value || 'None'}
+                </div>
+                <div
+                    className="px-1.5 py-1 bg-white/5 border-l border-editor-border hover:bg-editor-accent hover:text-green-200 transition-colors text-green-800"
+                >
+                    <Target size={12} />
+                </div>
+            </DragAndDropZone>
+        </div>
+    );
+}
+
+
+export const RefInput: React.FC<{ label: string; value: string; onChange?: (v: string) => void; }> = ({ label, value, onChange }) => {
+    const [state, setState] = React.useState(value);
+
+
+    const update = (v: string) => {
+        setState(v);
+        onChange?.(v);
+    };
+    return (
+        <div className="flex items-center mb-2">
+            <span className="w-24 text-[10px] text-editor-textDim capitalize">{label}</span>
+            <DragAndDropZone
+                highlight={false}
+                onDrop={(e) => {
+                    if (e.type === 'Object') update({ ...state, ref: e.data.uuid, name:e.data.name  })
+                }} className="flex-1 flex items-center bg-editor-input border border-editor-border rounded overflow-hidden group">
+                <div className="px-2 py-1 flex-1 text-[10px] text-editor-text truncate">
+                    {state.name || 'None'}
+                </div>
+                <div
+                    className="px-1.5 py-1 bg-white/5 border-l border-editor-border hover:bg-editor-accent hover:text-blue-200 transition-colors text-blue-800"
+                >
+                    <Target size={12} />
+                </div>
+            </DragAndDropZone>
+        </div>
+    );
+}

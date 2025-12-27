@@ -1,0 +1,61 @@
+{
+  "metadata": {
+    "version": 4.7,
+    "type": "Object",
+    "generator": "Object3D.toJSON"
+  },
+  "object": {
+    "uuid": "783975ca-d7c6-4b3e-9218-3cbd1b2b9a0e",
+    "type": "Group",
+    "name": "Terrain",
+    "userData": {
+      "helper": null,
+      "special": true,
+      "components": {
+        "7": {
+          "id": 0,
+          "nameCode": 7,
+          "key": "script",
+          "data": {
+            "path": {
+              "isFile": true,
+              "value": "/Game/files/Terrain.ts"
+            },
+            "enabled": true,
+            "variables": {
+              "speed": 50,
+              "target": {
+                "isRef": true,
+                "ref": null
+              }
+            }
+          }
+        }
+      }
+    },
+    "layers": 1,
+    "matrix": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    "up": [
+      0,
+      1,
+      0
+    ]
+  }
+}

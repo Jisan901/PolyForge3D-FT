@@ -4,12 +4,26 @@
         "name": "Transform",
         "description": "Position, rotation, scale",
         "default": {
-            "position": { "x": 0, "y": 0, "z": 0 },
-            "rotation": { "x": 0, "y": 0, "z": 0 },
-            "scale":    { "x": 1, "y": 1, "z": 1 }
+            "position": {
+                "x": 0,
+                "y": 0,
+                "z": 0,
+                "isVector3": true
+            },
+            "rotation": {
+                "x": 0,
+                "y": 0,
+                "z": 0,
+                "isEuler": true
+            },
+            "scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1,
+                "isVector3": true
+            }
         }
     },
-
     "camera": {
         "nameCode": 2,
         "name": "Camera",
@@ -22,7 +36,6 @@
             "size": 5
         }
     },
-
     "meshRenderer": {
         "nameCode": 3,
         "name": "MeshRenderer",
@@ -35,20 +48,23 @@
             "receiveShadow": true
         }
     },
-
     "light": {
         "nameCode": 4,
         "name": "Light",
         "description": "Light source settings",
         "default": {
             "type": "directional",
-            "color": { "r": 1, "g": 1, "b": 1 },
+            "color": {
+                "r": 1,
+                "g": 1,
+                "b": 1,
+                "isColor": true
+            },
             "intensity": 1,
             "range": 10,
             "spotAngle": 30
         }
     },
-
     "rigidbody": {
         "nameCode": 5,
         "name": "Rigidbody",
@@ -61,31 +77,36 @@
             "angularDrag": 0.05
         }
     },
-
     "collider": {
         "nameCode": 6,
         "name": "Collider",
         "description": "Collision shape settings",
         "default": {
             "shape": "box",
-            "size": { "x": 1, "y": 1, "z": 1 },
+            "size": {
+                "x": 1,
+                "y": 1,
+                "z": 1,
+                "isVector3": true
+            },
             "radius": 0.5,
             "height": 2,
             "isTrigger": false
         }
     },
-
     "script": {
         "nameCode": 7,
         "name": "Script",
         "description": "Attach custom behavior",
         "default": {
-            "path": null,
+            "path": {
+                "isFile": true,
+                "value": null
+            },
             "enabled": true,
             "variables": {}
         }
     },
-
     "animation": {
         "nameCode": 8,
         "name": "Animation",
@@ -98,7 +119,6 @@
             "playing": false
         }
     },
-
     "audio": {
         "nameCode": 9,
         "name": "Audio",
@@ -110,16 +130,26 @@
             "playOnStart": false
         }
     },
-
     "uiElement": {
         "nameCode": 10,
         "name": "UI Element",
         "description": "UI size, color, pivot",
         "default": {
-            "size": { "x": 100, "y": 50 },
+            "size": {
+                "x": 100,
+                "y": 50
+            },
             "anchor": "top-left",
-            "pivot": { "x": 0.5, "y": 0.5 },
-            "color": { "r": 1, "g": 1, "b": 1, "a": 1 }
+            "pivot": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "color": {
+                "r": 1,
+                "g": 1,
+                "b": 1,
+                "a": 1
+            }
         }
     }
 }

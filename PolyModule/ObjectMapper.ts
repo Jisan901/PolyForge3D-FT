@@ -193,15 +193,22 @@ class ObjectMapper {
             }
           //  return result;
         }
-
-
-        return result;
+        let components;
+        if (object.userData.special) {
+             components = object.userData.components
+        }
+        
+        
+        
+        return [result, components];
     }
 }
 
 export class MappedObject {
     constructor(private target: any, private map?: object) {
-        this.map = ObjectMapper.mapObject(this.target);
+        const [result,components ] = ObjectMapper.mapObject(this.target);
+        this.map = result;
+        this.components = components;
     }
 }
 

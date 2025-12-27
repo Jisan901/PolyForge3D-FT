@@ -7885,7 +7885,7 @@
   "materials": [
     {
       "uuid": "abadb84d-edcb-4831-be18-8e237f40c952",
-      "type": "MeshBasicMaterial",
+      "type": "MeshStandardMaterial",
       "name": "coconut_tree_mat",
       "color": 16777215,
       "map": "ac6ec868-e151-4644-81a9-83eda0d75ac6",

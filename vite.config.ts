@@ -14,7 +14,13 @@ export default defineConfig(({ mode }) => {
       },
       server: {
     watch: {
-      ignored: ['**/Game/**']
+      ignored: [
+        '**/Game/**/*',           // Ignore everything in Game
+        // '!**/Game/**/*.ts',       // Except .ts files
+        // '!**/Game/**/*.tsx',      // Except .tsx files
+        // '!**/Game/**/*.js',       // Except .js files
+        // '!**/Game/**/*.jsx'
+        ]
     }
   }
     };

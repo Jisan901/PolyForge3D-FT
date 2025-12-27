@@ -1,131 +1,207 @@
 import React, { useState } from 'react';
-import { Box, Layers, Globe, BoxSelect, Activity, Lightbulb, Cpu, Circle, Camera, Volume2, FileCode } from 'lucide-react';
-import { SceneObject } from '../types';
+import { Box, Layers, Globe, BoxSelect, Activity, Lightbulb, Cpu, FileCode } from 'lucide-react';
 import { PropertySection } from './PropertySection';
-import { Vector3Input, Checkbox, ColorInput, NumberInput, TextInput } from './PropertyInputs';
+import { Vector3Input, Checkbox, ColorInput, NumberInput, TextInput, AssetInput, RefInput } from './PropertyInputs';
 import ContextMenu, { MenuItem } from './ContextMenu';
-import { ObjectSelector, SelectorItem } from './ObjectSelector';
-import { useEditor } from '../contexts/EditorContext';
+import { SelectorItem } from './ObjectSelector';
+import { useObjectSelector } from './Utils/useSelector';
+import { useEditorActions, useEditorStates } from '../contexts/EditorContext';
 import * as THREE from "three";
-import {PolyForge} from "../PolyForge"
-import {useObserver} from "../PolyModule/Hooks"
-
+import { PolyForge , mutationCall} from "../PolyForge";
+import { useObserver } from "../PolyModule/Hooks";
 
 const editor = PolyForge.editor;
 
-interface InspectorProps {
-    onAddComponent?: (componentName: string) => void;
+/* ============================================================================
+   HELPER FUNCTIONS
+============================================================================ */
+
+function getIconForComponentName(name: string) {
+    switch (name) {
+        case 'Script': return FileCode;
+        case 'Transform': return Globe;
+        case 'MeshRenderer': return Box;
+        case 'Rigidbody': return Activity;
+        case 'Collider': return BoxSelect;
+        default: return undefined;
+    }
 }
 
-const AVAILABLE_COMPONENTS: SelectorItem[] = [
-    // Physics
-    { id: 'RigidBody', name: 'RigidBody', category: 'Physics', icon: Activity, description: 'Adds physics simulation to the object' },
-    { id: 'BoxCollider', name: 'Box Collider', category: 'Physics', icon: BoxSelect, description: 'Box-shaped primitive collider' },
-    { id: 'SphereCollider', name: 'Sphere Collider', category: 'Physics', icon: Circle, description: 'Sphere-shaped primitive collider' },
-    { id: 'MeshCollider', name: 'Mesh Collider', category: 'Physics', icon: Box, description: 'Collider based on mesh geometry' },
-
-    // Rendering
-    { id: 'Light', name: 'Light', category: 'Rendering', icon: Lightbulb, description: 'Illuminates the scene' },
-    { id: 'Camera', name: 'Camera', category: 'Rendering', icon: Camera, description: 'Renders the scene to a viewport' },
-    { id: 'MeshRenderer', name: 'Mesh Renderer', category: 'Rendering', icon: Box, description: 'Renders the geometry' },
-
-    // Audio
-    { id: 'AudioSource', name: 'Audio Source', category: 'Audio', icon: Volume2, description: 'Plays audio clips in the scene' },
-    { id: 'AudioListener', name: 'Audio Listener', category: 'Audio', icon: Volume2, description: 'Receives audio input' },
-
-    // Scripts
-    { id: 'Script', name: 'New Script', category: 'Scripts', icon: FileCode, description: 'Create a new behavior script' },
-    { id: 'PlayerController', name: 'Player Controller', category: 'Scripts', icon: FileCode, description: 'Custom script' },
-    { id: 'GameManager', name: 'Game Manager', category: 'Scripts', icon: FileCode, description: 'Custom script' },
-];
+function getIconForComponent(name: string) {
+    if (name.includes('collider')) return BoxSelect;
+    if (name.includes('rigidBody')) return Activity;
+    if (name.includes('light')) return Lightbulb;
+    if (name.includes('script')) return Cpu;
+    return Layers;
+}
 
 
-const RenderPropertyInput:React.FC<{path: string, val: any}> = ({path:key, val:v2}) => {
-    const { setSelectedObjectProperties: sSOP, selectedObject:object, mappedObject } = useEditor()
+
+// Create available components list
+const AVAILABLE_COMPONENTS: SelectorItem[] = PolyForge.api.component.getAllTemplate().map(e => ({
+    id: e.nameCode,
+    name: e.name,
+    category: 'components',
+    description: e.description || '',
+    icon: getIconForComponentName(e.name)
+}));
+
+/* ============================================================================
+   PROPERTY INPUT RENDERER
+============================================================================ */
+
+interface RenderPropertyInputProps {
+    path: string;
+    val: any;
+    recursive?: boolean;
+}
+
+const RenderPropertyInput: React.FC<RenderPropertyInputProps> = React.memo(({ path: key, val: v2, recursive }) => {
+    const { selectedObject: object } = useEditorStates();
     const val = useObserver(object, key);
-    
-    const handleOnChange = (key)=>{
-        return (valS)=>{
-            editor.setProperty(object, key, valS)
-        }
-    }
-        if (typeof val === 'boolean') return <Checkbox key={`${val}`}  label={key} checked={val} onChange={handleOnChange(key)}/>;
-        if (typeof val === 'number') return <NumberInput  label={key} value={val} onChange={handleOnChange(key)}/>;
-        if (typeof val === 'object' && val?.isColor) return <ColorInput  label={key} value={val as string} onChange={(vec)=>{
-                editor.setProperty(object, key+'.r', vec.r/255)
-                editor.setProperty(object, key+'.g', vec.g/255)
-                editor.setProperty(object, key+'.b', vec.b/255)
-            }} />;
-        if ((typeof val === 'object' && val?.isVector3)) {
-            return <Vector3Input key={`${key}-${val.x}-${val.y}-${val.z}`}   label={key} value={val}
-            onChange={(vec)=>{
-                
-                editor.setProperty(object, key+'.x', vec.x)
-                editor.setProperty(object, key+'.y', vec.y)
-                editor.setProperty(object, key+'.z', vec.z)
-                
-            }}
-            />;
-        }
-        if ((typeof val === 'object' && val?.isEuler)) {
-            return <Vector3Input key={`${key}-${val.x}-${val.y}-${val.z}`}   label={key} value={{
-                x:THREE.MathUtils.radToDeg(val.x),
-                y:THREE.MathUtils.radToDeg(val.y),
-                z:THREE.MathUtils.radToDeg(val.z),
-            }}
-            
-            onChange={(vec)=>{
-                
-                editor.setProperty(object, key+'.x', THREE.MathUtils.degToRad(vec.x))
-                editor.setProperty(object, key+'.y',THREE.MathUtils.degToRad (vec.y))
-                editor.setProperty(object, key+'.z',THREE.MathUtils.degToRad (vec.z))
-                
-            }}
-            />;
-        }
-         return <TextInput key={val}  label={key} value={String(val)} onChange={handleOnChange(key)}/>;
-        //return <TextInput key={key} label={key} value={String(val)} />;
+    const label = key.slice(key.lastIndexOf('.') + 1);
+
+
+
+    const handleOnChange = (key: string) => {
+        return (valS: any) => {
+            editor.setProperty(object, key, valS);
+        };
     };
 
-const Inspector: React.FC<InspectorProps> = ({ onAddComponent }) => {
-    const [contextMenu, setContextMenu] = useState<{ x: number; y: number; component: string } | null>(null);
-    const [showAddComponent, setShowAddComponent] = useState(false);
-    const { setSelectedObjectProperties: sSOP, selectedObject:object, mappedObject } = useEditor()
+    // Boolean
+    if (typeof val === 'boolean') {
+        return <Checkbox key={`${val}`} label={label} checked={val} onChange={handleOnChange(key)} />;
+    }
+
+    // Number
+    if (typeof val === 'number') {
+        return <NumberInput label={label} value={val} onChange={handleOnChange(key)} />;
+    }
+
+    // Color
+    if (typeof val === 'object' && val?.isColor) {
+        return <ColorInput
+            label={label}
+            value={val as string}
+            onChange={(vec) => {
+                editor.setProperty(object, key + '.r', vec.r / 255);
+                editor.setProperty(object, key + '.g', vec.g / 255);
+                editor.setProperty(object, key + '.b', vec.b / 255);
+            }}
+        />;
+    }
+
+    // Vector3
+    if (typeof val === 'object' && val?.isVector3) {
+        return <Vector3Input
+            key={`${key}-${val.x}-${val.y}-${val.z}`}
+            label={label}
+            value={val}
+            onChange={(vec) => {
+                editor.setProperty(object, key + '.x', vec.x);
+                editor.setProperty(object, key + '.y', vec.y);
+                editor.setProperty(object, key + '.z', vec.z);
+            }}
+        />;
+    }
+
+    // Euler
+    if (typeof val === 'object' && val?.isEuler) {
+        return <Vector3Input
+            key={`${key}-${val.x}-${val.y}-${val.z}`}
+            label={label}
+            value={{
+                x: THREE.MathUtils.radToDeg(val.x),
+                y: THREE.MathUtils.radToDeg(val.y),
+                z: THREE.MathUtils.radToDeg(val.z),
+            }}
+            onChange={(vec) => {
+                editor.setProperty(object, key + '.x', THREE.MathUtils.degToRad(vec.x));
+                editor.setProperty(object, key + '.y', THREE.MathUtils.degToRad(vec.y));
+                editor.setProperty(object, key + '.z', THREE.MathUtils.degToRad(vec.z));
+            }}
+        />;
+    }
     
+    
+    /// file
+    if (typeof val === 'object' && val?.isFile) {
+        return <AssetInput key={`${key}.${val.value}`} label={label} value={val} onChange={e=>{
+            handleOnChange(key)(e)
+            mutationCall(object,'userData.components.7')
+        }}/>
+    }
+    
+    //ref
+    if (typeof val === 'object' && val?.isRef) {
+        return <RefInput key={`${key}.${val.ref}`} label={label} value={val} onChange={e=>{
+            handleOnChange(key)(e)
+            
+        }}/>
+    }
+
+    // Nested object (recursive)
+    if (typeof val === 'object' && val !== null && !Array.isArray(val) && recursive) {
+        return (
+            <div key={key} className="pl-2 border-l border-editor-border/20 ml-1 mb-2">
+                <div className="text-[9px] uppercase text-editor-textDim mb-1 tracking-tighter opacity-50">
+                    {label}
+                </div>
+                {Object.entries(val).map(([subKey, subVal]) => (
+                    <RenderPropertyInput key={typeof subVal==='object' ?subKey+Object.keys(subVal).join(''):subKey} path={key + '.' + subKey} val={subVal} />
+                ))}
+            </div>
+        );
+    }
+
+    // Default: Text input
+    return <TextInput key={val} label={label} value={String(val)} onChange={handleOnChange(key)} />;
+});
+
+/* ============================================================================
+   INSPECTOR COMPONENT
+============================================================================ */
+
+const Inspector: React.FC = () => {
+    const [contextMenu, setContextMenu] = useState<{ x: number; y: number; component: string } | null>(null);
+    const { selectedObject: object, mappedObject } = useEditorStates();
+    const { onAddComponent, onRemoveComponent } = useEditorActions();
+
+    // Use the custom hook for component selection
+    const componentSelector = useObjectSelector({
+        title: "Add Component",
+        items: AVAILABLE_COMPONENTS,
+        onSelect: (item) => {
+            onAddComponent?.(item.id);
+        },
+    });
+
     const selectedName = useObserver(object, 'name');
+
+    function getContextMenuItems(component: string): MenuItem[] {
+        return [
+            { label: `Reset`, action: () => onAddComponent(parseInt(component), true) },
+            { separator: true, label: '', action: () => { } },
+            { label: 'Copy Component', action: () => console.log('Copy Component') },
+            { label: 'Paste Component Values', action: () => console.log('Paste Values'), disabled: true },
+            { separator: true, label: '', action: () => { } },
+            { label: 'Move Up', action: () => console.log('Move Up') },
+            { label: 'Move Down', action: () => console.log('Move Down') },
+            { separator: true, label: '', action: () => { } },
+            { label: 'Remove Component', danger: true, action: () => onRemoveComponent?.(component) },
+        ];
+    }
+
+
     const handleContextMenu = (e: React.MouseEvent, component: string) => {
         e.preventDefault();
         e.stopPropagation();
         setContextMenu({ x: e.clientX, y: e.clientY, component });
     };
 
-    const getContextMenuItems = (component: string): MenuItem[] => [
-        { label: `Reset ${component}`, action: () => console.log(`Resetting ${component}`) },
-        { separator: true, label: '', action: () => { } },
-        { label: 'Copy Component', action: () => console.log('Copy Component') },
-        { label: 'Paste Component Values', action: () => console.log('Paste Values'), disabled: true },
-        { separator: true, label: '', action: () => { } },
-        { label: 'Move Up', action: () => console.log('Move Up') },
-        { label: 'Move Down', action: () => console.log('Move Down') },
-        { separator: true, label: '', action: () => { } },
-        { label: 'Remove Component', danger: true, action: () => console.log('Remove Component') },
-    ];
-
-    const getIconForComponent = (name: string) => {
-        if (name.includes('Collider')) return BoxSelect;
-        if (name.includes('RigidBody')) return Activity;
-        if (name.includes('Light')) return Lightbulb;
-        if (name.includes('Script')) return Cpu;
-        return Layers;
-    };
-    const handleOnChange = (key)=>{
-        return (val)=>{
-            editor.setProperty(object, key, val)
-        }
-    }
-    
-
-    if (!mappedObject||!object) {
+    // Empty state
+    if (!mappedObject || !object) {
         return (
             <div className="h-full flex flex-col items-center justify-center bg-editor-panel border-l border-editor-border text-editor-textDim">
                 <Box size={32} className="mb-2 opacity-20" />
@@ -133,8 +209,6 @@ const Inspector: React.FC<InspectorProps> = ({ onAddComponent }) => {
             </div>
         );
     }
-
-
 
     return (
         <div className="h-full flex flex-col bg-editor-panel overflow-y-auto" key={object.uuid}>
@@ -151,39 +225,50 @@ const Inspector: React.FC<InspectorProps> = ({ onAddComponent }) => {
 
             <div className="p-1 pb-10">
                 {/* General Properties Section */}
-                {Object.keys(mappedObject?.map).length > 0 && (
+                {Object.keys(mappedObject?.map || {}).length > 0 && (
                     <PropertySection
                         title="Properties"
                         icon={Layers}
-                        onContextMenu={(e) => handleContextMenu(e, 'Properties')}
+                        onContextMenu={(e) => null}
                     >
-                        {Object.entries(mappedObject?.map).map(([key, val]) => <RenderPropertyInput key={key} path={key} val={val}/>)}
+                        {Object.entries(mappedObject.map).map(([key, val]) => (
+                            <RenderPropertyInput key={key} path={key} val={val} />
+                        ))}
                     </PropertySection>
                 )}
 
-                {/* Dynamic Component Sections }
-                {Object.entries(components).map(([compName, compData]) => (
+                {/* Dynamic Component Sections */}
+                {mappedObject?.components && Object.entries(mappedObject.components).map(([compName, compData]) => (
                     <PropertySection
-                        key={compName}
-                        title={compName}
-                        icon={getIconForComponent(compName)}
+                        key={compData.key}
+                        title={compData.key}
+                        icon={getIconForComponent(compData.key)}
                         onContextMenu={(e) => handleContextMenu(e, compName)}
                     >
-                        {Object.entries(compData).map(([propKey, propVal]) => renderPropertyInput(propKey, propVal))}
+                        {Object.entries(compData.data).map(([propKey, propVal]) => (
+                            <RenderPropertyInput
+                                key={typeof propVal==='object' ?propKey+Object.keys(propVal).join(''):propKey}
+                                
+                                path={`userData.components.${compName}.data.${propKey}`}
+                                val={propVal}
+                                recursive
+                            />
+                        ))}
                     </PropertySection>
                 ))}
-                */}
 
+                {/* Add Component Button */}
                 <div className="px-3 mt-4">
                     <button
                         className="w-full py-1.5 rounded border border-editor-border bg-white/5 text-[10px] hover:bg-white/10 text-editor-text transition-colors"
-                        onClick={() => setShowAddComponent(true)}
+                        onClick={componentSelector.open}
                     >
                         Add Component
                     </button>
                 </div>
             </div>
 
+            {/* Context Menu */}
             {contextMenu && (
                 <ContextMenu
                     x={contextMenu.x}
@@ -193,18 +278,8 @@ const Inspector: React.FC<InspectorProps> = ({ onAddComponent }) => {
                 />
             )}
 
-            {showAddComponent && (
-                <ObjectSelector
-                    title="Add Component"
-                    items={AVAILABLE_COMPONENTS}
-                    onClose={() => setShowAddComponent(false)}
-                    grid
-                    onSelect={(item) => {
-                        onAddComponent && onAddComponent(item.id);
-                        setShowAddComponent(false);
-                    }}
-                />
-            )}
+            {/* Component Selector */}
+            {componentSelector.Selector}
         </div>
     );
 };

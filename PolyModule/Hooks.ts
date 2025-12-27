@@ -48,13 +48,14 @@ export function useTargetObserver(target) {
 }
 
 export function useSceneObserver() {
-    const [, forceUpdate] = React.useState(0);
+    const [sv, forceUpdate] = React.useState(0);
 
     React.useEffect(() => {
         return PolyForge.editor.api.buses.sceneUpdate.subscribe(
             () => forceUpdate(v => v + 1)
         );
     }, []);
+    return sv
 }
 
 

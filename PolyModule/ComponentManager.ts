@@ -1,3 +1,6 @@
+import fs from "vite-plugin-fs/browser";
+
+
 interface ComponentRecord {
     id: number;
     nameCode: number;
@@ -30,6 +33,7 @@ export class ComponentManager {
 
         for (const key of Object.keys(json)) {
             const tpl = json[key];
+            tpl.key = key;
             this.templates.set(tpl.nameCode, tpl);
         }
     }
@@ -58,13 +62,14 @@ export class ComponentManager {
         const instance: ComponentRecord = {
             id,
             nameCode,
+            key:tpl.key,
             data: {
                 ...structuredClone(tpl.default),
                 ...overrides
             }
         };
 
-        this.components.set(id, instance);
+        //this.components.set(id, instance);
         return instance;
     }
 
@@ -73,10 +78,10 @@ export class ComponentManager {
     // -----------------------------
 
     async save() {
-        const json = {
-            components: Array.from(this.components.values())
-        };
-        await fs.writeFile(this.componentPath, JSON.stringify(json, null, 2));
+        // const json = {
+        //     components: Array.from(this.components.values())
+        // };
+        // await fs.writeFile(this.componentPath, JSON.stringify(json, null, 2));
     }
 
     // -----------------------------
@@ -89,5 +94,8 @@ export class ComponentManager {
 
     getAll() {
         return Array.from(this.components.values());
+    }
+    getAllTemplate() {
+        return Array.from(this.templates.values());
     }
 }
