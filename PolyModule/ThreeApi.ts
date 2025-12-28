@@ -13,7 +13,7 @@ import { ViewHelper } from 'three/addons/helpers/ViewHelper.js';
 
 
 import { TransformControls } from 'three/addons/controls/TransformControls.js';
-import fs from "vite-plugin-fs/browser";
+import fs from "@/lib/fs";
 import { BusHub, mutationCall } from '../PolyForge'
 /* ---------------------------
    Rendering / EditorRenderer
@@ -221,7 +221,7 @@ export class EditorRenderer {
     /**
      * Get the currently active camera (preview or editor)
      */
-    getActiveCamera(): THREE.Camera {
+    public getActiveCamera= (): THREE.Camera => {
         return this.isPreviewMode && this.previewCamera
             ? this.previewCamera
             : this.three.camera;

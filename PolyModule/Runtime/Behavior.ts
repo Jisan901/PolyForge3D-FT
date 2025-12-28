@@ -9,6 +9,7 @@ export interface BehaviorProps {
 export interface BehaviorContext {
     scene: import('three').Scene;
     object: import('three').Object3D;
+    getActiveCamera: ()=>unknown;
     // you can add input, time, physics, etc.
 }
 
@@ -16,6 +17,7 @@ export abstract class Behavior {
     public object!: import('three').Object3D;
     public scene!: import('three').Scene;
     public props: BehaviorProps = {};
+    
 
     constructor(public ctx: BehaviorContext) {
         this.object = ctx.object;
@@ -96,8 +98,19 @@ export class BehaviorRegistry {
         this.instances.set(instance_id, instance)
         
         instance.onBeforeStart?.();
-        instance.onStart?.();
+        
 
         return instance;
+    }
+    
+    async runOnStartCall(){
+        for (let [key, instance] of this.instances){
+            await instance.onStart?.();
+        }
+    }
+    async runOnDestroyCall(){
+        for (let [key, instance] of this.instances){
+            await instance.onDestroy?.();
+        }
     }
 }

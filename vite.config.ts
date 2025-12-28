@@ -2,11 +2,14 @@ import path from 'path';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite'
-import fs from 'vite-plugin-fs';
+import fsPlugin from 'fs-browser/plugin';
 
 export default defineConfig(({ mode }) => {
     return {
-      plugins: [fs(),tailwindcss(),react()],
+      plugins: [fsPlugin({
+      baseDir: './',      // Base directory for file operations
+      apiPrefix: '/api/fs'    // API route prefix
+    }),tailwindcss(),react()],
       resolve: {
         alias: {
           '@': path.resolve(__dirname, '.'),

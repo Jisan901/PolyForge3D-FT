@@ -1,0 +1,60 @@
+{
+  "metadata": {
+    "version": 4.7,
+    "type": "Object",
+    "generator": "Object3D.toJSON"
+  },
+  "object": {
+    "uuid": "a4772541-055c-4953-a6c0-fe619dac847d",
+    "type": "DirectionalLight",
+    "userData": {
+      "helper": null
+    },
+    "layers": 1,
+    "matrix": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      6.242663949619022,
+      8.629716293997715,
+      1
+    ],
+    "up": [
+      0,
+      1,
+      0
+    ],
+    "color": 16777215,
+    "intensity": 2,
+    "shadow": {
+      "camera": {
+        "uuid": "3a309f89-4ae3-4a9b-90b0-c11ae6f1a172",
+        "type": "OrthographicCamera",
+        "layers": 1,
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "zoom": 1,
+        "left": -5,
+        "right": 5,
+        "top": 5,
+        "bottom": -5,
+        "near": 0.5,
+        "far": 500
+      }
+    },
+    "target": "576a8f37-df5f-4da5-a281-0523615adcb7"
+  }
+}

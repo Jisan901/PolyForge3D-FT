@@ -18,7 +18,7 @@
         },
         "geometries": [
           {
-            "uuid": "1f0370df-cd6e-4409-aa4a-e083d39f0860",
+            "uuid": "a1922ae9-5132-4a62-bcba-76d56e64fa80",
             "type": "BufferGeometry",
             "data": {
               "attributes": {
@@ -86,7 +86,7 @@
         ],
         "materials": [
           {
-            "uuid": "60e16153-0265-43b2-b9be-b0fca36a8b1f",
+            "uuid": "0f9d74d2-3f99-4af2-98a6-f00c67a440ca",
             "type": "LineBasicMaterial",
             "color": 16777215,
             "vertexColors": true,
@@ -95,7 +95,7 @@
           }
         ],
         "object": {
-          "uuid": "969487a8-3bd6-4da9-b6ef-7fdab8a64b2f",
+          "uuid": "7ff55e79-fc07-494d-8df5-20d3113dd316",
           "type": "AxesHelper",
           "layers": 1,
           "matrix": [
@@ -121,8 +121,8 @@
             1,
             0
           ],
-          "geometry": "1f0370df-cd6e-4409-aa4a-e083d39f0860",
-          "material": "60e16153-0265-43b2-b9be-b0fca36a8b1f"
+          "geometry": "a1922ae9-5132-4a62-bcba-76d56e64fa80",
+          "material": "0f9d74d2-3f99-4af2-98a6-f00c67a440ca"
         }
       }
     },
@@ -163,7 +163,7 @@
             },
             "geometries": [
               {
-                "uuid": "91eb273c-8da3-40d4-80dd-1b085439ae76",
+                "uuid": "295809d1-bda7-4b19-a358-32ba39bd3a3e",
                 "type": "BufferGeometry",
                 "data": {
                   "attributes": {
@@ -495,7 +495,7 @@
             ],
             "materials": [
               {
-                "uuid": "83e0793f-d21f-4ba0-93f8-75f507bb4ad1",
+                "uuid": "ba957a59-92a5-49ae-9743-ae5b9fff4625",
                 "type": "LineBasicMaterial",
                 "color": 16777215,
                 "vertexColors": true,
@@ -504,7 +504,7 @@
               }
             ],
             "object": {
-              "uuid": "e805aad0-4655-4aa2-9a7f-d6bff687e6e6",
+              "uuid": "66d6b74d-0bba-406d-8294-b701d3676685",
               "type": "CameraHelper",
               "layers": 1,
               "matrix": [
@@ -531,8 +531,8 @@
                 0
               ],
               "matrixAutoUpdate": false,
-              "geometry": "91eb273c-8da3-40d4-80dd-1b085439ae76",
-              "material": "83e0793f-d21f-4ba0-93f8-75f507bb4ad1"
+              "geometry": "295809d1-bda7-4b19-a358-32ba39bd3a3e",
+              "material": "ba957a59-92a5-49ae-9743-ae5b9fff4625"
             }
           }
         },
@@ -581,7 +581,7 @@
             },
             "geometries": [
               {
-                "uuid": "c642103a-8507-4b1e-96df-d5afe5503ab7",
+                "uuid": "831c80c6-fa6e-473e-803a-42f849053163",
                 "type": "SphereGeometry",
                 "radius": 0.5,
                 "widthSegments": 4,
@@ -594,7 +594,7 @@
             ],
             "materials": [
               {
-                "uuid": "14a72ba8-4ec6-4e38-8501-bb723ea954d5",
+                "uuid": "572e32b7-6965-4e61-8cd9-b270bc0b7fcf",
                 "type": "MeshBasicMaterial",
                 "color": 16777215,
                 "envMapRotation": [
@@ -612,7 +612,7 @@
               }
             ],
             "object": {
-              "uuid": "7a439f1a-e97f-4c3b-aa3c-af747002cd77",
+              "uuid": "13e33f36-e639-4e0a-83ff-54de2b6fa841",
               "type": "PointLightHelper",
               "layers": 1,
               "matrix": [
@@ -639,8 +639,8 @@
                 0
               ],
               "matrixAutoUpdate": false,
-              "geometry": "c642103a-8507-4b1e-96df-d5afe5503ab7",
-              "material": "14a72ba8-4ec6-4e38-8501-bb723ea954d5"
+              "geometry": "831c80c6-fa6e-473e-803a-42f849053163",
+              "material": "572e32b7-6965-4e61-8cd9-b270bc0b7fcf"
             }
           }
         },
@@ -697,6 +697,7 @@
         "uuid": "b4fb2d83-b531-4e55-b6a7-0e6dac128ec1",
         "type": "Group",
         "name": "Terrain",
+        "visible": false,
         "userData": {
           "helper": {
             "metadata": {
@@ -706,7 +707,7 @@
             },
             "geometries": [
               {
-                "uuid": "abb4b156-e5a1-4bd2-a7a0-dbb09d00152c",
+                "uuid": "952aebd4-a116-46c4-b04e-882804ebad6e",
                 "type": "BufferGeometry",
                 "data": {
                   "attributes": {
@@ -774,7 +775,7 @@
             ],
             "materials": [
               {
-                "uuid": "dfaf1e73-fa92-4a22-9075-d3f94ac008fe",
+                "uuid": "fb5b17b8-3c8a-44c8-bc92-776ef583b25d",
                 "type": "LineBasicMaterial",
                 "color": 16777215,
                 "vertexColors": true,
@@ -783,7 +784,7 @@
               }
             ],
             "object": {
-              "uuid": "18f6a60b-0179-4f74-b50c-3e64a4aa2442",
+              "uuid": "fa24424e-ba37-42ce-aa3a-a4f594867b71",
               "type": "AxesHelper",
               "layers": 1,
               "matrix": [
@@ -809,8 +810,8 @@
                 1,
                 0
               ],
-              "geometry": "abb4b156-e5a1-4bd2-a7a0-dbb09d00152c",
-              "material": "dfaf1e73-fa92-4a22-9075-d3f94ac008fe"
+              "geometry": "952aebd4-a116-46c4-b04e-882804ebad6e",
+              "material": "fb5b17b8-3c8a-44c8-bc92-776ef583b25d"
             }
           },
           "special": true,
@@ -862,9 +863,8 @@
         ]
       },
       {
-        "uuid": "8f6b6429-d5fb-4a80-8d08-d6eee8215a9a",
-        "type": "Group",
-        "name": "Terrain",
+        "uuid": "a4772541-055c-4953-a6c0-fe619dac847d",
+        "type": "DirectionalLight",
         "userData": {
           "helper": {
             "metadata": {
@@ -874,7 +874,236 @@
             },
             "geometries": [
               {
-                "uuid": "253fd1e7-e742-480e-ae08-62feaeecbea7",
+                "uuid": "137b77b1-52ee-4639-9110-bde1ee0681af",
+                "type": "BufferGeometry",
+                "data": {
+                  "attributes": {
+                    "position": {
+                      "itemSize": 3,
+                      "type": "Float32Array",
+                      "array": [
+                        -1,
+                        1,
+                        0,
+                        1,
+                        1,
+                        0,
+                        1,
+                        -1,
+                        0,
+                        -1,
+                        -1,
+                        0,
+                        -1,
+                        1,
+                        0
+                      ],
+                      "normalized": false
+                    }
+                  },
+                  "boundingSphere": {
+                    "radius": 1.4142135623730951,
+                    "center": [
+                      0,
+                      0,
+                      0
+                    ]
+                  }
+                }
+              },
+              {
+                "uuid": "48170987-dc05-4e16-8831-c055f2ee363a",
+                "type": "BufferGeometry",
+                "data": {
+                  "attributes": {
+                    "position": {
+                      "itemSize": 3,
+                      "type": "Float32Array",
+                      "array": [
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        1
+                      ],
+                      "normalized": false
+                    }
+                  },
+                  "boundingSphere": {
+                    "radius": 0.5,
+                    "center": [
+                      0,
+                      0,
+                      0.5
+                    ]
+                  }
+                }
+              }
+            ],
+            "materials": [
+              {
+                "uuid": "78866372-06a3-4a5e-a61e-9a3fc1c3e581",
+                "type": "LineBasicMaterial",
+                "color": 16777215,
+                "blendColor": 0,
+                "toneMapped": false,
+                "fog": false
+              }
+            ],
+            "object": {
+              "uuid": "37f2e098-80d5-4a29-85f9-5072d447e3a1",
+              "type": "DirectionalLightHelper",
+              "layers": 1,
+              "matrix": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                6.242663949619022,
+                8.629716293997715,
+                1
+              ],
+              "up": [
+                0,
+                1,
+                0
+              ],
+              "matrixAutoUpdate": false,
+              "children": [
+                {
+                  "uuid": "ef676546-7838-40fb-8357-f85caf41bc7f",
+                  "type": "Line",
+                  "layers": 1,
+                  "matrix": [
+                    -1.0000000000000004,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0.8102292947486074,
+                    -0.5861130351145369,
+                    0,
+                    0,
+                    -0.5861130351145369,
+                    -0.8102292947486076,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "up": [
+                    0,
+                    1,
+                    0
+                  ],
+                  "geometry": "137b77b1-52ee-4639-9110-bde1ee0681af",
+                  "material": "78866372-06a3-4a5e-a61e-9a3fc1c3e581"
+                },
+                {
+                  "uuid": "7ec6ce50-e1e9-4e9a-9e39-ec651778e7f3",
+                  "type": "Line",
+                  "layers": 1,
+                  "matrix": [
+                    -1.0000000000000004,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0.8102292947486074,
+                    -0.5861130351145369,
+                    0,
+                    0,
+                    -6.242663949619021,
+                    -8.629716293997719,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "up": [
+                    0,
+                    1,
+                    0
+                  ],
+                  "geometry": "48170987-dc05-4e16-8831-c055f2ee363a",
+                  "material": "78866372-06a3-4a5e-a61e-9a3fc1c3e581"
+                }
+              ]
+            }
+          }
+        },
+        "layers": 1,
+        "matrix": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          6.242663949619022,
+          8.629716293997715,
+          1
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "color": 16777215,
+        "intensity": 2,
+        "shadow": {
+          "camera": {
+            "uuid": "3a309f89-4ae3-4a9b-90b0-c11ae6f1a172",
+            "type": "OrthographicCamera",
+            "layers": 1,
+            "up": [
+              0,
+              1,
+              0
+            ],
+            "zoom": 1,
+            "left": -5,
+            "right": 5,
+            "top": 5,
+            "bottom": -5,
+            "near": 0.5,
+            "far": 500
+          }
+        },
+        "target": "75eb0aa2-719c-47db-b7f9-57a5a18f1daf"
+      },
+      {
+        "uuid": "1a617da5-9828-4c86-bc7e-3e3d1ae94c36",
+        "type": "Group",
+        "userData": {
+          "helper": {
+            "metadata": {
+              "version": 4.7,
+              "type": "Object",
+              "generator": "Object3D.toJSON"
+            },
+            "geometries": [
+              {
+                "uuid": "106f1883-e92e-48c1-ba8e-c53f73f83ec4",
                 "type": "BufferGeometry",
                 "data": {
                   "attributes": {
@@ -942,7 +1171,7 @@
             ],
             "materials": [
               {
-                "uuid": "6bdb22ec-4808-476f-888e-75870e4dce6f",
+                "uuid": "c88db81f-2576-41c9-9638-65fd0d24db32",
                 "type": "LineBasicMaterial",
                 "color": 16777215,
                 "vertexColors": true,
@@ -951,7 +1180,7 @@
               }
             ],
             "object": {
-              "uuid": "68cdfe5c-19bf-49be-a52f-8231b60b8a54",
+              "uuid": "fc252931-f90b-43fe-8ac6-0eea2fe83b03",
               "type": "AxesHelper",
               "layers": 1,
               "matrix": [
@@ -977,27 +1206,57 @@
                 1,
                 0
               ],
-              "geometry": "253fd1e7-e742-480e-ae08-62feaeecbea7",
-              "material": "6bdb22ec-4808-476f-888e-75870e4dce6f"
+              "geometry": "106f1883-e92e-48c1-ba8e-c53f73f83ec4",
+              "material": "c88db81f-2576-41c9-9638-65fd0d24db32"
             }
           },
           "special": true,
           "components": {
             "7": {
-              "id": 0,
+              "id": 1,
               "nameCode": 7,
               "key": "script",
               "data": {
                 "path": {
                   "isFile": true,
-                  "value": "/Game/files/Terrain.ts"
+                  "value": "/Game/files/Lod.ts"
                 },
                 "enabled": true,
-                "variables": {
-                  "speed": 50,
-                  "target": {
-                    "isRef": true,
-                    "ref": null
+                "variables": {}
+              }
+            },
+            "11": {
+              "id": 0,
+              "nameCode": 11,
+              "key": "lod",
+              "data": {
+                "enabled": true,
+                "level 0": {
+                  "distance": 0,
+                  "file": {
+                    "isFile": true,
+                    "value": "/Game/files/Assets/coconut_tree_coconut_tree_mat_0.object"
+                  }
+                },
+                "level 1": {
+                  "distance": 10,
+                  "file": {
+                    "isFile": true,
+                    "value": "/Game/files/Mesh.object"
+                  }
+                },
+                "level 2": {
+                  "distance": 25,
+                  "file": {
+                    "isFile": true,
+                    "value": null
+                  }
+                },
+                "level 3": {
+                  "distance": 50,
+                  "file": {
+                    "isFile": true,
+                    "value": null
                   }
                 }
               }

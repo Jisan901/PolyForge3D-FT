@@ -1,4 +1,4 @@
-import fs from "vite-plugin-fs/browser";
+import fs from "@/lib/fs";
 
 interface DirInfo {
   name: string;        // "index.js"
@@ -66,12 +66,11 @@ export class FileAPI {
     for (const file of files) {
       const full = dir + "/" + file;
       const stats = await fs.stat(full);
-
       result.push({
         name: file,
         fullPath: full,
         id: full,
-        type: stats.dir ? "folder" : getFileType(getExt(file)),
+        type: stats.isDirectory ? "folder" : getFileType(getExt(file)),
         size: (stats.size / (1024 * 1024)).toFixed(1) // bytes -> MB
       });
     }
@@ -84,7 +83,7 @@ export class FileAPI {
     return content;
   }
 
-  async writeFile(path: string, data: string): Promise<void> {
+  async writeFile(path: string, data: string): Promise<void> { 
     await fs.writeFile(path, data, { encoding: "utf-8" });
   }
 

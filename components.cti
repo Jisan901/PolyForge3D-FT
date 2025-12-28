@@ -151,5 +151,41 @@
                 "a": 1
             }
         }
+    },
+    "lod": {
+        "nameCode": 11,
+        "name": "LOD",
+        "description": "Level of Detail settings based on camera distance",
+        "default": {
+            "enabled": true,
+            "level 0": {
+                "distance": 0,
+                "file": {
+                    "isFile": true,
+                    "value": null
+                }
+            },
+            "level 1": {
+                "distance": 10,
+                "file": {
+                    "isFile": true,
+                    "value": null
+                }
+            },
+            "level 2": {
+                "distance": 25,
+                "file": {
+                    "isFile": true,
+                    "value": null
+                }
+            },
+            "level 3": {
+                "distance": 50,
+                "file": {
+                    "isFile": true,
+                    "value": null
+                }
+            }
+        }
     }
 }

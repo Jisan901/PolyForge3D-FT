@@ -1,4 +1,4 @@
-import fs from "vite-plugin-fs/browser";
+import fs from "@/lib/fs";
 
 
 interface ComponentRecord {

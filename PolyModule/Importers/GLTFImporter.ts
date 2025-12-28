@@ -1,6 +1,6 @@
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import type {AssetImporter,ImportContext,ImportResult} from './types'
-import fs from "vite-plugin-fs/browser";
+import fs from "@/lib/fs";
 
 
 export class GLTFImporter implements AssetImporter {

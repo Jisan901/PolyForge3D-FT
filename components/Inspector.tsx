@@ -149,7 +149,7 @@ const RenderPropertyInput: React.FC<RenderPropertyInputProps> = React.memo(({ pa
                     {label}
                 </div>
                 {Object.entries(val).map(([subKey, subVal]) => (
-                    <RenderPropertyInput key={typeof subVal==='object' ?subKey+Object.keys(subVal).join(''):subKey} path={key + '.' + subKey} val={subVal} />
+                    <RenderPropertyInput key={typeof subVal==='object' ?subKey+Object.keys(subVal??{}).join(''):subKey} path={key + '.' + subKey} val={subVal} />
                 ))}
             </div>
         );
@@ -167,7 +167,6 @@ const Inspector: React.FC = () => {
     const [contextMenu, setContextMenu] = useState<{ x: number; y: number; component: string } | null>(null);
     const { selectedObject: object, mappedObject } = useEditorStates();
     const { onAddComponent, onRemoveComponent } = useEditorActions();
-
     // Use the custom hook for component selection
     const componentSelector = useObjectSelector({
         title: "Add Component",
@@ -247,7 +246,7 @@ const Inspector: React.FC = () => {
                     >
                         {Object.entries(compData.data).map(([propKey, propVal]) => (
                             <RenderPropertyInput
-                                key={typeof propVal==='object' ?propKey+Object.keys(propVal).join(''):propKey}
+                                key={typeof propVal==='object' ?propKey+Object.keys(propVal??{}).join(''):propKey}
                                 
                                 path={`userData.components.${compName}.data.${propKey}`}
                                 val={propVal}

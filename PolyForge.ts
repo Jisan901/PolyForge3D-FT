@@ -2,7 +2,7 @@ import { OrbitControls } from 'three/examples/jsm/Addons.js';
 import * as THREE from 'three';
 import { ObjectLoader } from 'three';
 
-import fs from "vite-plugin-fs/browser";
+import fs from "@/lib/fs";
 import { TransformControls } from 'three/addons/controls/TransformControls.js';
 import { FileAPI } from "./PolyModule/FilesApi";
 import { AssetBrowserManager } from "./PolyModule/AssetBrowser";
@@ -190,7 +190,7 @@ class BridgeLayer {
     async saveObjectFile(object, path) {
         let json = JSON.stringify(object, null, 2);
         let fileUrl = path + '/' + (object.name || object.type) + '.object'
-        const data = await this.file.writeFile(fileUrl, json);
+        const data = await fs.writeFile(fileUrl,new Blob([json],{type: 'application/json' }));
         //this.emitFsUpdate()
     }
 
@@ -261,7 +261,6 @@ class EditorBackend {
 
         this.projectInfo = {};
 
-        this.openProject();
     }
 
     /* ---------------- Project Load ---------------- */
@@ -471,6 +470,7 @@ class PolyForge3D {
         this.importer = new ImportManager();
         this.meshBuilder = new MeshBuilder();
         this.editor = new EditorBackend(this.api, this.editorRenderer);
+        await this.editor.openProject();
         this.listenScriptAdd();
 
         // Start the render loop
@@ -521,6 +521,7 @@ class PolyForge3D {
 
         try {
             await this.refreshRegistry()
+            await this.behaviorRegistry.runOnStartCall()
         } catch (err) {
             console.log(err)
         }
@@ -542,7 +543,9 @@ class PolyForge3D {
     async exitPlayMode() {
         if (this.mode === 'edit') return;
         this.mode = 'edit';
-
+        
+        await this.behaviorRegistry.runOnDestroyCall()
+        
         this.api.sceneManager.activeScene.removeFromParent()
         this.api.sceneManager.activeScene.clear()
 
@@ -626,7 +629,9 @@ class PolyForge3D {
                     `${path}_${e.uuid}`,
                     {
                         scene: scope.api.sceneManager.activeScene,
-                        object: e
+                        object: e,
+                        getActiveCamera:()=>scope.editorRenderer.getActiveCamera(),
+                        loader: memoLoader
                     },
                     script.data.variables
                 );
@@ -675,14 +680,14 @@ class PolyForge3D {
     }
 
 
-    syncLoads() {
-        this.buses.sceneUpdate.emit(this.api.sceneManager.activeScene);
-        this.buses.fsUpdate.emit();
+    async syncLoads() {
         try {
-            this.refreshRegistry()
+            await this.refreshRegistry()
         } catch (err) {
             console.log(err)
         }
+        this.buses.sceneUpdate.emit(this.api.sceneManager.activeScene);
+        this.buses.fsUpdate.emit();
     }
 
     // ----------------------------------------------------------

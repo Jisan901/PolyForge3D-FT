@@ -154,7 +154,7 @@ class DLOD extends Object3D {
 
 
     async loadLODLevel(level, onLoad){
-        const data = await this.loader.load(level)
+        const data = await this.loader.load(level.assetId)
         onLoad?.(data)
         return data
     }
@@ -211,7 +211,6 @@ class DLOD extends Object3D {
 	 * @param {Camera} camera - The camera the scene is rendered with.
 	 */
 	update( camera ) {
-console.log('inside lod')
 		const levels = this.levels;
 
 		if ( levels.length > 1 ) {
@@ -223,7 +222,7 @@ console.log('inside lod')
 
 			
 			const levelIndex = this.getLevelForDistance(distance);
-			
+			if (this._currentLevel === levelIndex) return;
 			const level = levels[levelIndex]
 			
 			let scope = this;

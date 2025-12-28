@@ -322,7 +322,7 @@ export class ChunkGenerator {
 
 
 
-export default class Rotate extends Behavior{
+export default class Terrain extends Behavior{
   @INumber
   speed: number = 50;
   @IObject3D
