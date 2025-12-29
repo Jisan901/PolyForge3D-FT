@@ -2342,7 +2342,121 @@
     "uuid": "512b90ed-8d30-4c49-ae89-ed73b3db07e0",
     "type": "Mesh",
     "userData": {
-      "helper": null
+      "helper": {
+        "metadata": {
+          "version": 4.7,
+          "type": "Object",
+          "generator": "Object3D.toJSON"
+        },
+        "geometries": [
+          {
+            "uuid": "7e916c2b-7a7a-4eba-a3a7-664079b092c7",
+            "type": "BufferGeometry",
+            "data": {
+              "attributes": {
+                "position": {
+                  "itemSize": 3,
+                  "type": "Float32Array",
+                  "array": [
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "normalized": false
+                },
+                "color": {
+                  "itemSize": 3,
+                  "type": "Float32Array",
+                  "array": [
+                    1,
+                    0,
+                    0,
+                    1,
+                    0.6000000238418579,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0.6000000238418579,
+                    1,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0.6000000238418579,
+                    1
+                  ],
+                  "normalized": false
+                }
+              },
+              "boundingSphere": {
+                "radius": 0.8660254037844386,
+                "center": [
+                  0.5,
+                  0.5,
+                  0.5
+                ]
+              }
+            }
+          }
+        ],
+        "materials": [
+          {
+            "uuid": "2d12f890-1eac-4758-b746-21f430a3dd34",
+            "type": "LineBasicMaterial",
+            "color": 16777215,
+            "vertexColors": true,
+            "blendColor": 0,
+            "toneMapped": false
+          }
+        ],
+        "object": {
+          "uuid": "cafc68a5-5a6c-46bc-a091-3489a4b344e7",
+          "type": "AxesHelper",
+          "layers": 1,
+          "matrix": [
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            90,
+            0,
+            72,
+            1
+          ],
+          "up": [
+            0,
+            1,
+            0
+          ],
+          "geometry": "7e916c2b-7a7a-4eba-a3a7-664079b092c7",
+          "material": "2d12f890-1eac-4758-b746-21f430a3dd34"
+        }
+      }
     },
     "layers": 1,
     "matrix": [
@@ -2358,9 +2472,9 @@
       0,
       1,
       0,
-      90,
       0,
-      72,
+      -10,
+      0,
       1
     ],
     "up": [

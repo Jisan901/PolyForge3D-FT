@@ -1,0 +1,92 @@
+{
+  "metadata": {
+    "version": 4.7,
+    "type": "Object",
+    "generator": "Object3D.toJSON"
+  },
+  "object": {
+    "uuid": "1a617da5-9828-4c86-bc7e-3e3d1ae94c36",
+    "type": "Group",
+    "name": "LODTree",
+    "userData": {
+      "helper": null,
+      "special": true,
+      "components": {
+        "7": {
+          "id": 1,
+          "nameCode": 7,
+          "key": "script",
+          "data": {
+            "path": {
+              "isFile": true,
+              "value": "/Game/files/Lod.ts"
+            },
+            "enabled": true,
+            "variables": {}
+          }
+        },
+        "11": {
+          "id": 0,
+          "nameCode": 11,
+          "key": "lod",
+          "data": {
+            "enabled": true,
+            "level 0": {
+              "distance": 0,
+              "file": {
+                "isFile": true,
+                "value": "/Game/files/Assets/coconut_tree_coconut_tree_mat_0.object"
+              }
+            },
+            "level 1": {
+              "distance": 50,
+              "file": {
+                "isFile": true,
+                "value": "/Game/files/EmptyObject.object"
+              }
+            },
+            "level 2": {
+              "distance": 50,
+              "file": {
+                "isFile": true,
+                "value": null
+              }
+            },
+            "level 3": {
+              "distance": 60,
+              "file": {
+                "isFile": true,
+                "value": null
+              }
+            }
+          }
+        }
+      },
+      "expanded": true
+    },
+    "layers": 1,
+    "matrix": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    "up": [
+      0,
+      1,
+      0
+    ]
+  }
+}

@@ -9,7 +9,121 @@
     "type": "Group",
     "name": "Terrain",
     "userData": {
-      "helper": null,
+      "helper": {
+        "metadata": {
+          "version": 4.7,
+          "type": "Object",
+          "generator": "Object3D.toJSON"
+        },
+        "geometries": [
+          {
+            "uuid": "023c85ec-149f-46ec-96cd-15cb37575dbb",
+            "type": "BufferGeometry",
+            "data": {
+              "attributes": {
+                "position": {
+                  "itemSize": 3,
+                  "type": "Float32Array",
+                  "array": [
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "normalized": false
+                },
+                "color": {
+                  "itemSize": 3,
+                  "type": "Float32Array",
+                  "array": [
+                    1,
+                    0,
+                    0,
+                    1,
+                    0.6000000238418579,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0.6000000238418579,
+                    1,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0.6000000238418579,
+                    1
+                  ],
+                  "normalized": false
+                }
+              },
+              "boundingSphere": {
+                "radius": 0.8660254037844386,
+                "center": [
+                  0.5,
+                  0.5,
+                  0.5
+                ]
+              }
+            }
+          }
+        ],
+        "materials": [
+          {
+            "uuid": "f5599e8a-e5b3-44c2-9605-d6e376cf4024",
+            "type": "LineBasicMaterial",
+            "color": 16777215,
+            "vertexColors": true,
+            "blendColor": 0,
+            "toneMapped": false
+          }
+        ],
+        "object": {
+          "uuid": "c180d162-1440-434c-b7c7-1cf278419102",
+          "type": "AxesHelper",
+          "layers": 1,
+          "matrix": [
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1
+          ],
+          "up": [
+            0,
+            1,
+            0
+          ],
+          "geometry": "023c85ec-149f-46ec-96cd-15cb37575dbb",
+          "material": "f5599e8a-e5b3-44c2-9605-d6e376cf4024"
+        }
+      },
       "special": true,
       "components": {
         "7": {

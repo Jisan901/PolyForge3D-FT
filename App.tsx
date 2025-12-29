@@ -68,12 +68,14 @@ function App() {
         if (viewMode==='GAME'){
             three.renderer.togglePreviewCamera(actve)
             three.toggleHelpers(false)
+            three.toggleLights(false)
             
         }
         else {
             if (!three.renderer.isPreviewMode) return
             three.renderer.togglePreviewCamera(null)
             three.toggleHelpers(true)
+            three.toggleLights(true)
         }
     },[viewMode])
 
@@ -124,10 +126,11 @@ function App() {
     // --- Menu Items ---
 
     const getFileMenuItems = (): MenuItem[] => [
-        { label: 'New Scene', shortcut: 'Ctrl+N', action: () => console.log('New Scene') },
-        { label: 'Open Scene', shortcut: 'Ctrl+O', action: () => console.log('Open Scene') },
+        { label: 'New Scene', shortcut: 'Ctrl+N', action: () => editor.newScene() },
+        { label: 'Open Primary', action: async () => {await editor.mountScene("/Game/files/Scenes/Primary.json");} },
         { separator: true, label: '', action: () => { } },
-        { label: 'Save Scene', shortcut: 'Ctrl+S', action: () => {PolyForge.api.sceneManager.saveScene('/Game/files/Scenes/Primary.json');toast('Saved Primary')} },
+        { label: 'Save Scene', shortcut: 'Ctrl+S', action: () => {PolyForge.api.sceneManager.saveActive();toast('Saved Active')} },
+        { label: 'Save Scene Pr...', shortcut: 'Ctrl+S', action: () => {PolyForge.api.sceneManager.savePrimary();toast('Saved Primary')} },
         { label: 'Save Scene As...', shortcut: 'Ctrl+Shift+S', action: () => console.log('Save Scene As') },
         { separator: true, label: '', action: () => { } },
         { label: 'Build Settings', shortcut: 'Ctrl+Shift+B', action: () => console.log('Build Settings') },

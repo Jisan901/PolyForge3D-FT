@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Box, Layers, Globe, BoxSelect, Activity, Lightbulb, Cpu, FileCode } from 'lucide-react';
 import { PropertySection } from './PropertySection';
-import { Vector3Input, Checkbox, ColorInput, NumberInput, TextInput, AssetInput, RefInput } from './PropertyInputs';
+import { Vector3Input, Checkbox, ColorInput, NumberInput, TextInput, AssetInput, RefInput, MaterialGeoRefInput } from './PropertyInputs';
 import ContextMenu, { MenuItem } from './ContextMenu';
 import { SelectorItem } from './ObjectSelector';
 import { useObjectSelector } from './Utils/useSelector';
@@ -140,6 +140,12 @@ const RenderPropertyInput: React.FC<RenderPropertyInputProps> = React.memo(({ pa
             
         }}/>
     }
+    
+    if (typeof val === 'object' && (val?.isMaterial || val?.isBufferGeometry)) {
+        return <MaterialGeoRefInput key={`${key}.${val.ref}`} label={label} value={val} onChange={e=>{
+            handleOnChange(key)(e)
+        }}/>
+    }
 
     // Nested object (recursive)
     if (typeof val === 'object' && val !== null && !Array.isArray(val) && recursive) {
@@ -166,6 +172,7 @@ const RenderPropertyInput: React.FC<RenderPropertyInputProps> = React.memo(({ pa
 const Inspector: React.FC = () => {
     const [contextMenu, setContextMenu] = useState<{ x: number; y: number; component: string } | null>(null);
     const { selectedObject: object, mappedObject } = useEditorStates();
+    
     const { onAddComponent, onRemoveComponent } = useEditorActions();
     // Use the custom hook for component selection
     const componentSelector = useObjectSelector({

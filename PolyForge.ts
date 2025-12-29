@@ -91,7 +91,7 @@ class MemoLoader {
         this.maxSize = maxSize;
     }
 
-    async load(assetId: string): Promise<THREE.Object3D> {
+    async load(assetId: string, clone=true): Promise<THREE.Object3D> {
         // LRU refresh
         if (this.cache.has(assetId)) {
             const entry = this.cache.get(assetId)!;
@@ -99,7 +99,7 @@ class MemoLoader {
             this.cache.set(assetId, entry);
 
             const base = await entry;
-            return base.clone(true);
+            return clone?base.clone(true):base;
         }
 
         const promise = this._loadBase(assetId);
@@ -111,7 +111,7 @@ class MemoLoader {
         }
 
         const base = await promise;
-        return base.clone(true);
+        return clone?base.clone(true):base;
     }
 
     private async _loadBase(assetId: string): Promise<THREE.Object3D> {
@@ -120,7 +120,9 @@ class MemoLoader {
 
         const loader = new ObjectLoader();
         const object = loader.parse(json);
-
+        
+        object.userData.templateFile = assetId; // templates 
+        
         return object
     }
 
@@ -190,7 +192,7 @@ class BridgeLayer {
     async saveObjectFile(object, path) {
         let json = JSON.stringify(object, null, 2);
         let fileUrl = path + '/' + (object.name || object.type) + '.object'
-        const data = await fs.writeFile(fileUrl,new Blob([json],{type: 'application/json' }));
+        const data = await fs.writeFile(fileUrl, new Blob([json], { type: 'application/json' }));
         //this.emitFsUpdate()
     }
 
@@ -290,6 +292,30 @@ class EditorBackend {
             this.projectInfo = { files: [] };
             this.assetBrowser.reset();
         }
+    }
+    async unmountScene(save=true){
+        let api = this.api;
+        if (api.sceneManager.activeScene){
+            save && (await api.sceneManager.saveActive())
+            api.sceneManager.activeScene.removeFromParent()
+            api.sceneManager.activeScene.clear()
+        }
+    }
+    async mountScene(url, unmount=true, save=true) {
+        let api = this.api;
+        unmount && await this.unmountScene(save)
+        await api.sceneManager.loadScene(url)
+        api.three.addToScene(api.sceneManager.activeScene);
+        api.buses.sceneUpdate.emit(api.sceneManager.activeScene);
+    }
+    async newScene(unmount=true, save=true){
+        let api = this.api;
+        unmount && await this.unmountScene(save)
+        const newScene = new THREE.Scene();
+        api.sceneManager.setScene(newScene)
+        api.three.addToScene(api.sceneManager.activeScene);
+        api.buses.sceneUpdate.emit(api.sceneManager.activeScene);
+        return newScene;
     }
 
     /* ---------------- Command exposing ---------------- */
@@ -515,12 +541,17 @@ class PolyForge3D {
     // ----------------------------------------------------------
     async enterPlayMode() {
         if (this.mode === 'play') return;
-
-        await this.api.sceneManager.saveScene('/Game/files/Scenes/Primary.json');
+        
+        await this.refreshRegistry();
+        
+        await this.api.sceneManager.saveActive();
         toast('Saved Editor')
 
+        this.api.three.transformControls.detach()
+        this.api.three.setTool('select');
+
         try {
-            await this.refreshRegistry()
+            
             await this.behaviorRegistry.runOnStartCall()
         } catch (err) {
             console.log(err)
@@ -543,16 +574,11 @@ class PolyForge3D {
     async exitPlayMode() {
         if (this.mode === 'edit') return;
         this.mode = 'edit';
-        
+
         await this.behaviorRegistry.runOnDestroyCall()
-        
-        this.api.sceneManager.activeScene.removeFromParent()
-        this.api.sceneManager.activeScene.clear()
 
-        await this.api.sceneManager.loadScene('/Game/files/Scenes/Primary.json');
-        this.api.three.addToScene(this.api.sceneManager.activeScene);
+        await this.editor.mountScene(this.api.sceneManager.activeUrl, true, false)
 
-        this.api.buses.sceneUpdate.emit(this.api.sceneManager.activeScene);
     }
 
     togglePlayMode() {
@@ -606,6 +632,14 @@ class PolyForge3D {
                 }
             }
         });
+        this.buses.sceneUpdate.subscribe(async () => {
+            try {
+                memoLoader.clear()
+            await this.refreshRegistry()
+        } catch (err) {
+            console.log(err)
+        }
+        });
     }
 
     async prepareRegistry() {
@@ -630,7 +664,7 @@ class PolyForge3D {
                     {
                         scene: scope.api.sceneManager.activeScene,
                         object: e,
-                        getActiveCamera:()=>scope.editorRenderer.getActiveCamera(),
+                        getActiveCamera: () => scope.editorRenderer.getActiveCamera(),
                         loader: memoLoader
                     },
                     script.data.variables
@@ -642,8 +676,22 @@ class PolyForge3D {
     async refreshRegistry() {
         const scope = this;
         this.behaviorRegistry.behaviors.clear();
+        threeRegistry.specialObjects.clear()
+        threeRegistry.objects.clear()
+        threeRegistry.geometries.clear()
+        threeRegistry.materials.clear()
         threeRegistry.register(this.api.sceneManager.activeScene, true);
-
+        
+        const templeteObjects = Array.from(threeRegistry.specialObjects.values())
+        
+        await Promise.all(
+                templeteObjects.map(async (Tobject)=>{
+                    if (Tobject.userData.templateFile){
+                        Tobject.userData.components = structuredClone((await memoLoader.load(Tobject.userData.templateFile, false)).userData.components)
+                    }
+                })
+            )
+        
         const specialObjects = Array.from(threeRegistry.specialObjects.values());
 
         // Process all objects in parallel
@@ -681,11 +729,7 @@ class PolyForge3D {
 
 
     async syncLoads() {
-        try {
-            await this.refreshRegistry()
-        } catch (err) {
-            console.log(err)
-        }
+        
         this.buses.sceneUpdate.emit(this.api.sceneManager.activeScene);
         this.buses.fsUpdate.emit();
     }

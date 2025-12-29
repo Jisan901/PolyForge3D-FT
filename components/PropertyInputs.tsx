@@ -1,6 +1,9 @@
 import React from 'react';
 import { Target, File } from 'lucide-react';
 import { DragAndDropZone } from "./Utils/DragNDrop";
+import {PolyForge} from "/PolyForge"
+const editor = PolyForge.editor
+
 
 export const Vector3Input: React.FC<{
     label: string;
@@ -256,6 +259,38 @@ export const RefInput: React.FC<{ label: string; value: string; onChange?: (v: s
                 </div>
                 <div
                     className="px-1.5 py-1 bg-white/5 border-l border-editor-border hover:bg-editor-accent hover:text-blue-200 transition-colors text-blue-800"
+                >
+                    <Target size={12} />
+                </div>
+            </DragAndDropZone>
+        </div>
+    );
+}
+
+export const MaterialGeoRefInput: React.FC<{ label: string; value: string; onChange?: (v: string) => void; }> = ({ label, value, onChange }) => {
+    const [state, setState] = React.useState(value);
+
+
+    const update = (v: string) => {
+        setState(v);
+        onChange?.(v);
+    };
+    return (
+        <div className="flex items-center mb-2">
+            <span className="w-24 text-[10px] text-editor-textDim capitalize">{label}</span>
+            <DragAndDropZone
+                highlight={false}
+                onDrop={(e) => {
+                    if (e.type === 'Object'&&e.data.isMaterial) update({ ...state, uuid: e.data.uuid, name:e.data.name  })
+                }} className="flex-1 flex items-center bg-editor-input border border-editor-border rounded overflow-hidden group">
+                <div className="px-2 py-1 flex-1 text-[10px] text-editor-text truncate">
+                    {state.name || state.type || 'None'}
+                </div>
+                <div
+                    className="px-1.5 py-1 bg-white/5 border-l border-editor-border hover:bg-editor-accent hover:text-red-200 transition-colors text-red-800"
+                    onClick={e=>{
+                        editor.api.buses.selectionUpdate.emit(state)
+                    }}
                 >
                     <Target size={12} />
                 </div>

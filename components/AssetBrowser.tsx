@@ -6,6 +6,7 @@ import {DragAndDropZone} from "./Utils/DragNDrop";
 
 import { PolyForge, toast } from "../PolyForge"
 const editor = PolyForge.editor;
+const api = PolyForge.api;
 const browser = editor.assetBrowser;
 
 
@@ -45,8 +46,13 @@ const AssetBrowser: React.FC = () => {
         setContextMenu({ x: e.clientX, y: e.clientY, targetId: id });
     };
 
-    const handleOpen = useCallback((id: string) => {
-        browser.openDirectory(id)
+    const handleOpen = useCallback(async (asset: any) => {
+        if (asset.type==="folder"){
+            browser.openDirectory(asset.id)
+        }
+        else if (asset.type==="model"){
+            editor.mountScene(asset.id)
+        }
     }, [assets])
 
     const getContextMenuItems = (id: string): MenuItem[] => [
@@ -132,7 +138,7 @@ const AssetBrowser: React.FC = () => {
                             <div
                                 className="group flex flex-col items-center p-2 rounded hover:bg-white/5 cursor-pointer border border-transparent hover:border-editor-accent/50 transition-all select-none"
                                 onContextMenu={(e) => handleContextMenu(e, asset.id)}
-                                onDoubleClick={e=>handleOpen(asset.id)}
+                                onDoubleClick={e=>handleOpen(asset)}
                             >
                                 <div className="mb-2 transition-transform group-hover:scale-110 pointer-events-none">
                                     {getIcon(asset.type)}

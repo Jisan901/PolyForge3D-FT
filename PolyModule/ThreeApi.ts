@@ -221,7 +221,7 @@ export class EditorRenderer {
     /**
      * Get the currently active camera (preview or editor)
      */
-    public getActiveCamera= (): THREE.Camera => {
+    public getActiveCamera = (): THREE.Camera => {
         return this.isPreviewMode && this.previewCamera
             ? this.previewCamera
             : this.three.camera;
@@ -254,6 +254,7 @@ export class ThreeAPI {
     public raycastingScene?: THREE.Scene;
     public helperActive: boolean = true; // Control flag for helpers
     private _box = new THREE.Box3();
+    private lights = new THREE.Group()
 
     constructor(private bus: BusHub) {
         this.scene = new THREE.Scene();
@@ -287,6 +288,7 @@ export class ThreeAPI {
         this.loadInitials();
         this.initRaycaster();
         this.enableRaycasting();
+        this.loadDefaultLights()
     }
 
     initRaycaster() {
@@ -378,6 +380,22 @@ export class ThreeAPI {
     private objectChangeListener?: (event: any) => void;
     private draggingChangedListener?: (event: any) => void;
     private mutationSubscription?: any;
+
+
+    // default lights
+    loadDefaultLights() {
+        this.lights.add(
+            new THREE.HemisphereLight(0xffffff, 0x444444, 0.8)
+        );
+        let l2 = new THREE.DirectionalLight(0xffffff, 0.6);
+        l2.position.set(2,5,2)
+        this.lights.add(l2)
+        this.addToScene(this.lights)
+    }
+    
+    toggleLights(activate){
+        this.lights.visible = typeof activate === 'boolean' ? activate : !this.lights.visible;
+    }
 
     loadInitials() {
         // Add default helpers
@@ -521,6 +539,7 @@ export class ThreeAPI {
         if (object3d.userData.helper) {
             this.helperScene.remove(object3d.userData.helper);
             object3d.userData.helper.dispose?.();
+            object3d.userData.helper = null;
         }
 
         let helper;
@@ -550,11 +569,9 @@ export class ThreeAPI {
         else if (object3d.isSkinnedMesh) {
             helper = new THREE.SkeletonHelper(object3d);
         }
-        // Generic object helper (axes)
+        // Generic no helper 
         else {
-            helper = new THREE.AxesHelper(1);
-            helper.position.copy(object3d.position);
-            helper.rotation.copy(object3d.rotation);
+            helper = null
         }
 
         if (helper) {
@@ -572,8 +589,8 @@ export class ThreeAPI {
             object3d.userData.helper.dispose?.();
             delete object3d.userData.helper;
         }
-        object3d.traverse(obj=>{
-            if(obj!==object3d) this.removeHelper(obj)
+        object3d.traverse(obj => {
+            if (obj !== object3d) this.removeHelper(obj)
         })
     }
 
@@ -813,6 +830,8 @@ export class SceneManager {
     public sceneIndex: SceneIndexItem[];
     public lightScene?: LightSceneNode;
     public registry: ThreeRegistry;
+    public activeUrl?: string;
+
 
     constructor() {
         this.activeScene = new THREE.Scene();       // Main scene under editor
@@ -838,7 +857,7 @@ export class SceneManager {
     // --------------------------------------------------------
     // Load scene from JSON
     // --------------------------------------------------------
-    public fromJson(json: any, setActive): void {
+    public fromJson(json: any, setActive): THREE.Scene {
         const loader = new ObjectLoader();
         const scene = loader.parse(json) as THREE.Scene;
         if (setActive) {
@@ -849,7 +868,12 @@ export class SceneManager {
         //this.rebuildLightScene()
         //this._buildIndex();
     }
-
+    
+    public setScene(scene){
+        this.activeScene = scene
+        this.registry.register(this.activeScene, true);
+    }
+    
     // --------------------------------------------------------
     // Save to file
     // --------------------------------------------------------
@@ -858,15 +882,25 @@ export class SceneManager {
         //this.rebuildLightScene()
         //this.activeScene.userData.lightScene = this.lightScene;
         await fs.writeFile(filePath, JSON.stringify(scene || this.activeScene, null, 2));
+        this.activeUrl = filePath;
     }
 
+
+    public async savePrimary() {
+        await this.saveScene("/Game/files/Scenes/Primary.json")
+    }
+    public async saveActive() {
+        if (this.activeUrl)
+            await this.saveScene(this.activeUrl)
+    }
     // --------------------------------------------------------
     // Load from file
     // --------------------------------------------------------
     public async loadScene(filePath: string, setActive = true): Promise<void> {
         const text = await fs.readFile(filePath);
         const json = JSON.parse(text);
-        return this.fromJson(json, setActive);
+        const scene = this.fromJson(json, setActive);
+        this.activeUrl = filePath;
     }
 
     // --------------------------------------------------------

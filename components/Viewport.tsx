@@ -163,7 +163,7 @@ const Viewport: React.FC<ViewportProps> = ({ mode, setMode, selectedObject }) =>
             {/* Viewport Actions (Top Right) */}
             <div className="absolute top-2 right-2 z-10 flex gap-2">
                 <div className="flex bg-editor-panel/90 backdrop-blur border border-editor-border rounded p-1 shadow-lg">
-                    <div className="flex items-center gap-2 px-2 border-r border-editor-border cursor-pointer hover:bg-white/5 rounded-sm">
+                    <div onClick={e=>three.toggleLights()} className="flex items-center gap-2 px-2 border-r border-editor-border cursor-pointer hover:bg-white/5 rounded-sm">
                         <Sun size={12} className="text-yellow-400" />
                         <span className="text-[10px] text-white">Lit</span>
                     </div>
@@ -202,9 +202,10 @@ const Viewport: React.FC<ViewportProps> = ({ mode, setMode, selectedObject }) =>
                         object.position.copy(hit.point);
                         object.quaternion.copy(quat);
                     }
-                    /* ---------------- Add to scene ---------------- */
+                    /* ---------------- Add to selected object  ---------------- */
                     const scene = editor.api.sceneManager.activeScene;
-                    editor.addObject(scene, object);
+                    const target = three.selectedObject;
+                    editor.addObject(target||scene, object);
 
                     mutationCall(scene);
                     toast('Loaded and placed');

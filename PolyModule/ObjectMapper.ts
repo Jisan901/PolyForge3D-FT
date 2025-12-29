@@ -16,8 +16,8 @@ class ObjectMapper {
                 scale: true,
                 visible: true,
 
-                //geometry: true,
-                //material: true,
+                geometry: true,
+                material: true,
                 castShadow: true,
                 receiveShadow: true,
 
@@ -176,6 +176,20 @@ class ObjectMapper {
                     }
                 }
             }
+            if (typeof value === 'object'&&value?.isMaterial) {
+                result[key] = {
+                    isMaterial : true,
+                    uuid: value.uuid,
+                    name : value.name || value.type
+                }
+            }
+            if (typeof value === 'object'&&value?.isBufferGeometry) {
+                result[key] = {
+                    isBufferGeometry : true,
+                    uuid: value.uuid,
+                    name : value.name || value.type
+                }
+            }
             
         }
         
@@ -218,5 +232,5 @@ export function isPrimitive(v: any): boolean {
 }
 
 function IsAllowed(object: any): boolean {
-    return object && (object.isMesh || object.isObject3D || object.isMaterial || object.isGeometry);
+    return object && (object.isMesh || object.isObject3D || object.isMaterial || object.isGeometry || object.isBufferGeometry);
 }

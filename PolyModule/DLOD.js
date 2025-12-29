@@ -27,7 +27,7 @@ class DLOD extends Object3D {
 		 * @type {number}
 		 * @default 0
 		 */
-		this._currentLevel = 0;
+		this._currentLevel = -1;
 
 		this.type = 'DLOD';
 

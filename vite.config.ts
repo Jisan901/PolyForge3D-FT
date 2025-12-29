@@ -2,7 +2,7 @@ import path from 'path';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite'
-import fsPlugin from 'fs-browser/plugin';
+import fsPlugin from '@jisan901/fs-browser/plugin';
 
 export default defineConfig(({ mode }) => {
     return {

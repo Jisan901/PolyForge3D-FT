@@ -46,8 +46,8 @@ export function EditorStatesProvider({ children }) {
 
     // Sync Selection
     useEffect(() => {
-        return editor.api.buses.selectionUpdate.subscribe(() => {
-            const target = PolyForge.api.three.selectedObject;
+        return editor.api.buses.selectionUpdate.subscribe((target) => {
+            //const target = PolyForge.api.three.selectedObject;
             setSelectedId(target?.uuid || "");
             setSelectedObject(target || null);
             
