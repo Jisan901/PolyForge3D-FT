@@ -16,7 +16,7 @@
         },
         "geometries": [
           {
-            "uuid": "3a63c6ae-8524-4ffd-bcd9-95ed5524c73a",
+            "uuid": "485b301d-7257-487d-b5b3-3efbf5087dfd",
             "type": "BufferGeometry",
             "data": {
               "attributes": {
@@ -348,7 +348,7 @@
         ],
         "materials": [
           {
-            "uuid": "38373c4b-c57d-4593-918f-97301058f742",
+            "uuid": "dd0e4069-791f-4f28-bf69-ede1d394e1a0",
             "type": "LineBasicMaterial",
             "color": 16777215,
             "vertexColors": true,
@@ -357,7 +357,7 @@
           }
         ],
         "object": {
-          "uuid": "402436c7-1202-498c-a109-42bbd369addd",
+          "uuid": "8b7e9a04-544b-4b0e-8cac-172c586b578e",
           "type": "CameraHelper",
           "layers": 1,
           "matrix": [
@@ -384,8 +384,8 @@
             0
           ],
           "matrixAutoUpdate": false,
-          "geometry": "3a63c6ae-8524-4ffd-bcd9-95ed5524c73a",
-          "material": "38373c4b-c57d-4593-918f-97301058f742"
+          "geometry": "485b301d-7257-487d-b5b3-3efbf5087dfd",
+          "material": "dd0e4069-791f-4f28-bf69-ede1d394e1a0"
         }
       }
     },

@@ -57,7 +57,7 @@ const Viewport: React.FC<ViewportProps> = ({ mode, setMode, selectedObject }) =>
     const [toolbarActive, setToolbarActive] = useState('select');
     const [space, setSpace] = useState('world');
     const canvasParentRef = useRef();
-
+    //if (mode==='SCENE') PolyForge.api.three.setTool(toolbarActive)
     useEffect(() => {
         let el = canvasParentRef.current
 
@@ -212,7 +212,7 @@ const Viewport: React.FC<ViewportProps> = ({ mode, setMode, selectedObject }) =>
                 }}
                 className='h-full w-full relative flex-1 flex'
             >
-                <div className="flex-1 relative overflow-hidden flex items-center justify-center bg-gradient-to-b from-[#1e1e20] to-[#111] z-0" ref={canvasParentRef}>
+                <div className="flex-1 relative overflow-hidden flex items-center justify-center bg-gradient-to-b from-[#1e1e20] to-[#111] z-0" ref={canvasParentRef} id="wrapper">
 
 
 

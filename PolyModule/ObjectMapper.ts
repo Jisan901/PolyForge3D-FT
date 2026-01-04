@@ -25,6 +25,26 @@ class ObjectMapper {
             };
         }
         // --------------------------
+        // MESH
+        // --------------------------
+        if (object.isSprite) {
+            return {
+                uuid: true,
+                name: true,
+                type: true,
+                position: true,
+                rotation: true,
+                scale: true,
+                visible: true,
+
+                geometry: true,
+                material: true,
+                count: true
+
+                //children: true,
+            };
+        }
+        // --------------------------
         // LIGHT
         // --------------------------
         if (object.isLight) {
@@ -180,7 +200,8 @@ class ObjectMapper {
                 result[key] = {
                     isMaterial : true,
                     uuid: value.uuid,
-                    name : value.name || value.type
+                    name : value.name || value.type,
+                    map:{isTexture:true}
                 }
             }
             if (typeof value === 'object'&&value?.isBufferGeometry) {
@@ -211,7 +232,7 @@ class ObjectMapper {
         if (object.userData.special) {
              components = object.userData.components
         }
-        
+        result.userData = object.userData
         
         
         return [result, components];

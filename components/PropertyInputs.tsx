@@ -64,6 +64,54 @@ export const Vector3Input: React.FC<{
     );
 };
 
+export const Vector2Input: React.FC<{
+    label: string;
+    value: { x: number; y: number };
+    onChange?: (v: { x: number; y: number }) => void;
+}> = ({ label, value, onChange }) => {
+
+    const [state, setState] = React.useState({ x: value.x, y: value.y});
+
+
+    const update = (key: "x" | "y" , newVal: number) => {
+        const next = { ...state, [key]: newVal };
+        setState(next);
+        onChange?.(next);
+    };
+
+    return (
+        <div className="flex items-center mb-1">
+            <div className="w-16 text-[10px] text-editor-textDim flex items-center">
+                {label}
+            </div>
+
+            <div className="flex-1 flex gap-1">
+                {/* X */}
+                <div className="flex-1 flex items-center bg-editor-input rounded border border-editor-border overflow-hidden">
+                    <div className="w-4 flex items-center justify-center text-[9px] font-bold text-red-400 cursor-ew-resize bg-white/5 h-full">X</div>
+                    <input
+                        type="number"
+                        defaultValue={state.x}
+                        onBlur={(e) => update("x", parseFloat(e.target.value))}
+                        className="w-full bg-transparent text-[10px] px-1 py-1 focus:outline-none text-white no-spinner"
+                    />
+                </div>
+
+                {/* Y */}
+                <div className="flex-1 flex items-center bg-editor-input rounded border border-editor-border overflow-hidden">
+                    <div className="w-4 flex items-center justify-center text-[9px] font-bold text-green-400 cursor-ew-resize bg-white/5 h-full">Y</div>
+                    <input
+                        type="number"
+                        defaultValue={state.y}
+                        onBlur={(e) => update("y", parseFloat(e.target.value))}
+                        className="w-full bg-transparent text-[10px] px-1 py-1 focus:outline-none text-white no-spinner"
+                    />
+                </div>
+            </div>
+        </div>
+    );
+};
+
 
 
 
@@ -298,3 +346,297 @@ export const MaterialGeoRefInput: React.FC<{ label: string; value: string; onCha
         </div>
     );
 }
+
+
+
+
+import { useRef, useState } from 'react';
+import { Upload, X, Image as ImageIcon, RefreshCw } from 'lucide-react';
+import * as THREE from 'three';
+
+interface TextureInputProps {
+  label: string;
+  value: THREE.Texture | null;
+  onChange: (texture: THREE.Texture | null) => void;
+  onPropertyChange?: (property: string, value: any) => void;
+}
+
+export const TextureInput: React.FC<TextureInputProps> = ({
+  label,
+  value,
+  onChange,
+  onPropertyChange
+}) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [preview, setPreview] = useState<string | null>(null);
+
+  // Generate preview when texture changes
+  React.useEffect(() => {
+    if (value?.image) {
+      try {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        const img = value.image;
+        const maxSize = 64;
+        const scale = Math.min(maxSize / img.width, maxSize / img.height);
+        
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        setPreview(canvas.toDataURL());
+      } catch (e) {
+        console.warn('Failed to generate texture preview', e);
+      }
+    } else {
+      setPreview(null);
+    }
+  }, [value]);
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const texture = new THREE.Texture(img);
+        texture.needsUpdate = true;
+        texture.name = file.name;
+        onChange(texture);
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+
+    // Reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleClear = () => {
+    onChange(null);
+    setPreview(null);
+  };
+
+  const handleWrapChange = (axis: 'wrapS' | 'wrapT', value: string) => {
+    if (!value || !onPropertyChange) return;
+    
+    const wrapValue = value === 'repeat' ? THREE.RepeatWrapping :
+                      value === 'clamp' ? THREE.ClampToEdgeWrapping :
+                      THREE.MirroredRepeatWrapping;
+    
+    onPropertyChange(axis, wrapValue);
+  };
+
+  const handleFilterChange = (type: 'minFilter' | 'magFilter', value: string) => {
+    if (!value || !onPropertyChange) return;
+    
+    let filterValue;
+    if (type === 'magFilter') {
+      filterValue = value === 'linear' ? THREE.LinearFilter : THREE.NearestFilter;
+    } else {
+      filterValue = value === 'linear' ? THREE.LinearFilter :
+                    value === 'nearest' ? THREE.NearestFilter :
+                    value === 'linear-mipmap-linear' ? THREE.LinearMipmapLinearFilter :
+                    value === 'linear-mipmap-nearest' ? THREE.LinearMipmapNearestFilter :
+                    value === 'nearest-mipmap-linear' ? THREE.NearestMipmapLinearFilter :
+                    THREE.NearestMipmapNearestFilter;
+    }
+    
+    onPropertyChange(type, filterValue);
+  };
+
+  return (
+    <div className="flex flex-col gap-2 py-2 border-b border-[#3f3f46]">
+      <div className="flex items-center justify-between">
+        <label className="text-xs text-[#a1a1aa] font-medium">{label}</label>
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="text-[10px] text-[#71717a] hover:text-[#d4d4d8]"
+        >
+          {isExpanded ? '▼' : '▶'}
+        </button>
+      </div>
+
+      <div className="flex items-center gap-2">
+        {/* Preview */}
+        <div className="w-16 h-16 bg-[#18181b] border border-[#3f3f46] rounded flex items-center justify-center overflow-hidden">
+          {preview ? (
+            <img 
+              src={preview} 
+              alt="Texture preview" 
+              className="w-full h-full object-contain"
+            />
+          ) : (
+            <ImageIcon size={24} className="text-[#52525b]" />
+          )}
+        </div>
+
+        {/* Controls */}
+        <div className="flex-1 flex flex-col gap-1">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleFileSelect}
+            className="hidden"
+          />
+          
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="px-2 py-1 text-xs bg-[#3f3f46] hover:bg-[#52525b] text-[#d4d4d8] rounded flex items-center justify-center gap-1"
+          >
+            <Upload size={12} />
+            {value ? 'Replace' : 'Upload'}
+          </button>
+
+          {value && (
+            <button
+              onClick={handleClear}
+              className="px-2 py-1 text-xs bg-[#3f3f46] hover:bg-red-900/50 text-red-400 rounded flex items-center justify-center gap-1"
+            >
+              <X size={12} />
+              Clear
+            </button>
+          )}
+
+          {value?.name && (
+            <div className="text-[10px] text-[#71717a] truncate">
+              {value.name}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Expanded Properties */}
+      {isExpanded && value && (
+        <div className="mt-2 space-y-2 pl-2 border-l-2 border-[#3f3f46]">
+          {/* Wrap S */}
+          <div className="flex items-center justify-between">
+            <label className="text-[10px] text-[#71717a]">Wrap S</label>
+            <select
+              defaultValue={
+                value.wrapS === THREE.RepeatWrapping ? 'repeat' :
+                value.wrapS === THREE.ClampToEdgeWrapping ? 'clamp' : 'mirror'
+              }
+              onInput={(e) => handleWrapChange('wrapS', e.target.value)}
+              className="px-2 py-0.5 text-[10px] bg-[#27272a] border border-[#3f3f46] text-[#d4d4d8] rounded"
+            >
+              <option value="repeat">Repeat</option>
+              <option value="clamp">Clamp</option>
+              <option value="mirror">Mirror</option>
+            </select>
+          </div>
+
+          {/* Wrap T */}
+          <div className="flex items-center justify-between">
+            <label className="text-[10px] text-[#71717a]">Wrap T</label>
+            <select
+              defaultValue={
+                value.wrapT === THREE.RepeatWrapping ? 'repeat' :
+                value.wrapT === THREE.ClampToEdgeWrapping ? 'clamp' : 'mirror'
+              }
+              onInput={(e) => handleWrapChange('wrapT', e.target.value)}
+              className="px-2 py-0.5 text-[10px] bg-[#27272a] border border-[#3f3f46] text-[#d4d4d8] rounded"
+            >
+              <option value="repeat">Repeat</option>
+              <option value="clamp">Clamp</option>
+              <option value="mirror">Mirror</option>
+            </select>
+          </div>
+
+          {/* Min Filter */}
+          <div className="flex items-center justify-between">
+            <label className="text-[10px] text-[#71717a]">Min Filter</label>
+            <select
+              defaultValue={
+                value.minFilter === THREE.LinearFilter ? 'linear' :
+                value.minFilter === THREE.NearestFilter ? 'nearest' :
+                value.minFilter === THREE.LinearMipmapLinearFilter ? 'linear-mipmap-linear' :
+                value.minFilter === THREE.LinearMipmapNearestFilter ? 'linear-mipmap-nearest' :
+                value.minFilter === THREE.NearestMipmapLinearFilter ? 'nearest-mipmap-linear' :
+                'nearest-mipmap-nearest'
+              }
+              onInput={(e) => handleFilterChange('minFilter', e.target.value)}
+              className="px-2 py-0.5 text-[10px] bg-[#27272a] border border-[#3f3f46] text-[#d4d4d8] rounded"
+            >
+              <option value="linear">Linear</option>
+              <option value="nearest">Nearest</option>
+              <option value="linear-mipmap-linear">Linear Mipmap Linear</option>
+              <option value="linear-mipmap-nearest">Linear Mipmap Nearest</option>
+              <option value="nearest-mipmap-linear">Nearest Mipmap Linear</option>
+              <option value="nearest-mipmap-nearest">Nearest Mipmap Nearest</option>
+            </select>
+          </div>
+
+          {/* Mag Filter */}
+          <div className="flex items-center justify-between">
+            <label className="text-[10px] text-[#71717a]">Mag Filter</label>
+            <select
+              defaultValue={value.magFilter === THREE.LinearFilter ? 'linear' : 'nearest'}
+              onInput={(e) => handleFilterChange('magFilter', e.target.value)}
+              className="px-2 py-0.5 text-[10px] bg-[#27272a] border border-[#3f3f46] text-[#d4d4d8] rounded"
+            >
+              <option value="linear">Linear</option>
+              <option value="nearest">Nearest</option>
+            </select>
+          </div>
+
+          {/* Repeat */}
+          
+          <Vector2Input label="Repeat" value={value.repeat} onChange={(e)=>{
+              onPropertyChange?.('repeat.x', parseFloat(e.x))
+              onPropertyChange?.('repeat.y', parseFloat(e.y))
+          }}/>
+
+
+          {/* Offset */}
+        <Vector2Input label="Offset" value={value.offset} onChange={(e)=>{
+              onPropertyChange?.('offset.x', parseFloat(e.x))
+              onPropertyChange?.('offset.y', parseFloat(e.y))
+          }}/>
+          
+          
+          {/* Center */}
+        <Vector2Input label="Center" value={value.center} onChange={(e)=>{
+              onPropertyChange?.('center.x', parseFloat(e.x))
+              onPropertyChange?.('center.y', parseFloat(e.y))
+          }}/>
+          
+          {/* Rotation */}
+          <div className="flex items-center justify-between">
+            <label className="text-[10px] text-[#71717a]">Rotation</label>
+            <input
+              type="number"
+              defaultValue={(value.rotation * 180 / Math.PI).toFixed(1)}
+              onBlur={(e) => onPropertyChange?.('rotation', parseFloat(e.target.value) * Math.PI / 180)}
+              className="w-16 px-2 py-0.5 text-[10px] bg-[#27272a] border border-[#3f3f46] text-[#d4d4d8] rounded"
+              step="1"
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Usage in inspector:
+// if (typeof val === 'object' && val?.isTexture) {
+//     return <TextureInput
+//         key={`${key}-texture`}
+//         label={label}
+//         value={val}
+//         onChange={(texture) => {
+//             editor.setProperty(object, key, texture);
+//         }}
+//         onPropertyChange={(prop, value) => {
+//             editor.setProperty(object, `${key}.${prop}`, value);
+//         }}
+//     />;
+// }

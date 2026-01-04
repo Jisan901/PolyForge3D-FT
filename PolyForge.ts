@@ -14,6 +14,12 @@ import { BehaviorRegistry } from './PolyModule/Runtime/Behavior'
 import { DLOD } from './PolyModule/DLOD.js'
 import { ObjectType } from './types'
 
+import { Plugin } from "./PolyModule/Plugin";
+import { plugins } from "./PolyModule/Plugins";
+import { SystemExecutor } from "./PolyModule/Runtime/Systems/System"
+import { Systems } from "./PolyModule/Runtime/Systems"
+
+
 interface DirInfo {
     name: string;        // "index.js"
     id: string;
@@ -91,7 +97,7 @@ class MemoLoader {
         this.maxSize = maxSize;
     }
 
-    async load(assetId: string, clone=true): Promise<THREE.Object3D> {
+    async load(assetId: string, clone = true): Promise<THREE.Object3D> {
         // LRU refresh
         if (this.cache.has(assetId)) {
             const entry = this.cache.get(assetId)!;
@@ -99,7 +105,7 @@ class MemoLoader {
             this.cache.set(assetId, entry);
 
             const base = await entry;
-            return clone?base.clone(true):base;
+            return clone ? base.clone(true) : base;
         }
 
         const promise = this._loadBase(assetId);
@@ -111,7 +117,7 @@ class MemoLoader {
         }
 
         const base = await promise;
-        return clone?base.clone(true):base;
+        return clone ? base.clone(true) : base;
     }
 
     private async _loadBase(assetId: string): Promise<THREE.Object3D> {
@@ -120,9 +126,9 @@ class MemoLoader {
 
         const loader = new ObjectLoader();
         const object = loader.parse(json);
-        
+
         object.userData.templateFile = assetId; // templates 
-        
+
         return object
     }
 
@@ -293,22 +299,22 @@ class EditorBackend {
             this.assetBrowser.reset();
         }
     }
-    async unmountScene(save=true){
+    async unmountScene(save = true) {
         let api = this.api;
-        if (api.sceneManager.activeScene){
+        if (api.sceneManager.activeScene) {
             save && (await api.sceneManager.saveActive())
             api.sceneManager.activeScene.removeFromParent()
             api.sceneManager.activeScene.clear()
         }
     }
-    async mountScene(url, unmount=true, save=true) {
+    async mountScene(url, unmount = true, save = true) {
         let api = this.api;
         unmount && await this.unmountScene(save)
         await api.sceneManager.loadScene(url)
         api.three.addToScene(api.sceneManager.activeScene);
         api.buses.sceneUpdate.emit(api.sceneManager.activeScene);
     }
-    async newScene(unmount=true, save=true){
+    async newScene(unmount = true, save = true) {
         let api = this.api;
         unmount && await this.unmountScene(save)
         const newScene = new THREE.Scene();
@@ -378,78 +384,331 @@ class EditorBackend {
 
 
 
+
+
 export class MeshBuilder {
-    constructor() { }
+  constructor() { }
 
-    create(type) {
-        switch (type) {
-            case ObjectType.CUBE: return threeRegistry.register(this.cube());
-            case ObjectType.SPHERE: return threeRegistry.register(this.sphere());
-            case ObjectType.CYLINDER: return threeRegistry.register(this.cylinder());
-            case ObjectType.PLANE: return threeRegistry.register(this.plane());
-            case ObjectType.CAPSULE: return threeRegistry.register(this.capsule());
-            case ObjectType.LIGHT: return threeRegistry.register(this.light());
-            case ObjectType.CAMERA: return threeRegistry.register(this.camera());
-            case ObjectType.FOLDER: return threeRegistry.register(this.folder());
-
-            default:
-                console.warn("MeshBuilder: unknown type", type);
-                return null;
-        }
+  create(type: ObjectType): THREE.Object3D | null {
+    switch (type) {
+      // Basic Geometries
+      case ObjectType.CUBE: return threeRegistry.register(this.cube());
+      case ObjectType.SPHERE: return threeRegistry.register(this.sphere());
+      case ObjectType.CYLINDER: return threeRegistry.register(this.cylinder());
+      case ObjectType.PLANE: return threeRegistry.register(this.plane());
+      case ObjectType.CAPSULE: return threeRegistry.register(this.capsule());
+      
+      // Additional Geometries
+      case ObjectType.CONE: return threeRegistry.register(this.cone());
+      case ObjectType.TORUS: return threeRegistry.register(this.torus());
+      case ObjectType.TORUS_KNOT: return threeRegistry.register(this.torusKnot());
+      case ObjectType.DODECAHEDRON: return threeRegistry.register(this.dodecahedron());
+      case ObjectType.ICOSAHEDRON: return threeRegistry.register(this.icosahedron());
+      case ObjectType.OCTAHEDRON: return threeRegistry.register(this.octahedron());
+      case ObjectType.TETRAHEDRON: return threeRegistry.register(this.tetrahedron());
+      case ObjectType.RING: return threeRegistry.register(this.ring());
+      case ObjectType.CIRCLE: return threeRegistry.register(this.circle());
+      
+      // Advanced Geometries
+      case ObjectType.LATHE: return threeRegistry.register(this.lathe());
+      case ObjectType.TUBE: return threeRegistry.register(this.tube());
+      
+      // Lights
+      case ObjectType.POINTLIGHT: return threeRegistry.register(this.pointLight());
+      case ObjectType.DIRECTIONAL_LIGHT: return threeRegistry.register(this.directionalLight());
+      case ObjectType.SPOT_LIGHT: return threeRegistry.register(this.spotLight());
+      case ObjectType.AMBIENT_LIGHT: return threeRegistry.register(this.ambientLight());
+      case ObjectType.HEMISPHERE_LIGHT: return threeRegistry.register(this.hemisphereLight());
+      case ObjectType.RECT_AREA_LIGHT: return threeRegistry.register(this.rectAreaLight());
+      
+      // Cameras
+      case ObjectType.CAMERA: return threeRegistry.register(this.camera());
+      case ObjectType.ORTHOGRAPHIC_CAMERA: return threeRegistry.register(this.orthographicCamera());
+      
+      // Helpers
+      case ObjectType.GRID_HELPER: return threeRegistry.register(this.gridHelper());
+      case ObjectType.AXES_HELPER: return threeRegistry.register(this.axesHelper());
+      case ObjectType.ARROW_HELPER: return threeRegistry.register(this.arrowHelper());
+      
+      // Special Objects
+      case ObjectType.SPRITE: return threeRegistry.register(this.sprite());
+      case ObjectType.LINE: return threeRegistry.register(this.line());
+      case ObjectType.LINE_SEGMENTS: return threeRegistry.register(this.lineSegments());
+      case ObjectType.POINTS: return threeRegistry.register(this.points());
+      
+      // Organization
+      case ObjectType.FOLDER: return threeRegistry.register(this.folder());
+      
+      default:
+        console.warn("MeshBuilder: unknown type", type);
+        return null;
     }
+  }
 
-    cube() {
-        return new THREE.Mesh(
-            new THREE.BoxGeometry(1, 1, 1),
-            new THREE.MeshStandardMaterial({ color: 0xaaaaaa })
-        );
-    }
+  // Basic Geometries
+  cube(): THREE.Mesh {
+    return new THREE.Mesh(
+      new THREE.BoxGeometry(1, 1, 1),
+      new THREE.MeshStandardMaterial({ color: 0xaaaaaa })
+    );
+  }
 
-    sphere() {
-        return new THREE.Mesh(
-            new THREE.SphereGeometry(0.5, 32, 32),
-            new THREE.MeshStandardMaterial({ color: 0xaaaaaa })
-        );
-    }
+  sphere(): THREE.Mesh {
+    return new THREE.Mesh(
+      new THREE.SphereGeometry(0.5, 32, 32),
+      new THREE.MeshStandardMaterial({ color: 0xaaaaaa })
+    );
+  }
 
-    cylinder() {
-        return new THREE.Mesh(
-            new THREE.CylinderGeometry(0.5, 0.5, 1, 32),
-            new THREE.MeshStandardMaterial({ color: 0xaaaaaa })
-        );
-    }
+  cylinder(): THREE.Mesh {
+    return new THREE.Mesh(
+      new THREE.CylinderGeometry(0.5, 0.5, 1, 32),
+      new THREE.MeshStandardMaterial({ color: 0xaaaaaa })
+    );
+  }
 
-    plane() {
-        return new THREE.Mesh(
-            new THREE.PlaneGeometry(1, 1),
-            new THREE.MeshStandardMaterial({
-                color: 0xaaaaaa,
-                side: THREE.DoubleSide
-            })
-        );
-    }
+  plane(): THREE.Mesh {
+    return new THREE.Mesh(
+      new THREE.PlaneGeometry(1, 1),
+      new THREE.MeshStandardMaterial({
+        color: 0xaaaaaa,
+        side: THREE.DoubleSide
+      })
+    );
+  }
 
-    capsule() {
+  capsule() {
         return new THREE.Mesh(
             new THREE.CapsuleGeometry(0.4, 1, 4, 8),
             new THREE.MeshStandardMaterial({ color: 0xaaaaaa })
         );
     }
 
-    light() {
-        const l = new THREE.DirectionalLight(0xffffff, 2, 200);
-        return l;
-    }
+  // Additional Geometries
+  cone(): THREE.Mesh {
+    return new THREE.Mesh(
+      new THREE.ConeGeometry(0.5, 1, 32),
+      new THREE.MeshStandardMaterial({ color: 0xaaaaaa })
+    );
+  }
 
-    camera() {
-        const cam = new THREE.PerspectiveCamera(60, 1, 0.1, 1000);
-        cam.position.set(0, 1, 3);
-        return cam;
-    }
+  torus(): THREE.Mesh {
+    return new THREE.Mesh(
+      new THREE.TorusGeometry(0.5, 0.2, 16, 100),
+      new THREE.MeshStandardMaterial({ color: 0xaaaaaa })
+    );
+  }
 
-    folder() {
-        return new THREE.Group();
+  torusKnot(): THREE.Mesh {
+    return new THREE.Mesh(
+      new THREE.TorusKnotGeometry(0.4, 0.15, 100, 16),
+      new THREE.MeshStandardMaterial({ color: 0xaaaaaa })
+    );
+  }
+
+  dodecahedron(): THREE.Mesh {
+    return new THREE.Mesh(
+      new THREE.DodecahedronGeometry(0.5),
+      new THREE.MeshStandardMaterial({ color: 0xaaaaaa })
+    );
+  }
+
+  icosahedron(): THREE.Mesh {
+    return new THREE.Mesh(
+      new THREE.IcosahedronGeometry(0.5),
+      new THREE.MeshStandardMaterial({ color: 0xaaaaaa })
+    );
+  }
+
+  octahedron(): THREE.Mesh {
+    return new THREE.Mesh(
+      new THREE.OctahedronGeometry(0.5),
+      new THREE.MeshStandardMaterial({ color: 0xaaaaaa })
+    );
+  }
+
+  tetrahedron(): THREE.Mesh {
+    return new THREE.Mesh(
+      new THREE.TetrahedronGeometry(0.5),
+      new THREE.MeshStandardMaterial({ color: 0xaaaaaa })
+    );
+  }
+
+  ring(): THREE.Mesh {
+    return new THREE.Mesh(
+      new THREE.RingGeometry(0.3, 0.5, 32),
+      new THREE.MeshStandardMaterial({
+        color: 0xaaaaaa,
+        side: THREE.DoubleSide
+      })
+    );
+  }
+
+  circle(): THREE.Mesh {
+    return new THREE.Mesh(
+      new THREE.CircleGeometry(0.5, 32),
+      new THREE.MeshStandardMaterial({
+        color: 0xaaaaaa,
+        side: THREE.DoubleSide
+      })
+    );
+  }
+
+  // Advanced Geometries
+  lathe(): THREE.Mesh {
+    const points = [];
+    for (let i = 0; i < 10; i++) {
+      points.push(new THREE.Vector2(Math.sin(i * 0.2) * 0.3 + 0.3, (i - 5) * 0.1));
     }
+    return new THREE.Mesh(
+      new THREE.LatheGeometry(points, 32),
+      new THREE.MeshStandardMaterial({ color: 0xaaaaaa })
+    );
+  }
+
+  tube(): THREE.Mesh {
+    const path = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(-0.5, 0, 0),
+      new THREE.Vector3(-0.25, 0.5, 0),
+      new THREE.Vector3(0.25, -0.5, 0),
+      new THREE.Vector3(0.5, 0, 0)
+    ]);
+    return new THREE.Mesh(
+      new THREE.TubeGeometry(path, 64, 0.1, 8, false),
+      new THREE.MeshStandardMaterial({ color: 0xaaaaaa })
+    );
+  }
+
+  // Lights
+  pointLight(): THREE.PointLight {
+    const light = new THREE.PointLight(0xffffff, 1, 100);
+    light.position.set(0, 2, 0);
+    return light;
+  }
+
+  directionalLight(): THREE.DirectionalLight {
+    const light = new THREE.DirectionalLight(0xffffff, 1);
+    light.add(light.target)
+    light.target.position.set(0, -5, 0)
+    light.position.set(5, 5, 5);
+    return light;
+  }
+
+  spotLight(): THREE.SpotLight {
+    const light = new THREE.SpotLight(0xffffff, 1, 100, Math.PI / 6);
+    light.add(light.target)
+    light.target.position.set(0, -5, 0)
+    light.position.set(0, 5, 0);
+    return light;
+  }
+
+  ambientLight(): THREE.AmbientLight {
+    return new THREE.AmbientLight(0xffffff, 0.5);
+  }
+
+  hemisphereLight(): THREE.HemisphereLight {
+    return new THREE.HemisphereLight(0xffffbb, 0x080820, 1);
+  }
+
+  rectAreaLight(): THREE.RectAreaLight {
+    const light = new THREE.RectAreaLight(0xffffff, 5, 2, 2);
+    light.position.set(0, 2, 0);
+    return light;
+  }
+
+  // Cameras
+  camera(): THREE.PerspectiveCamera {
+    const cam = new THREE.PerspectiveCamera(60, 1, 0.1, 1000);
+    cam.position.set(0, 1, 3);
+    return cam;
+  }
+
+  orthographicCamera(): THREE.OrthographicCamera {
+    const cam = new THREE.OrthographicCamera(-5, 5, 5, -5, 0.1, 1000);
+    cam.position.set(0, 1, 3);
+    return cam;
+  }
+
+  // Helpers
+  gridHelper(): THREE.GridHelper {
+    return new THREE.GridHelper(10, 10);
+  }
+
+  axesHelper(): THREE.AxesHelper {
+    return new THREE.AxesHelper(1);
+  }
+
+  arrowHelper(): THREE.ArrowHelper {
+    return new THREE.ArrowHelper(
+      new THREE.Vector3(0, 1, 0),
+      new THREE.Vector3(0, 0, 0),
+      1,
+      0xff0000
+    );
+  }
+
+  // Special Objects
+  sprite(): THREE.Sprite {
+    const map = new THREE.CanvasTexture(this.generateSpriteTexture());
+    const material = new THREE.SpriteMaterial({ map });
+    return new THREE.Sprite(material);
+  }
+
+  line(): THREE.Line {
+    const points = [
+      new THREE.Vector3(-0.5, 0, 0),
+      new THREE.Vector3(0, 0.5, 0),
+      new THREE.Vector3(0.5, 0, 0)
+    ];
+    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+    const material = new THREE.LineBasicMaterial({ color: 0xaaaaaa });
+    return new THREE.Line(geometry, material);
+  }
+
+  lineSegments(): THREE.LineSegments {
+    const points = [
+      new THREE.Vector3(-0.5, 0, 0),
+      new THREE.Vector3(0, 0.5, 0),
+      new THREE.Vector3(0, 0.5, 0),
+      new THREE.Vector3(0.5, 0, 0)
+    ];
+    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+    const material = new THREE.LineBasicMaterial({ color: 0xaaaaaa });
+    return new THREE.LineSegments(geometry, material);
+  }
+
+  points(): THREE.Points {
+    const vertices = [];
+    for (let i = 0; i < 100; i++) {
+      vertices.push(
+        Math.random() - 0.5,
+        Math.random() - 0.5,
+        Math.random() - 0.5
+      );
+    }
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+    const material = new THREE.PointsMaterial({ color: 0xaaaaaa, size: 0.05 });
+    return new THREE.Points(geometry, material);
+  }
+
+  // Organization
+  folder(): THREE.Group {
+    return new THREE.Group();
+  }
+
+  // Helper method for sprite texture
+  private generateSpriteTexture(): HTMLCanvasElement {
+    const canvas = document.createElement('canvas');
+    canvas.width = 64;
+    canvas.height = 64;
+    const ctx = canvas.getContext('2d')!;
+    ctx.fillStyle = '#aaaaaa';
+    ctx.beginPath();
+    ctx.arc(32, 32, 30, 0, Math.PI * 2);
+    ctx.fill();
+    return canvas;
+  }
 }
 
 
@@ -472,6 +731,10 @@ class PolyForge3D {
     private mode: EditorMode = 'edit';
     private deltaTime = 0;
     private lastTime = 0;
+    // plugins 
+    private plugins: Plugin[] = [];
+    private systemExecutor: SystemExecutor; 
+
 
     constructor() {
     }
@@ -497,10 +760,28 @@ class PolyForge3D {
         this.meshBuilder = new MeshBuilder();
         this.editor = new EditorBackend(this.api, this.editorRenderer);
         await this.editor.openProject();
+        await this.preloadPlugins();
         this.listenScriptAdd();
 
         // Start the render loop
         this.startRenderer();
+        this.systemExecutor = new SystemExecutor();
+        this.systemExecutor.systems = Systems.map(S=>new S(this));
+    }
+    async preloadPlugins() {
+        this.plugins = plugins.map(P => new P(this));
+        this.pluginData = {};
+
+        await Promise.all(
+            this.plugins.map(async (plugin) => {
+                await plugin.init?.();
+
+                this.pluginData = {
+                    ...this.pluginData,
+                    ...(plugin.provided ?? {})
+                };
+            })
+        );
     }
 
     // ----------------------------------------------------------
@@ -541,9 +822,9 @@ class PolyForge3D {
     // ----------------------------------------------------------
     async enterPlayMode() {
         if (this.mode === 'play') return;
-        
+
         await this.refreshRegistry();
-        
+
         await this.api.sceneManager.saveActive();
         toast('Saved Editor')
 
@@ -551,7 +832,7 @@ class PolyForge3D {
         this.api.three.setTool('select');
 
         try {
-            
+            this.systemExecutor.init();
             await this.behaviorRegistry.runOnStartCall()
         } catch (err) {
             console.log(err)
@@ -576,7 +857,7 @@ class PolyForge3D {
         this.mode = 'edit';
 
         await this.behaviorRegistry.runOnDestroyCall()
-
+        this.systemExecutor.destroy()
         await this.editor.mountScene(this.api.sceneManager.activeUrl, true, false)
 
     }
@@ -613,6 +894,10 @@ class PolyForge3D {
     // GAME LOGIC UPDATE (called only in play mode)
     // ----------------------------------------------------------
     private update() {
+        this.systemExecutor.update()
+        for (const plugin of this.plugins){
+            plugin.update?.(this.deltaTime);
+        }
         Array.from(this.behaviorRegistry.instances.values()).forEach(e => {
             e?.onUpdate?.(this.deltaTime)
         })
@@ -635,10 +920,10 @@ class PolyForge3D {
         this.buses.sceneUpdate.subscribe(async () => {
             try {
                 memoLoader.clear()
-            await this.refreshRegistry()
-        } catch (err) {
-            console.log(err)
-        }
+                await this.refreshRegistry()
+            } catch (err) {
+                console.log(err)
+            }
         });
     }
 
@@ -681,17 +966,18 @@ class PolyForge3D {
         threeRegistry.geometries.clear()
         threeRegistry.materials.clear()
         threeRegistry.register(this.api.sceneManager.activeScene, true);
-        
-        const templeteObjects = Array.from(threeRegistry.specialObjects.values())
-        
+
+        const templeteObjects = Array.from(threeRegistry.objects.values())
+
         await Promise.all(
-                templeteObjects.map(async (Tobject)=>{
-                    if (Tobject.userData.templateFile){
-                        Tobject.userData.components = structuredClone((await memoLoader.load(Tobject.userData.templateFile, false)).userData.components)
-                    }
-                })
-            )
-        
+            templeteObjects.map(async (Tobject) => {
+                if (Tobject.userData.templateFile) {
+                    Tobject.userData.components = structuredClone((await memoLoader.load(Tobject.userData.templateFile, false)).userData.components)
+                    Tobject.userData.special = Tobject.userData.components ? true : false;
+                }
+            })
+        )
+
         const specialObjects = Array.from(threeRegistry.specialObjects.values());
 
         // Process all objects in parallel
@@ -729,7 +1015,7 @@ class PolyForge3D {
 
 
     async syncLoads() {
-        
+
         this.buses.sceneUpdate.emit(this.api.sceneManager.activeScene);
         this.buses.fsUpdate.emit();
     }

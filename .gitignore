@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+
+#game assets
+
+Game/files/Assets/*
+Game/files/Extra/*

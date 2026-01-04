@@ -9,6 +9,7 @@ import { useEditorStates, useEditorActions } from '../contexts/EditorContext';
 import { PolyForge, mutate, mutationCall, toast } from "../PolyForge";
 import { useObserver, useValidatedSelection, useSceneObserver, useTargetObserver } from "../PolyModule/Hooks";
 import { DragAndDropZone } from "./Utils/DragNDrop";
+import { getMenuFlat } from "./Utils/getMenu";
 
 const editor = PolyForge.editor;
 
@@ -251,15 +252,8 @@ const Hierarchy: React.FC = () => {
     {
       label: '3D Object',
       action: () => {},
-      submenu: [
-        { label: 'Cube', action: () => addObject?.(ObjectType.CUBE, id) },
-        { label: 'Sphere', action: () => addObject?.(ObjectType.SPHERE, id) },
-        { label: 'Capsule', action: () => addObject?.(ObjectType.CAPSULE, id) },
-        { label: 'Cylinder', action: () => addObject?.(ObjectType.CYLINDER, id) },
-        { label: 'Plane', action: () => addObject?.(ObjectType.PLANE, id) },
-        { label: 'Light', action: () => addObject?.(ObjectType.LIGHT, id) },
-        { label: 'Camera', action: () => addObject?.(ObjectType.CAMERA, id) },
-      ]
+      submenu: getMenuFlat(addObject, id)
+          
     },
   ];
 

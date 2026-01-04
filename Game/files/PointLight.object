@@ -7,6 +7,80 @@
   "object": {
     "uuid": "5dab4b8d-f7f7-4771-9067-84341e15beca",
     "type": "PointLight",
+    "userData": {
+      "helper": {
+        "metadata": {
+          "version": 4.7,
+          "type": "Object",
+          "generator": "Object3D.toJSON"
+        },
+        "geometries": [
+          {
+            "uuid": "a11aa1cd-606b-4ec8-a87d-eed10800981d",
+            "type": "SphereGeometry",
+            "radius": 0.5,
+            "widthSegments": 4,
+            "heightSegments": 2,
+            "phiStart": 0,
+            "phiLength": 6.283185307179586,
+            "thetaStart": 0,
+            "thetaLength": 3.141592653589793
+          }
+        ],
+        "materials": [
+          {
+            "uuid": "11a891c4-19b3-4955-afcf-fa46d14afc7b",
+            "type": "MeshBasicMaterial",
+            "color": 16777215,
+            "envMapRotation": [
+              0,
+              0,
+              0,
+              "XYZ"
+            ],
+            "reflectivity": 1,
+            "refractionRatio": 0.98,
+            "blendColor": 0,
+            "wireframe": true,
+            "toneMapped": false,
+            "fog": false
+          }
+        ],
+        "object": {
+          "uuid": "914908f4-00c1-400f-9da3-1b15ade114cc",
+          "type": "PointLightHelper",
+          "layers": 1,
+          "matrix": [
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1
+          ],
+          "up": [
+            0,
+            1,
+            0
+          ],
+          "matrixAutoUpdate": false,
+          "geometry": "a11aa1cd-606b-4ec8-a87d-eed10800981d",
+          "material": "11a891c4-19b3-4955-afcf-fa46d14afc7b"
+        }
+      },
+      "special": false,
+      "components": {}
+    },
     "layers": 1,
     "matrix": [
       1,

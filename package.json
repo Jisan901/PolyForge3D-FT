@@ -9,13 +9,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@dimforge/rapier3d": "^0.19.3",
     "@jisan901/fs-browser": "^1.0.0",
     "@tailwindcss/vite": "^4.1.17",
     "lucide-react": "^0.555.0",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "tailwindcss": "^4.1.17",
-    "three": "^0.181.2"
+    "three": "^0.182.0",
+    "vite-plugin-wasm": "^3.5.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

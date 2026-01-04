@@ -415,6 +415,10 @@ export class ThreeAPI {
             if (this.transformControls.mode === 'translate') mutationCall(this.selectedObject, 'position');
             if (this.transformControls.mode === 'rotate') mutationCall(this.selectedObject, 'rotation');
             if (this.transformControls.mode === 'scale') mutationCall(this.selectedObject, 'scale');
+            
+            this.selectedObject?.userData?.helper?.update?.()
+            this.selectedObject?.parent?.userData?.helper?.update?.()
+            
         };
 
         this.draggingChangedListener = (event) => {

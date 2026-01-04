@@ -1,0 +1,103 @@
+{
+  "metadata": {
+    "version": 4.7,
+    "type": "Object",
+    "generator": "Object3D.toJSON"
+  },
+  "geometries": [
+    {
+      "uuid": "256434c3-6915-4151-8040-e992a51b3a11",
+      "type": "BoxGeometry",
+      "width": 1,
+      "height": 1,
+      "depth": 1,
+      "widthSegments": 1,
+      "heightSegments": 1,
+      "depthSegments": 1
+    }
+  ],
+  "materials": [
+    {
+      "uuid": "135ccf89-71b3-4520-839d-a92b6ba03a3e",
+      "type": "MeshStandardMaterial",
+      "color": 11184810,
+      "roughness": 1,
+      "metalness": 0,
+      "emissive": 0,
+      "envMapRotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "envMapIntensity": 1,
+      "blendColor": 0
+    }
+  ],
+  "object": {
+    "uuid": "1bc96f76-f69c-4b32-b0df-6adcfe6b2711",
+    "type": "Mesh",
+    "name": "Psx",
+    "userData": {
+      "special": true,
+      "components": {
+        "5": {
+          "id": 0,
+          "nameCode": 5,
+          "key": "rigidbody",
+          "data": {
+            "mass": 1,
+            "useGravity": true,
+            "isKinematic": false,
+            "drag": 0,
+            "angularDrag": 0.05
+          }
+        },
+        "6": {
+          "id": 1,
+          "nameCode": 6,
+          "key": "collider",
+          "data": {
+            "shape": "box",
+            "size": {
+              "x": 1,
+              "y": 1,
+              "z": 1,
+              "isVector3": true
+            },
+            "radius": 0.5,
+            "height": 2,
+            "isTrigger": false
+          }
+        }
+      },
+      "helper": null
+    },
+    "layers": 1,
+    "matrix": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      7.484045699964116,
+      3.16226224190016,
+      1
+    ],
+    "up": [
+      0,
+      1,
+      0
+    ],
+    "geometry": "256434c3-6915-4151-8040-e992a51b3a11",
+    "material": "135ccf89-71b3-4520-839d-a92b6ba03a3e"
+  }
+}

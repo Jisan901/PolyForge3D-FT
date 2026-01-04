@@ -72,7 +72,9 @@
         "default": {
             "mass": 1,
             "useGravity": true,
+            "isStatic": false,
             "isKinematic": false,
+            "updateKinematic": false,
             "drag": 0,
             "angularDrag": 0.05
         }

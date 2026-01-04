@@ -29,6 +29,21 @@ export function useObserver(target, path) {
 }
 
 
+export function useRawProperty(target, path) {
+    // Resolve deep value
+    if (!target || !path) return
+    try {
+    const keys = path.split(".");
+    let ref = target;
+    for (const k of keys) ref = ref[k];
+    return ref;
+    }
+    catch {
+        return null
+    }
+}
+
+
 export function useTargetObserver(target) {
 
     const [, rerender] = useState(0);

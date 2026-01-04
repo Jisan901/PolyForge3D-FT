@@ -1,6 +1,6 @@
 // game/scripts/LOD.ts
 import { Behavior } from '@/PolyModule/Runtime/Behavior';
-import { getComponent, Components } from '@/PolyModule/Runtime/Utility';
+import { getComponent, Components, syncEntityTransform } from '@/PolyModule/Runtime/Utility';
 import { DLOD } from '@/PolyModule/DLOD.js'; // your class
 import * as THREE from 'three';
 

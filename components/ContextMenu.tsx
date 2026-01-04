@@ -93,25 +93,59 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
   const menuRef = useRef<HTMLDivElement>(null);
   const [activeSubmenu, setActiveSubmenu] = useState<number | null>(null);
   const [position, setPosition] = useState({ top: y, left: x });
-
-  /* ---- Clamp menu to viewport ---- */
+  const [maxHeight, setMaxHeight] = useState<number | undefined>(undefined);
+  /* ---- Clamp menu to viewport with max-height for scrolling ---- */
   useEffect(() => {
     if (!menuRef.current) return;
 
     const rect = menuRef.current.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    const viewportWidth = window.innerWidth;
+    const padding = 8; // padding from viewport edges
+
     let top = y;
     let left = x;
+    let calculatedMaxHeight: number | undefined = undefined;
 
-    if (top + rect.height > window.innerHeight) {
-      top = window.innerHeight - rect.height - 8;
+    // Calculate available space below and above
+    const spaceBelow = viewportHeight - y - padding;
+    const spaceAbove = y - padding;
+
+    // If menu is taller than available space, set max-height and enable scrolling
+    if (rect.height > spaceBelow) {
+      if (spaceBelow > spaceAbove) {
+        // More space below, position at y and set max-height
+        calculatedMaxHeight = spaceBelow;
+      } else {
+        // More space above, position menu to fit above
+        if (rect.height > spaceAbove) {
+          // Menu is taller than space above too, anchor to top
+          top = padding;
+          calculatedMaxHeight = viewportHeight - (padding * 2);
+        } else {
+          // Menu fits above
+          top = y - rect.height;
+        }
+      }
     }
-    if (left + rect.width > window.innerWidth) {
+
+    // Horizontal positioning
+    if (left + rect.width > viewportWidth - padding) {
       left = x - rect.width;
+      // If it's a submenu and still overflows, position to the left of parent
+      if (left < padding) {
+        left = Math.max(padding, viewportWidth - rect.width - padding);
+      }
     }
 
-    setPosition({ top: Math.max(0, top), left: Math.max(0, left) });
+    setPosition({ 
+      top: Math.max(padding, top), 
+      left: Math.max(padding, left) 
+    });
+    setMaxHeight(calculatedMaxHeight);
   }, [x, y]);
-
+  
+  
   /* ---- Outside click handling (DELAYED) ---- */
   useEffect(() => {
     if (isSubmenu) return;
@@ -137,8 +171,8 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
   return createPortal(
     <div
       ref={menuRef}
-      className="context-menu-root fixed z-50 min-w-[160px] bg-[#27272a] border border-[#3f3f46] rounded-md shadow-2xl py-1"
-      style={{ top: position.top, left: position.left }}
+      className="context-menu-root fixed z-50 min-w-[160px] bg-[#27272a] border border-[#3f3f46] rounded-md shadow-2xl py-1 overflow-auto"
+      style={{ top: position.top, left: position.left, maxHeight: maxHeight ? `${maxHeight}px` : undefined }}
       onContextMenu={(e) => e.preventDefault()}
     >
       {items.map((item, i) =>
