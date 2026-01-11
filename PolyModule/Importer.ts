@@ -1,11 +1,12 @@
 import type { AssetImporter, ImportContext, ImportResult } from './Importers/types'
-import {GLTFImporter, JSONImporter} from './Importers';
+import {GLTFImporter, JSONImporter, FBXImporter} from './Importers';
 
 
 export class ImportManager {
     private importers: AssetImporter[] = [
         new GLTFImporter(),
-        new JSONImporter()
+        new JSONImporter(),
+        new FBXImporter()
         ];
     public ctx: ImportContext = {
         projectPath: '/Game/files',

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Depth Texture</title>
+</head>
+
+<body style="margin:0; overflow:hidden">
+    
+    <script type="importmap">
+        {
+  "imports": {
+    "three": "../node_modules/three/build/three.module.min.js",
+    "three/webgpu": "../node_modules/three/build/three.webgpu.min.js",
+    "three/tsl": "../node_modules/three/build/three.tsl.min.js",
+    "three/addons/": "../node_modules/three/examples/jsm/"
+  }
+}
+</script>
+    
+    <script type="module">
+        import {threeWebgl, threeWebgpu, randMesh}  from './threeBase.js';
+import { TransformControls } from 'three/addons/controls/TransformControls.js';
+
+
+
+const {
+        renderer,
+        THREE,
+        camera,
+        controls,
+        render
+} = await threeWebgpu();
+
+// ---------------- Scene ----------------
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x222222);
+
+
+camera.position.set(3, 3, 5);
+camera.lookAt(0, 0, 0);
+
+const material = new THREE.MeshStandardNodeMaterial({ color: 0x00ff00, transparent:true });
+
+// ---------------- Mesh ----------------
+//let mesh = new randMesh(2, 25, 84, THREE);
+
+
+//scene.add(mesh)
+
+//const m3 = new THREE.Mesh(
+  //  new THREE.BoxGeometry(2, 2, 2),
+//    material
+ //   )
+    //m3.renderOrder = 99
+//scene.add(m3);
+
+
+
+const intersectionGroup = new THREE.Group();
+intersectionGroup.name = 'intersection-test-group';
+scene.add(intersectionGroup);
+
+// Floor
+const floor = new THREE.Mesh(
+  new THREE.BoxGeometry(10, 0.5, 10),
+  new THREE.MeshStandardMaterial({ color: 0x808080 })
+);
+floor.position.set(0, -0.25, 0);
+floor.userData.isCollider = true;
+intersectionGroup.add(floor);
+
+// Wall
+const wall = new THREE.Mesh(
+  new THREE.BoxGeometry(10, 3, 0.5),
+  new THREE.MeshStandardMaterial({ color: 0x5555ff })
+);
+wall.position.set(0, 1.5, -5);
+wall.userData.isCollider = true;
+intersectionGroup.add(wall);
+
+
+const sphereRadius = 2;
+
+const sphere = new THREE.Mesh(
+  new THREE.SphereGeometry(sphereRadius, 32, 32),
+  material
+);
+sphere.position.set(0, 1, 0);
+scene.add(sphere);
+
+
+
+const tfControl = new TransformControls(camera, renderer.domElement);
+tfControl.attach(sphere);
+scene.add(tfControl.getHelper());
+
+
+tfControl.addEventListener('dragging-changed', (e) => {
+  controls.enabled = !e.value;
+});
+
+
+
+scene.add(new THREE.DirectionalLight(0xffffff, 4));
+scene.add(new THREE.AmbientLight(0x404040,1));
+
+
+
+import {
+  viewportDepthTexture,
+  linearDepth,
+  viewportUV,
+  vec3,
+  vec4,
+  depthPass,
+  pass,
+  uv,
+  positionView,
+  depth as depth1,
+  modelViewPosition,
+  viewportLinearDepth,
+  cameraNear,
+  cameraFar,
+  logarithmicDepthToViewZ,
+  perspectiveDepthToViewZ,
+  color,
+  float,
+  pow,
+  dot,
+  normalView,
+  normalize,
+  mix,
+  texture,
+  vec2,
+  time,
+  smoothstep
+} from 'three/tsl'
+
+const depth = viewportDepthTexture().x.toVar();
+
+const sceneViewZ = perspectiveDepthToViewZ(depth,cameraNear,cameraFar ).mul(1)
+const viewZ = positionView.z.mul(1).toVar();
+const subed = smoothstep(0,1,sceneViewZ.sub(viewZ.sub(0.3)).clamp(0,1)).toVar();   
+
+// View direction in view space
+const viewDir = normalize(positionView.negate());
+
+// Fresnel term
+const fresnel = pow(
+  float(1).sub(dot(normalView, viewDir)),
+  float(5.0) // power
+);
+
+
+let final = fresnel.add(subed).div(2).toVar();
+//const t = subed.clamp(0.0, 1.0).toVar();
+//const finalColor = vec3(1.0).mix(vec3(1.0, 0.0, 0.0), t); // white → red
+//pass(finalColor.toVec4(1.0));
+
+
+
+const loader = new THREE.TextureLoader();
+const textureImg = await loader.loadAsync( 'https://raw.githubusercontent.com/Brackeys/Force-Field/refs/heads/master/Force%20Field/Assets/HexagonGrid.jpg' );
+
+
+
+textureImg.wrapS = THREE.RepeatWrapping 
+textureImg.wrapT = THREE.RepeatWrapping
+
+
+const sample = texture(textureImg, uv().add(vec2(time.mul(0.1),0)).mul(2)).toVar()
+
+
+material.fragmentNode = vec4(vec3(sample.xyz.mul(vec3(0,1,1))),final);//depth.rgb//vec3(0,0.5,0.5);
+//material.fragmentNode = vec4(subed, subed, subed ,1);//vec3(0,0.5,0.5);
+//material.fragmentNode = vec4(final, final, final ,1);//vec3(0,0.5,0.5);
+//material.fragmentNode = vec4(finalColor ,1);//vec3(0,0.5,0.5);
+//material.fragmentNode = vec4(positionView , 1);//vec3(0,0.5,0.5);
+
+
+const postProcessing = new THREE.PostProcessing( renderer );
+
+//const scenePass = pass( scene, camera );
+const scenePass = pass( scene, camera, {type:THREE.FloatType} );
+//const scenePassDepth = scenePass.getTextureNode( 'depth' );
+console.log(scenePass.getTexture( 'depth' ))
+//const scenePassDepth = scenePass.getTextureNode( 'depth' );
+//console.log(scenePassDepth)
+postProcessing.outputNode = scenePass
+
+
+// ---------------- Render Loop ----------------
+function animate2() {
+  requestAnimationFrame(animate2);
+    postProcessing.render(scene)
+}
+
+animate2();
+    </script>
+    
+</body>
+
+</html>

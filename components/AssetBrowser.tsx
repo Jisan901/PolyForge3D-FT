@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Search, Folder, FileCode, FileImage, Box, FileText, SlidersHorizontal, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Search, Folder, FileCode, FileImage, Box, FileText, SlidersHorizontal, ArrowLeft, ArrowRight, Globe } from 'lucide-react';
 import { AssetFile } from '../types';
 import ContextMenu, { MenuItem } from './ContextMenu';
 import {DragAndDropZone} from "./Utils/DragNDrop";
@@ -34,6 +34,7 @@ const AssetBrowser: React.FC = () => {
             case 'image': return <FileImage size={32} className="text-purple-400" />;
             case 'material': return <Box size={32} className="text-pink-400" />;
             case 'model': return <Box size={32} className="text-cyan-400" />;
+            case 'geometry': return <Globe size={32} className="text-green-400" />;
             default: return <FileText size={32} className="text-gray-400" />;
         }
     };
@@ -97,7 +98,7 @@ const AssetBrowser: React.FC = () => {
 
             {/* Asset Grid */}
             <DragAndDropZone onDrop={async (e)=>{
-                    if (e.type==='Object'){
+                    if (e.type==='Object' && e.data.isObject3D){
                         const scene = PolyForge.api.sceneManager.activeScene;
                         const draggedNode = scene.getObjectByProperty('uuid', e.data.uuid);
                         
@@ -110,6 +111,11 @@ const AssetBrowser: React.FC = () => {
                         await editor.api.saveObjectFile(draggedNode, browser.activeDirName)
                         draggedNode.userData.helper = temp
                         await browser.reload()
+                    }
+                    if (e.type === 'GeoMat'&&(e.data.isMaterial||e.data.isBufferGeometry)){
+                        await editor.api.saveMatGeoFile(e.data, browser.activeDirName)
+                        await browser.reload()
+                        //console.log(e)
                     }
                 }} className="flex-1 flex overflow-hidden">
             <div className="flex-1 flex overflow-hidden" >

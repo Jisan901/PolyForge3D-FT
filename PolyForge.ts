@@ -201,6 +201,21 @@ class BridgeLayer {
         const data = await fs.writeFile(fileUrl, new Blob([json], { type: 'application/json' }));
         //this.emitFsUpdate()
     }
+    
+    async saveMatGeoFile(object, path) {
+        
+        let fileUrl
+        if (object.isMaterial){
+            fileUrl = path + '/' + (object.name || object.type) + '.mat'
+        }
+        else if (object.isBufferGeometry){
+            fileUrl = path + '/' + (object.name || object.type) + '.geo'
+        }
+        if ( !fileUrl) return 
+        let json = JSON.stringify(object, null, 2);
+        const data = await fs.writeFile(fileUrl, new Blob([json], { type: 'application/json' }));
+        //this.emitFsUpdate()
+    }
 
     setRenderer(renderer: EditorRenderer) {
         this.renderer = renderer;
@@ -651,7 +666,10 @@ export class MeshBuilder {
   sprite(): THREE.Sprite {
     const map = new THREE.CanvasTexture(this.generateSpriteTexture());
     const material = new THREE.SpriteMaterial({ map });
-    return new THREE.Sprite(material);
+    const sprite = new THREE.Sprite(material);
+    sprite.geometry = new THREE.BufferGeometry() 
+    sprite.geometry.copy(new THREE.PlaneGeometry());
+    return sprite
   }
 
   line(): THREE.Line {

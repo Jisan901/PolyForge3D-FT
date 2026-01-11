@@ -570,7 +570,7 @@ export class ThreeAPI {
         //     helper = new THREE.BoxHelper(object3d, 0xffff00);
         // }
         // Bone/Skeleton helpers
-        else if (object3d.isSkinnedMesh) {
+        else if (object3d.isSkinnedMesh || object3d.isBone) {
             helper = new THREE.SkeletonHelper(object3d);
         }
         // Generic no helper 

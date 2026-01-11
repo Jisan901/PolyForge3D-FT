@@ -12,6 +12,7 @@
     "@dimforge/rapier3d": "^0.19.3",
     "@jisan901/fs-browser": "^1.0.0",
     "@tailwindcss/vite": "^4.1.17",
+    "@xyflow/react": "^12.10.0",
     "lucide-react": "^0.555.0",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",

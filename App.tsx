@@ -8,6 +8,7 @@ import ConsolePanelImport, { LogEntry } from './components/ConsolePanel';
 import ContextMenu, { MenuItem } from './components/ContextMenu';
 import TimelineEditorImport from './components/TimelineEditor';
 import SettingsModalImport  from './components/SettingsModal';
+import UVEditorPlugin from "./Plugins/UVEditor"
 
 
 import { SceneObject, ViewMode, AssetFile, ObjectType } from './types';
@@ -394,7 +395,7 @@ function App() {
 
                     {/* Center Bottom: Asset Explorer / Console */}
                     <div style={{ height: bottomHeight }} className="flex-shrink-0 flex flex-col">
-                        <div className="h-full flex flex-col">
+                        <div className="h-full flex flex-col overflow-hidden">
                             {/* Tabs for Bottom Panel */}
                             <div className="flex items-center bg-editor-panel border-b border-editor-border h-7 px-1 flex-shrink-0 select-none">
                                 <button
@@ -415,15 +416,23 @@ function App() {
                                 >
                                     Animation
                                 </button>
+                                <button
+                                    className={`px-3 text-[10px] h-full border-b-2 font-medium ${activeBottomTab === 'Plugin' ? 'border-editor-accent text-white bg-[#1e1e1e]' : 'border-transparent text-editor-textDim hover:text-white'}`}
+                                    onClick={() => setActiveBottomTab('Plugin')}
+                                >
+                                    UV Editor
+                                </button>
                             </div>
 
                             {activeBottomTab === 'Project' ? (
                                 <AssetBrowser />
                             ) : activeBottomTab === 'Console' ? (
                                 <ConsolePanel />
-                            ) : (
+                            ) : activeBottomTab === 'Animation' ? (
                                 <TimelineEditor selectedObject={selectedObject} />
-                            )}
+                            ) : 
+                                <UVEditorPlugin selectedObject={selectedObject}/>
+                            }
                         </div>
                     </div>
                 </div>

@@ -87,8 +87,8 @@ export function DragAndDropZone({
 
                 const clearAllBorders = () => {
                     document.querySelectorAll('.drag-drop-zone').forEach((zone: HTMLElement) => {
-                        zone.style.border = '1px solid transparent';
-                        zone.style.backgroundColor = 'transparent';
+                        zone.style.border = originalStyles.border;
+                        zone.style.backgroundColor = originalStyles.backgroundColor;
                     });
                 };
 
@@ -205,7 +205,7 @@ export function DragAndDropZone({
                 cursor: dragState.isDragging ? 'grabbing' : payload ? 'grab' : 'default',
                 touchAction: 'none',
                 border:'1px solid transparent', // Base for smooth transition
-                backgroundColor: 'transparent'
+                //backgroundColor: 'transparent'
             }:{}}
         >
             {children}
