@@ -28,6 +28,47 @@ interface DirInfo {
     size: string;        // "1.42" (MB)
 }
 
+
+const defaultSettings = {
+  general: {
+    theme: 'Dark (Standard)',
+    language: 'English',
+    autoSave: true,
+    autoSaveInterval: 5,
+    showFPS: false,
+  },
+  graphics: {
+    antialiasing: 'FXAA',
+    resolutionScale: 1.0,
+    realtimeShadows: true,
+    ambientLight: '#1a1a1a',
+    textureQuality: 'High',
+    bloom: false,
+    bloomStrength: 1.0,
+    bloomThreshold: 0.8,
+    bloomRadius: 0.5,
+    fxaa: true,
+    ssao: false,
+    ssaoIntensity: 0.5,
+    dof: false,
+    dofFocus: 10.0,
+    vignette: false,
+    vignetteIntensity: 0.5,
+  },
+  physics: {
+    gravity: -9.81,
+    timeStep: 0.02,
+    maxIterations: 10,
+    continuousCollision: true,
+  },
+  input: {
+    moveTool: 'W',
+    rotateTool: 'E',
+    scaleTool: 'R',
+    playPause: 'Ctrl + P',
+  },
+};
+
 class Bus<T = any> {
     private listeners: Set<((e: T) => void)>
     constructor() {
@@ -265,8 +306,8 @@ class BridgeLayer {
 class EditorBackend {
     public api: BridgeLayer;
     public commander: Commander;
-
-
+    public defaultSettings = defaultSettings;
+    public currentSettings: Partial<typeof defaultSettings>;
     public assetBrowser: AssetBrowserManager;
     public projectInfo: { files: DirInfo[] } | {};
 
@@ -289,6 +330,8 @@ class EditorBackend {
     /* ---------------- Project Load ---------------- */
 
     async openProject() {
+        this.currentSettings = await this.loadSettings();
+        
         await this.loadProjectFile();
         this.api.buses.fsUpdate.emit();
 
@@ -314,6 +357,22 @@ class EditorBackend {
             this.assetBrowser.reset();
         }
     }
+    
+    async loadSettings (){
+        try {
+        const data = await fs.readFile('/Game/plfg_settings.json', 'utf8');
+        const json = JSON.parse(data);
+        return (json);
+        }
+        catch {
+            return this.defaultSettings;
+        }
+    }
+    async saveSettings (settings){
+        await fs.writeFile('/Game/plfg_settings.json', JSON.stringify(settings||this.currentSettings||this.defaultSettings));
+    }
+    
+    
     async unmountScene(save = true) {
         let api = this.api;
         if (api.sceneManager.activeScene) {
@@ -402,7 +461,7 @@ class EditorBackend {
 
 
 export class MeshBuilder {
-  constructor() { }
+  constructor(private threeRegistry) { }
 
   create(type: ObjectType): THREE.Object3D | null {
     switch (type) {
@@ -735,6 +794,32 @@ export class MeshBuilder {
    PolyForge root
    --------------------------- */
 type EditorMode = 'edit' | 'play' | 'paused';
+interface GraphicsSettings {
+  antialiasing: string;
+  resolutionScale: number;
+  realtimeShadows: boolean;
+  ambientLight: string;
+  textureQuality: string;
+  // Post-processing
+  bloom: boolean;
+  bloomStrength: number;
+  bloomThreshold: number;
+  bloomRadius: number;
+  fxaa: boolean;
+  ssao: boolean;
+  ssaoIntensity: number;
+  dof: boolean;
+  dofFocus: number;
+  vignette: boolean;
+  vignetteIntensity: number;
+}
+
+interface PhysicsSettings {
+  gravity: number;
+  timeStep: number;
+  maxIterations: number;
+  continuousCollision: boolean;
+}
 
 class PolyForge3D {
     public buses: BusHub;
@@ -780,7 +865,11 @@ class PolyForge3D {
         await this.editor.openProject();
         await this.preloadPlugins();
         this.listenScriptAdd();
-
+        
+        
+        this.applyGraphicsSettings(this.editor.currentSettings.graphics)
+        this.applyPhysicsSettings(this.editor.currentSettings.physics)
+        
         // Start the render loop
         this.startRenderer();
         this.systemExecutor = new SystemExecutor();
@@ -801,7 +890,100 @@ class PolyForge3D {
             })
         );
     }
+    
+    
+     applyGraphicsSettings  (settings: GraphicsSettings) {
+         
+         const renderer = this.editorRenderer;
+    if (!renderer || !this.pluginData?.postProcessing) return;
 
+    // Resolution scale
+    if (settings.resolutionScale) {
+      if (settings.resolutionScale > window.devicePixelRatio) toast('pixel ratio higher then device')
+      settings.resolutionScale = Math.min(settings.resolutionScale, window.devicePixelRatio)
+      renderer.three.renderer.setPixelRatio(settings.resolutionScale);
+      if (settings.resolutionScale < 0.6){
+        renderer.three.renderer.domElement.style.imageRendering = "pixelated";
+      }else renderer.three.renderer.domElement.style.imageRendering = "auto";
+     
+    }
+
+    // Shadows
+    const rendererInstance = renderer.getRenderer();
+    if (rendererInstance) {
+      rendererInstance.shadowMap.enabled = settings.realtimeShadows;
+    }
+
+    // Ambient light
+    const scene = renderer.getScene();
+    const ambientLight = scene.children.find((child: any) => child.isAmbientLight);
+    if (ambientLight) {
+      (ambientLight as any).color.setStyle(settings.ambientLight);
+    }
+
+    // Post-processing
+    const pp = PolyForge.pluginData.postProcessing;
+    
+    // Bloom
+    if (settings.bloom) {
+      pp.enable('bloom');
+      pp.updateData('bloom', {
+        strength: settings.bloomStrength,
+        threshold: settings.bloomThreshold,
+        radius: settings.bloomRadius,
+      });
+    } else {
+      pp.disable('bloom');
+    }
+
+    // FXAA
+    settings.fxaa ? pp.enable('fxaa') : pp.disable('fxaa');
+
+    // SSAO
+    if (settings.ssao) {
+      pp.enable('ssao');
+      pp.updateData('ssao', {
+        intensity: settings.ssaoIntensity,
+        radius: 0.5,
+        bias: 0.025,
+        samples: 16,
+      });
+    } else {
+      pp.disable('ssao');
+    }
+
+    // DOF
+    if (settings.dof) {
+      pp.enable('dof');
+      pp.updateData('dof', {
+        focus: settings.dofFocus,
+        aperture: 0.025,
+        maxblur: 0.01,
+      });
+    } else {
+      pp.disable('dof');
+    }
+
+    // Vignette
+    if (settings.vignette) {
+      pp.enable('vignette');
+      pp.updateData('vignette', {
+        intensity: settings.vignetteIntensity,
+        smoothness: 0.5,
+      });
+    } else {
+      pp.disable('vignette');
+    }
+  }
+
+      applyPhysicsSettings (settings: PhysicsSettings) {
+    const physicsPlugin = this.pluginData?.physics;
+    if (!physicsPlugin) return;
+
+    // Update gravity
+    physicsPlugin.world.gravity.y = settings.gravity;
+  }
+    
     // ----------------------------------------------------------
     // RENDERER CONTROL
     // ----------------------------------------------------------
@@ -833,6 +1015,25 @@ class PolyForge3D {
 
         // Always render
         this.editorRenderer.update();
+        
+
+    if (this.editor.currentSettings.general.autoSave && this.mode === 'edit') {
+    
+      const intervalMin = this.editor.currentSettings.general.autoSaveInterval;
+      const intervalMs = intervalMin * 60 * 1000;
+    
+      if (!this.lastSavedTime) {
+        this.lastSavedTime = currentTime;
+      }
+    
+      if (currentTime - this.lastSavedTime >= intervalMs) {
+        this.api.sceneManager.saveActive();
+        this.lastSavedTime = currentTime;
+      }
+    
+    }
+        
+        
     };
 
     // ----------------------------------------------------------
@@ -935,9 +1136,10 @@ class PolyForge3D {
                 }
             }
         });
-        this.buses.sceneUpdate.subscribe(async () => {
+        this.buses.sceneUpdate.subscribe(async (scene) => {
             try {
                 memoLoader.clear()
+                
                 await this.refreshRegistry()
             } catch (err) {
                 console.log(err)

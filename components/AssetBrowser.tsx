@@ -98,7 +98,8 @@ const AssetBrowser: React.FC = () => {
 
             {/* Asset Grid */}
             <DragAndDropZone onDrop={async (e)=>{
-                    if (e.type==='Object' && e.data.isObject3D){
+            console.log(e)
+                    if (e.type==='Object'){
                         const scene = PolyForge.api.sceneManager.activeScene;
                         const draggedNode = scene.getObjectByProperty('uuid', e.data.uuid);
                         

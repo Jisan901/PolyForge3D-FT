@@ -12,6 +12,7 @@ import { DragAndDropZone } from "./Utils/DragNDrop";
 import { getMenuFlat } from "./Utils/getMenu";
 
 const editor = PolyForge.editor;
+const editorRenderer = PolyForge.editorRenderer;
 
 // Icon mapping utility
 const getObjectIcon = (type: ObjectType) => {

@@ -1,34 +1,38 @@
-import React, { Suspense } from 'react';
-import { PolyForge } from "./PolyForge"
-// import App from './App'
-// import EditorProvider from './contexts/EditorContext'
+import React, { Suspense, useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 
+import { PolyForge } from "./PolyForge";
+import LoadingFallback from './components/Utils/Loading';
 
-async function main() {
+const App = React.lazy(() => import('./App'));
+const EditorProvider = React.lazy(() => import('./contexts/EditorContext'));
 
-    await PolyForge.init()
-    const App = React.lazy(() => import('./App'));
-    const EditorProvider = React.lazy(() => import('./contexts/EditorContext'));
+function Bootstrap() {
 
+  const [ready, setReady] = useState(false);
 
-    const rootElement = document.getElementById('root');
-    if (!rootElement) {
-        throw new Error("Could not find root element to mount to");
-    }
+  useEffect(() => {
+    (async () => {
+      await PolyForge.init(); // runs AFTER loading screen appears
+      setReady(true);
+    })();
+  }, []);
 
-    const root = ReactDOM.createRoot(rootElement);
+  // Show loader while PolyForge initializes
+  if (!ready) {
+    return <LoadingFallback />;
+  }
 
-
-
-    root.render(
-        <>
-            <Suspense fallback={<h1>loading...</h1>}>
-                <EditorProvider>
-                    <App />
-                </EditorProvider>
-            </Suspense>
-        </>
-    );
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <EditorProvider>
+        <App />
+      </EditorProvider>
+    </Suspense>
+  );
 }
-main()
+
+const rootElement = document.getElementById('root')!;
+const root = ReactDOM.createRoot(rootElement);
+
+root.render(<Bootstrap />);

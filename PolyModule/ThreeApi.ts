@@ -1,145 +1,187 @@
-import * as THREE from 'three';
+import * as THREEGL from 'three';
 import { ObjectLoader } from 'three';
-
-import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
-import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
-import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
-import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
-import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js';
-
-
-import { OrbitControls } from 'three/examples/jsm/Addons.js';
-import { ViewHelper } from 'three/addons/helpers/ViewHelper.js';
-
-
-import { TransformControls } from 'three/addons/controls/TransformControls.js';
+import {pass,renderOutput, vec4} from 'three/tsl'
 import fs from "@/lib/fs";
 import { BusHub, mutationCall } from '../PolyForge'
 /* ---------------------------
    Rendering / EditorRenderer
    --------------------------- */
+import * as THREE from 'three/webgpu';
+import { OrbitControls } from 'three/examples/jsm/Addons.js';
+import { TransformControls } from 'three/examples/jsm/Addons.js';
+import { ViewHelper } from 'three/addons/helpers/ViewHelper.js';
+import { fxaa } from 'three/addons/tsl/display/FXAANode.js';
+import { bloom } from 'three/addons/tsl/display/BloomNode.js';
+
+
+/* ---------------------------
+   Types
+   --------------------------- */
+type RenderingConfig = {
+    screenScalingFactor: number;
+};
+
 type Rendering = {
     renderer: THREE.WebGPURenderer;
     camera: THREE.PerspectiveCamera;
+    controls: OrbitControls;
     render: (scene: THREE.Scene) => void;
-    config: object;
-    controls?: any;
+    config: RenderingConfig;
+    postProcessing?: THREE.PostProcessing;
+    scenePass: any
 };
 
+type EngineType = 'webgpu' | 'webgl';
 
-class InteractiveViewHelper {
-    constructor(private camera, private renderer) {
-        this.helper = new ViewHelper(camera, renderer.domElement);
-        const div = document.createElement('div');
-        this.div = div
-        div.id = 'viewHelperXYZ';
-        div.style.zIndex = '12' //10 in editor
-        div.style.position = 'absolute';
-        div.style.height = '128px';
-        div.style.width = '128px';
-        document.body.appendChild(div);
-        div.addEventListener('pointerup', (event) => {
-            this.helper.handleClick(event)
-        });
+type PostProcessPass = {
+    active: boolean;
+    order: number;
+    data?: any;
+    callback: (
+        previousPass: any,
+        renderer: THREE.WebGPURenderer,
+        scene: THREE.Scene,
+        camera: THREE.Camera,
+        data?: any,
+        pass?:PostProcessPass
+    ) => any;
+    update?: (
+        currentPass: any,
+        renderer: THREE.WebGPURenderer,
+        scene: THREE.Scene,
+        camera: THREE.Camera,
+        data?: any
+    ) => any;
+    node?:any;
+};
 
-    }
-    setControll(controls) {
-        this.helper.controls = controls;
-        this.helper.controls.center = controls.target;
-    }
-    update(dt = 1 / 50) {
-        if (this.helper.animating) this.helper.update(dt);
-        this.helper.render(this.renderer);
-    }
-    handleResize() {
-        const dim = 128;
-        const domElement = this.renderer.domElement;
-        const rect = domElement.getBoundingClientRect();
-        const offsetX = rect.left + (domElement.offsetWidth - dim);
-        const offsetY = rect.top + (domElement.offsetHeight - dim);
+type PostProcessingRegistry = {
+    [key: string]: PostProcessPass;
+};
 
-        this.div.style.top = offsetY + 'px'
-        this.div.style.left = offsetX + 'px'
-    }
-}
-
-
-
-
-
+/* ---------------------------
+   EditorRenderer
+   --------------------------- */
 export class EditorRenderer {
     public three!: Rendering;
     public scene!: THREE.Scene;
     public gizmoHelper?: InteractiveViewHelper;
+    
     private isPerspective = true;
     private previewCamera: THREE.Camera | null = null;
     private editorCamera!: THREE.Camera;
     private isPreviewMode = false;
+    private engineType: EngineType;
+    private postProcessingRegistry: PostProcessingRegistry = {
+        
+    };
+    private postProcessingOrder: string[] = ['defaultPass'];
 
-    constructor() {
-        //this.init();
+    // Optional injected methods (set by external systems)
+    public updatePassSize?: (width: number, height: number) => void;
+    public selectObject?: (obj?: THREE.Object3D) => void;
+
+    constructor(engineType: EngineType = 'webgl') {
+        this.engineType = engineType;
+        this.initializeDefaultPasses();
+        // Note: init() should be called externally after construction
     }
 
     // ----------------------------------------------------------
-    // INIT
+    // INITIALIZATION
     // ----------------------------------------------------------
-    private async init() {
+    private initializeDefaultPasses(): void {
+        // Register default pass
+        this.postProcessingRegistry['defaultPass'] = {
+            active: true,
+            order: 0,
+            data: {},
+            callback: (previousPass, renderer, scene, camera, data) => {
+                // Default pass just returns the scene render
+                
+                return this.three.scenePass || pass(scene, camera);
+            }
+        };
+    }
+    public async init(): Promise<void> {
         this.scene = new THREE.Scene();
         this.three = await this.setupThree();
         this.editorCamera = this.three.camera;
     }
-
+    
     // ----------------------------------------------------------
-    // THREE SETUP
+    // THREE.JS SETUP
     // ----------------------------------------------------------
     private async setupThree(): Promise<Rendering> {
-        const config = { screenScalingFactor: 1 };
+        const config: RenderingConfig = { screenScalingFactor: 1 };
         const width = window.innerWidth * config.screenScalingFactor;
         const height = window.innerHeight * config.screenScalingFactor;
-        const renderer = new THREE.WebGLRenderer({
+        
+        // Initialize renderer
+        const renderer = new THREE.WebGPURenderer({
             antialias: true,
             alpha: true,
+            forceWebGL: this.engineType === 'webgl'
         });
-        //await renderer.init()
+        
+        await renderer.init();
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(width, height);
-        renderer.setClearColor("#2b343a");
+        renderer.setClearColor('#2b343a');
         renderer.shadowMap.enabled = true;
-        renderer.autoClear = false;
+
+        // Setup post-processing
+        const postProcessing = new THREE.PostProcessing(renderer);
+
+        // Setup camera
         const camera = new THREE.PerspectiveCamera(45, width / height, 0.001, 5000);
         camera.position.set(0, 10, -10);
         camera.lookAt(0, 0, 0);
+
+        // Setup controls
         const controls = new OrbitControls(camera, renderer.domElement);
+        
+        // Setup gizmo helper
         const gizmo = new InteractiveViewHelper(camera, renderer);
         gizmo.setControll(controls);
         this.gizmoHelper = gizmo;
+
+        // Helper function to set output node
+        const scenePass = pass(this.scene, camera);
+        postProcessing.outputNode = renderOutput(scenePass)
+        // Render function
         const render = (scene: THREE.Scene) => {
-            renderer.clear()
             renderer.render(scene, camera);
             gizmo.update();
         };
+
         return {
             renderer,
             camera,
             controls,
             render,
             config,
+            postProcessing,
+            scenePass,
         };
     }
 
     // ----------------------------------------------------------
-    // UPDATE
+    // UPDATE & RENDERING
     // ----------------------------------------------------------
-    update() {
+    public update(): void {
         if (!this.scene) return;
 
-        // Use preview camera if in preview mode, otherwise use editor camera
-        const activeCamera = this.isPreviewMode && this.previewCamera
-            ? this.previewCamera
-            : this.three.camera;
+        const activeCamera = this.getActiveCamera();
+        if (this.three.postProcessing && this.three.scenePass) {
+            if (this.three.scenePass?.camera.uuid !== activeCamera.uuid) this.three.scenePass.camera = activeCamera;
+            this.three.postProcessing.render();
+            //this.applyPostProcessing()
+        }
+        else {
+            this.three.renderer.render(this.scene, activeCamera);
+        }
 
-        this.three.renderer.clear();
-        this.three.renderer.render(this.scene, activeCamera);
 
         // Only update gizmo in editor mode
         if (!this.isPreviewMode) {
@@ -148,28 +190,201 @@ export class EditorRenderer {
     }
 
     // ----------------------------------------------------------
-    // UTILITIES
+    // POST-PROCESSING MANAGEMENT
     // ----------------------------------------------------------
-    getCanvas() {
-        return this.three.renderer.domElement;
+    
+    /**
+     * Register a new post-processing pass
+     */
+    public registerPostProcess(
+        name: string,
+        callback: PostProcessPass['callback'],
+        active: boolean = false,
+        order: number = 0,
+        data?: any,
+        update?: PostProcessPass['update']
+    ): void {
+        this.postProcessingRegistry[name] = {
+            active,
+            order,
+            data,
+            callback,
+            update
+        };
     }
 
-    setSize(width: number, height: number) {
-        this.three.renderer.setSize(width, height);
-        this.three.camera.aspect = width / height;
-        this.three.camera.updateProjectionMatrix();
+    /**
+     * Enable a specific post-processing effect
+     */
+    public enablePostProcess(name: string): void {
+        const pass = this.postProcessingRegistry[name];
+        
+        if (pass) {
+            if (pass.active) return;
+            pass.active = true;
+            this.applyPostProcessing()
+        } else {
+            console.warn(`Post-process "${name}" not found in registry`);
+        }
+    }
 
-        // Update preview camera aspect if it's a perspective camera
-        if (this.previewCamera && 'aspect' in this.previewCamera) {
-            (this.previewCamera as THREE.PerspectiveCamera).aspect = width / height;
-            this.previewCamera.updateProjectionMatrix();
+    /**
+     * Disable a specific post-processing effect
+     */
+    public disablePostProcess(name: string): void {
+        const pass = this.postProcessingRegistry[name];
+        if (pass) {
+            if (!pass.active) return;
+            pass.active = false;
+            this.applyPostProcessing()
+        } else {
+            console.warn(`Post-process "${name}" not found in registry`);
+        }
+    }
+
+    /**
+     * Set the order of post-processing passes
+     */
+    public setPostProcessingOrder(order: string[]): void {
+        // Validate that all passes exist
+        const invalidPasses = order.filter(name => !this.postProcessingRegistry[name]);
+        if (invalidPasses.length > 0) {
+            console.warn(`Invalid post-process names: ${invalidPasses.join(', ')}`);
         }
 
-        this.gizmoHelper?.handleResize?.();
+        this.postProcessingOrder = order;
+
+        // Update order property in registry
+        order.forEach((name, index) => {
+            if (this.postProcessingRegistry[name]) {
+                this.postProcessingRegistry[name].order = index;
+            }
+        });
+        this.applyPostProcessing()
     }
 
-    toggleCameraType() {
+    /**
+     * Get the current post-processing order
+     */
+    public getPostProcessingOrder(): string[] {
+        return [...this.postProcessingOrder];
+    }
+
+    /**
+     * Get the post-processing registry
+     */
+    public getPostProcessingRegistry(): PostProcessingRegistry {
+        return { ...this.postProcessingRegistry };
+    }
+
+    /**
+     * Toggle a post-processing effect on/off
+     */
+    public togglePostProcess(name: string): boolean {
+        const pass = this.postProcessingRegistry[name];
+        if (pass) {
+            pass.active = !pass.active;
+            this.applyPostProcessing()
+            return pass.active;
+        }
+        console.warn(`Post-process "${name}" not found in registry`);
+        return false;
+    }
+
+    /**
+     * Check if a post-processing effect is active
+     */
+    public isPostProcessActive(name: string): boolean {
+        return this.postProcessingRegistry[name]?.active ?? false;
+    }
+
+    /**
+     * Update the data for a specific post-processing pass
+     */
+    public updatePostProcessData(name: string, data: any): void {
+        const pass = this.postProcessingRegistry[name];
+        if (pass) {
+            const camera: THREE.Camera = this.getActiveCamera()
+            pass.data = data;
+            pass.update?.(
+                pass.node,
+                this.three.renderer,
+                this.scene,
+                camera,
+                pass.data
+                )
+        } else {
+            console.warn(`Post-process "${name}" not found in registry`);
+        }
+    }
+
+    /**
+     * Get the data for a specific post-processing pass
+     */
+    public getPostProcessData(name: string): any {
+        return this.postProcessingRegistry[name]?.data;
+    }
+
+    /**
+     * Apply the post-processing pipeline
+     */
+    private applyPostProcessing(): void {
+        const camera: THREE.Camera = this.getActiveCamera()
+        if (!this.three.postProcessing) {
+            // Fallback to direct rendering if no post-processing
+            this.three.postProcessing = new THREE.PostProcessing()
+            
+        }
+
+        // Get active passes in order
+        const activePasses = this.postProcessingOrder
+            .filter(name => this.postProcessingRegistry[name]?.active)
+            .map(name => ({
+                name,
+                pass: this.postProcessingRegistry[name]
+            }))
+            .sort((a, b) => a.pass.order - b.pass.order);
+            
+            
+        let currentNode: any = null;
+        
+        if (activePasses.length === 0) {
+            // No active passes, just render red
+            this.three.postProcessing.outputNode = vec4(1,0,0,1);
+            this.three.postProcessing.needsUpdate = true;
+            return;
+        }
+
+        // Build the post-processing chain
+        //let currentNode: any = null;
+
+        for (const { name, pass } of activePasses) {
+            currentNode = pass.callback(
+                currentNode,
+                this.three.renderer,
+                this.scene,
+                camera,
+                pass.data,
+                pass
+            );
+            
+        }
+
+        // Set the final output node
+        if (currentNode && this.three.postProcessing) {
+            this.three.postProcessing.outputNode = currentNode;
+            this.three.postProcessing.needsUpdate = true;
+        }
+
+    
+    }
+
+    // ----------------------------------------------------------
+    // CAMERA MANAGEMENT
+    // ----------------------------------------------------------
+    public toggleCameraType(): void {
         this.isPerspective = !this.isPerspective;
+        // TODO: Implement orthographic/perspective switch if needed
     }
 
     /**
@@ -177,26 +392,22 @@ export class EditorRenderer {
      * @param camera - The camera to preview, or null to return to editor camera
      * @returns boolean - true if now in preview mode, false if in editor mode
      */
-    togglePreviewCamera(camera?: THREE.Camera): boolean {
+    public togglePreviewCamera(camera?: THREE.Camera): boolean {
         if (camera) {
             // Switch to preview mode with provided camera
             this.previewCamera = camera;
             this.isPreviewMode = true;
-
-            // Disable orbit controls in preview mode
             this.three.controls.enabled = false;
 
-            // Update aspect ratio if needed
-            if ('aspect' in camera) {
+            // Update aspect ratio for perspective cameras
+            if (this.isPerspectiveCamera(camera)) {
                 const canvas = this.three.renderer.domElement;
-                (camera as THREE.PerspectiveCamera).aspect = canvas.width / canvas.height;
+                camera.aspect = canvas.width / canvas.height;
                 camera.updateProjectionMatrix();
             }
         } else {
             // Toggle preview mode on/off
             this.isPreviewMode = !this.isPreviewMode;
-
-            // Enable/disable controls based on mode
             this.three.controls.enabled = !this.isPreviewMode;
         }
 
@@ -206,35 +417,159 @@ export class EditorRenderer {
     /**
      * Check if currently in preview mode
      */
-    isInPreviewMode(): boolean {
+    public isInPreviewMode(): boolean {
         return this.isPreviewMode;
     }
 
     /**
      * Exit preview mode and return to editor camera
      */
-    exitPreviewMode() {
+    public exitPreviewMode(): void {
         this.isPreviewMode = false;
+        this.previewCamera = null;
         this.three.controls.enabled = true;
     }
 
     /**
      * Get the currently active camera (preview or editor)
      */
-    public getActiveCamera = (): THREE.Camera => {
+    public getActiveCamera(): THREE.Camera {
         return this.isPreviewMode && this.previewCamera
             ? this.previewCamera
             : this.three.camera;
     }
 
-    // injected by addPasses
-    updatePassSize?: (w: number, h: number) => void;
-    selectObject?: (obj?: THREE.Object3D) => void;
+    // ----------------------------------------------------------
+    // UTILITIES
+    // ----------------------------------------------------------
+    public getCanvas(): HTMLCanvasElement {
+        return this.three.renderer.domElement;
+    }
+
+    public setSize(width: number, height: number): void {
+        this.three.renderer.setSize(width, height);
+        this.three.camera.aspect = width / height;
+        this.three.camera.updateProjectionMatrix();
+
+        // Update preview camera aspect if it's a perspective camera
+        if (this.previewCamera && this.isPerspectiveCamera(this.previewCamera)) {
+            this.previewCamera.aspect = width / height;
+            this.previewCamera.updateProjectionMatrix();
+        }
+
+        this.gizmoHelper?.handleResize?.();
+        this.updatePassSize?.(width, height);
+    }
+
+    public getScene(): THREE.Scene {
+        return this.scene;
+    }
+
+    public getRenderer(): THREE.WebGPURenderer {
+        return this.three.renderer;
+    }
+
+    public getCamera(): THREE.PerspectiveCamera {
+        return this.three.camera;
+    }
+
+    public getControls(): OrbitControls {
+        return this.three.controls;
+    }
+
+    // ----------------------------------------------------------
+    // PRIVATE HELPERS
+    // ----------------------------------------------------------
+    private isPerspectiveCamera(camera: THREE.Camera): camera is THREE.PerspectiveCamera {
+        return 'aspect' in camera;
+    }
+
+    // ----------------------------------------------------------
+    // CLEANUP
+    // ----------------------------------------------------------
+    public dispose(): void {
+        this.three.controls?.dispose();
+        this.three.renderer?.dispose();
+        this.gizmoHelper?.dispose?.();
+        this.scene.clear();
+    }
 }
 
 
-
-
+class InteractiveViewHelper {
+    constructor(private camera, private mainRenderer) {
+        // Create dedicated canvas for the view helper
+        const canvas = document.createElement('canvas');
+        canvas.width = 128;
+        canvas.height = 128;
+        canvas.style.width = '128px';
+        canvas.style.height = '128px';
+        
+        // Create dedicated WebGL renderer with transparency
+        this.renderer = new THREEGL.WebGLRenderer({
+            canvas: canvas,
+            alpha: true,
+            antialias: true
+        });
+        this.renderer.setClearColor(0x000000, 0); // Transparent background
+        this.renderer.setSize(128, 128);
+        
+        // Initialize ViewHelper with the main camera and dedicated canvas
+        this.helper = new ViewHelper(camera, canvas);
+        
+        // Create container div
+        const div = document.createElement('div');
+        this.div = div;
+        div.id = 'viewHelperXYZ';
+        div.style.zIndex = '12';
+        div.style.position = 'absolute';
+        div.style.height = '128px';
+        div.style.width = '128px';
+        div.style.pointerEvents = 'auto';
+        
+        // Append canvas to div
+        div.appendChild(canvas);
+        document.body.appendChild(div);
+        
+        // Handle click events
+        canvas.addEventListener('pointerup', (event) => {
+            this.helper.handleClick(event);
+        });
+    }
+    
+    setControll(controls) {
+        this.helper.controls = controls;
+        this.helper.controls.center = controls.target;
+    }
+    
+    update(dt = 1 / 50) {
+        if (this.helper.animating) {
+            this.helper.update(dt);
+        }
+        // Use dedicated renderer instead of shared one
+        this.helper.render(this.renderer);
+    }
+    
+    handleResize() {
+        const dim = 128;
+        const domElement = this.mainRenderer.domElement;
+        const rect = domElement.getBoundingClientRect();
+        const offsetX = rect.left + (domElement.offsetWidth - dim);
+        const offsetY = rect.top + (domElement.offsetHeight - dim);
+        this.div.style.top = offsetY + 'px';
+        this.div.style.left = offsetX + 'px';
+    }
+    
+    dispose() {
+        // Cleanup method
+        if (this.renderer) {
+            this.renderer.dispose();
+        }
+        if (this.div && this.div.parentNode) {
+            this.div.parentNode.removeChild(this.div);
+        }
+    }
+}
 
 
 
@@ -282,7 +617,8 @@ export class ThreeAPI {
         // but we keep a dedicated scene owned by ThreeAPI and set to renderer when playing.
         if (this.renderer.scene) {
             // make sure renderer uses this scene
-            this.renderer.scene = this.scene;
+            //this.renderer.three.setOutNode(pass(this.scene, this.renderer.three.camera))
+            this.scene = this.renderer.getScene()
         }
 
         this.loadInitials();

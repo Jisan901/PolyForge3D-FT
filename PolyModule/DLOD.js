@@ -236,14 +236,7 @@ class DLOD extends Object3D {
 
 	}
 
-	toJSON( meta ) {
-		const data = super.toJSON( meta );
-		if ( this.autoUpdate === false ) data.object.autoUpdate = false;
-		data.object.userData=data.object.userData?data.object.userData:{}
-		data.object.userData.type="DLOD"
-		data.object.userData.levels = this.levels;
-		return data;
-	}
+	toJSON( meta ) {return null;}
 
 }
 

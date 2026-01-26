@@ -427,8 +427,12 @@ export const MaterialGeoRefInput: React.FC<{ label: string; value: string; onCha
 
 
 import { useRef, useState } from 'react';
-import { Upload, X, Image as ImageIcon, RefreshCw } from 'lucide-react';
+import { Upload, X, Image as ImageIcon, RefreshCw, Download } from 'lucide-react';
 import * as THREE from 'three';
+
+
+
+
 
 interface TextureInputProps {
     label: string;
@@ -481,9 +485,15 @@ export const TextureInput: React.FC<TextureInputProps> = ({
             const img = new Image();
             img.onload = () => {
                 const texture = new THREE.Texture(img);
+                texture.mapping = value.mapping;
                 texture.needsUpdate = true;
                 texture.name = file.name;
-                onChange(texture);
+                if (value) {
+                    value.copy(texture);
+                    onChange(value);
+                } else {
+                    onChange(texture);
+                }
             };
             img.src = event.target?.result as string;
         };
@@ -500,32 +510,99 @@ export const TextureInput: React.FC<TextureInputProps> = ({
         setPreview(null);
     };
 
-    const handleWrapChange = (axis: 'wrapS' | 'wrapT', value: string) => {
+    const handleExport = () => {
+        if (!value?.image) return;
+
+        try {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
+
+            const img = value.image;
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+
+            canvas.toBlob((blob) => {
+                if (!blob) return;
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = value.name || 'texture.png';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, 'image/png');
+        } catch (e) {
+            console.error('Failed to export texture', e);
+        }
+    };
+
+    const handleWrapChange = (axis: 'wrapS' | 'wrapT', val: string) => {
         if (!value || !onPropertyChange) return;
 
-        const wrapValue = value === 'repeat' ? THREE.RepeatWrapping :
-            value === 'clamp' ? THREE.ClampToEdgeWrapping :
+        const wrapValue = val === 'repeat' ? THREE.RepeatWrapping :
+            val === 'clamp' ? THREE.ClampToEdgeWrapping :
                 THREE.MirroredRepeatWrapping;
 
         onPropertyChange(axis, wrapValue);
     };
 
-    const handleFilterChange = (type: 'minFilter' | 'magFilter', value: string) => {
+    const handleFilterChange = (type: 'minFilter' | 'magFilter', val: string) => {
         if (!value || !onPropertyChange) return;
 
         let filterValue;
         if (type === 'magFilter') {
-            filterValue = value === 'linear' ? THREE.LinearFilter : THREE.NearestFilter;
+            filterValue = val === 'linear' ? THREE.LinearFilter : THREE.NearestFilter;
         } else {
-            filterValue = value === 'linear' ? THREE.LinearFilter :
-                value === 'nearest' ? THREE.NearestFilter :
-                    value === 'linear-mipmap-linear' ? THREE.LinearMipmapLinearFilter :
-                        value === 'linear-mipmap-nearest' ? THREE.LinearMipmapNearestFilter :
-                            value === 'nearest-mipmap-linear' ? THREE.NearestMipmapLinearFilter :
+            filterValue = val === 'linear' ? THREE.LinearFilter :
+                val === 'nearest' ? THREE.NearestFilter :
+                    val === 'linear-mipmap-linear' ? THREE.LinearMipmapLinearFilter :
+                        val === 'linear-mipmap-nearest' ? THREE.LinearMipmapNearestFilter :
+                            val === 'nearest-mipmap-linear' ? THREE.NearestMipmapLinearFilter :
                                 THREE.NearestMipmapNearestFilter;
         }
 
         onPropertyChange(type, filterValue);
+    };
+
+    const handleMappingChange = (val: string) => {
+        if (!value || !onPropertyChange) return;
+
+        const mappingValue = val === 'uv' ? THREE.UVMapping :
+            val === 'cube-reflection' ? THREE.CubeReflectionMapping :
+                val === 'cube-refraction' ? THREE.CubeRefractionMapping :
+                    val === 'equirect-reflection' ? THREE.EquirectangularReflectionMapping :
+                        THREE.EquirectangularRefractionMapping;
+
+        onPropertyChange('mapping', mappingValue);
+    };
+
+    const handleColorSpaceChange = (val: string) => {
+        if (!value || !onPropertyChange) return;
+
+        const colorSpace = val === 'srgb' ? THREE.SRGBColorSpace :
+            val === 'linear' ? THREE.LinearSRGBColorSpace :
+                THREE.NoColorSpace;
+
+        onPropertyChange('colorSpace', colorSpace);
+    };
+
+    const getMappingValue = () => {
+        if (!value) return 'uv';
+        if (value.mapping === THREE.CubeReflectionMapping) return 'cube-reflection';
+        if (value.mapping === THREE.CubeRefractionMapping) return 'cube-refraction';
+        if (value.mapping === THREE.EquirectangularReflectionMapping) return 'equirect-reflection';
+        if (value.mapping === THREE.EquirectangularRefractionMapping) return 'equirect-refraction';
+        return 'uv';
+    };
+
+    const getColorSpaceValue = () => {
+        if (!value) return 'srgb';
+        if (value.colorSpace === THREE.LinearSRGBColorSpace) return 'linear';
+        if (value.colorSpace === THREE.NoColorSpace) return 'none';
+        return 'srgb';
     };
 
     return (
@@ -573,13 +650,23 @@ export const TextureInput: React.FC<TextureInputProps> = ({
                     </button>
 
                     {value && (
-                        <button
-                            onClick={handleClear}
-                            className="px-2 py-1 text-xs bg-[#3f3f46] hover:bg-red-900/50 text-red-400 rounded flex items-center justify-center gap-1"
-                        >
-                            <X size={12} />
-                            Clear
-                        </button>
+                        <>
+                            <button
+                                onClick={handleClear}
+                                className="px-2 py-1 text-xs bg-[#3f3f46] hover:bg-red-900/50 text-red-400 rounded flex items-center justify-center gap-1"
+                            >
+                                <X size={12} />
+                                Clear
+                            </button>
+
+                            <button
+                                onClick={handleExport}
+                                className="px-2 py-1 text-xs bg-[#3f3f46] hover:bg-[#52525b] text-[#d4d4d8] rounded flex items-center justify-center gap-1"
+                            >
+                                <Download size={12} />
+                                Export
+                            </button>
+                        </>
                     )}
 
                     {value?.name && (
@@ -593,6 +680,36 @@ export const TextureInput: React.FC<TextureInputProps> = ({
             {/* Expanded Properties */}
             {isExpanded && value && (
                 <div className="mt-2 space-y-2 pl-2 border-l-2 border-[#3f3f46]">
+                    {/* Mapping */}
+                    <div className="flex items-center justify-between">
+                        <label className="text-[10px] text-[#71717a]">Mapping</label>
+                        <select
+                            value={getMappingValue()}
+                            onChange={(e) => handleMappingChange(e.target.value)}
+                            className="px-2 py-0.5 text-[10px] bg-[#27272a] border border-[#3f3f46] text-[#d4d4d8] rounded"
+                        >
+                            <option value="uv">UV</option>
+                            <option value="cube-reflection">Cube Reflection</option>
+                            <option value="cube-refraction">Cube Refraction</option>
+                            <option value="equirect-reflection">Equirectangular Reflection</option>
+                            <option value="equirect-refraction">Equirectangular Refraction</option>
+                        </select>
+                    </div>
+
+                    {/* Color Space */}
+                    <div className="flex items-center justify-between">
+                        <label className="text-[10px] text-[#71717a]">Color Space</label>
+                        <select
+                            value={getColorSpaceValue()}
+                            onChange={(e) => handleColorSpaceChange(e.target.value)}
+                            className="px-2 py-0.5 text-[10px] bg-[#27272a] border border-[#3f3f46] text-[#d4d4d8] rounded"
+                        >
+                            <option value="srgb">sRGB</option>
+                            <option value="linear">Linear sRGB</option>
+                            <option value="none">None</option>
+                        </select>
+                    </div>
+
                     {/* Wrap S */}
                     <div className="flex items-center justify-between">
                         <label className="text-[10px] text-[#71717a]">Wrap S</label>
@@ -601,7 +718,7 @@ export const TextureInput: React.FC<TextureInputProps> = ({
                                 value.wrapS === THREE.RepeatWrapping ? 'repeat' :
                                     value.wrapS === THREE.ClampToEdgeWrapping ? 'clamp' : 'mirror'
                             }
-                            onInput={(e) => handleWrapChange('wrapS', e.target.value)}
+                            onChange={(e) => handleWrapChange('wrapS', e.target.value)}
                             className="px-2 py-0.5 text-[10px] bg-[#27272a] border border-[#3f3f46] text-[#d4d4d8] rounded"
                         >
                             <option value="repeat">Repeat</option>
@@ -618,7 +735,7 @@ export const TextureInput: React.FC<TextureInputProps> = ({
                                 value.wrapT === THREE.RepeatWrapping ? 'repeat' :
                                     value.wrapT === THREE.ClampToEdgeWrapping ? 'clamp' : 'mirror'
                             }
-                            onInput={(e) => handleWrapChange('wrapT', e.target.value)}
+                            onChange={(e) => handleWrapChange('wrapT', e.target.value)}
                             className="px-2 py-0.5 text-[10px] bg-[#27272a] border border-[#3f3f46] text-[#d4d4d8] rounded"
                         >
                             <option value="repeat">Repeat</option>
@@ -639,7 +756,7 @@ export const TextureInput: React.FC<TextureInputProps> = ({
                                                 value.minFilter === THREE.NearestMipmapLinearFilter ? 'nearest-mipmap-linear' :
                                                     'nearest-mipmap-nearest'
                             }
-                            onInput={(e) => handleFilterChange('minFilter', e.target.value)}
+                            onChange={(e) => handleFilterChange('minFilter', e.target.value)}
                             className="px-2 py-0.5 text-[10px] bg-[#27272a] border border-[#3f3f46] text-[#d4d4d8] rounded"
                         >
                             <option value="linear">Linear</option>
@@ -656,7 +773,7 @@ export const TextureInput: React.FC<TextureInputProps> = ({
                         <label className="text-[10px] text-[#71717a]">Mag Filter</label>
                         <select
                             defaultValue={value.magFilter === THREE.LinearFilter ? 'linear' : 'nearest'}
-                            onInput={(e) => handleFilterChange('magFilter', e.target.value)}
+                            onChange={(e) => handleFilterChange('magFilter', e.target.value)}
                             className="px-2 py-0.5 text-[10px] bg-[#27272a] border border-[#3f3f46] text-[#d4d4d8] rounded"
                         >
                             <option value="linear">Linear</option>
@@ -665,24 +782,21 @@ export const TextureInput: React.FC<TextureInputProps> = ({
                     </div>
 
                     {/* Repeat */}
-
                     <Vector2Input label="Repeat" value={value.repeat} onChange={(e) => {
-                        onPropertyChange?.('repeat.x', parseFloat(e.x))
-                        onPropertyChange?.('repeat.y', parseFloat(e.y))
+                        onPropertyChange?.('repeat.x', parseFloat(e.x));
+                        onPropertyChange?.('repeat.y', parseFloat(e.y));
                     }} />
-
 
                     {/* Offset */}
                     <Vector2Input label="Offset" value={value.offset} onChange={(e) => {
-                        onPropertyChange?.('offset.x', parseFloat(e.x))
-                        onPropertyChange?.('offset.y', parseFloat(e.y))
+                        onPropertyChange?.('offset.x', parseFloat(e.x));
+                        onPropertyChange?.('offset.y', parseFloat(e.y));
                     }} />
-
 
                     {/* Center */}
                     <Vector2Input label="Center" value={value.center} onChange={(e) => {
-                        onPropertyChange?.('center.x', parseFloat(e.x))
-                        onPropertyChange?.('center.y', parseFloat(e.y))
+                        onPropertyChange?.('center.x', parseFloat(e.x));
+                        onPropertyChange?.('center.y', parseFloat(e.y));
                     }} />
 
                     {/* Rotation */}
@@ -695,6 +809,68 @@ export const TextureInput: React.FC<TextureInputProps> = ({
                             className="w-16 px-2 py-0.5 text-[10px] bg-[#27272a] border border-[#3f3f46] text-[#d4d4d8] rounded"
                             step="1"
                         />
+                    </div>
+
+                    {/* Anisotropy */}
+                    <div className="flex items-center justify-between">
+                        <label className="text-[10px] text-[#71717a]">Anisotropy</label>
+                        <input
+                            type="number"
+                            defaultValue={value.anisotropy || 1}
+                            onBlur={(e) => onPropertyChange?.('anisotropy', parseInt(e.target.value))}
+                            className="w-16 px-2 py-0.5 text-[10px] bg-[#27272a] border border-[#3f3f46] text-[#d4d4d8] rounded"
+                            min="1"
+                            max="16"
+                            step="1"
+                        />
+                    </div>
+
+                    {/* Generate Mipmaps */}
+                    <div className="flex items-center justify-between">
+                        <label className="text-[10px] text-[#71717a]">Generate Mipmaps</label>
+                        <input
+                            type="checkbox"
+                            defaultChecked={value.generateMipmaps !== false}
+                            onChange={(e) => onPropertyChange?.('generateMipmaps', e.target.checked)}
+                            className="w-4 h-4 bg-[#27272a] border border-[#3f3f46] rounded"
+                        />
+                    </div>
+
+                    {/* Flip Y */}
+                    <div className="flex items-center justify-between">
+                        <label className="text-[10px] text-[#71717a]">Flip Y</label>
+                        <input
+                            type="checkbox"
+                            defaultChecked={value.flipY !== false}
+                            onChange={(e) => onPropertyChange?.('flipY', e.target.checked)}
+                            className="w-4 h-4 bg-[#27272a] border border-[#3f3f46] rounded"
+                        />
+                    </div>
+
+                    {/* Premultiply Alpha */}
+                    <div className="flex items-center justify-between">
+                        <label className="text-[10px] text-[#71717a]">Premultiply Alpha</label>
+                        <input
+                            type="checkbox"
+                            defaultChecked={value.premultiplyAlpha === true}
+                            onChange={(e) => onPropertyChange?.('premultiplyAlpha', e.target.checked)}
+                            className="w-4 h-4 bg-[#27272a] border border-[#3f3f46] rounded"
+                        />
+                    </div>
+
+                    {/* Unpack Alignment */}
+                    <div className="flex items-center justify-between">
+                        <label className="text-[10px] text-[#71717a]">Unpack Alignment</label>
+                        <select
+                            defaultValue={value.unpackAlignment || 4}
+                            onChange={(e) => onPropertyChange?.('unpackAlignment', parseInt(e.target.value))}
+                            className="px-2 py-0.5 text-[10px] bg-[#27272a] border border-[#3f3f46] text-[#d4d4d8] rounded"
+                        >
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="4">4</option>
+                            <option value="8">8</option>
+                        </select>
                     </div>
                 </div>
             )}

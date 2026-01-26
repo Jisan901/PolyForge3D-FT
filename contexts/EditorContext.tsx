@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode, useCa
 import * as THREE from "three";
 import { PolyForge , mutationCall} from "../PolyForge";
 import { MappedObject } from "../PolyModule/ObjectMapper";
+import { copyAllSceneData } from "../PolyModule/Utils";
 
 const editor = PolyForge.editor;
 
@@ -32,6 +33,7 @@ export function EditorStatesProvider({ children }) {
         
         return editor.api.buses.sceneUpdate.subscribe(() => {
             const active = PolyForge?.api?.sceneManager?.activeScene;
+            copyAllSceneData(active||new THREE.Scene(), PolyForge.editorRenderer.scene)
             setScene(active ? [active] : []);
         });
     }, []);

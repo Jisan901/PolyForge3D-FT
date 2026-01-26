@@ -1,5 +1,7 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
+import { Inspector } from 'three/addons/inspector/Inspector.js';
+
 
 export const threeWebgl = () => {
 
@@ -97,7 +99,7 @@ import * as THREE_WEBGPU from 'three/webgpu'
 
 
 export const threeWebgpu = async () => {
-
+const timer = new THREE.Timer();
     // -----------------------------
     // Renderer
     // -----------------------------
@@ -105,12 +107,13 @@ export const threeWebgpu = async () => {
         antialias: false,
         forceWebGL: true
     })
-
+renderer.inspector = new Inspector();
     await renderer.init()
 
     renderer.setSize(window.innerWidth, window.innerHeight)
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     document.body.appendChild(renderer.domElement)
+    document.body.appendChild(renderer.inspector.domElement)
 
     // -----------------------------
     // Camera

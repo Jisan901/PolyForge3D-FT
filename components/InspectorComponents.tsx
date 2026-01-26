@@ -5,8 +5,10 @@ import { Vector3Input, Checkbox, ColorInput, NumberInput, TextInput, TextureInpu
 
 import { Box, Layers, Palette, Grid3x3, Image as ImageIcon, Plus, RefreshCw } from 'lucide-react';
 import { useObserver, useRawProperty } from "../PolyModule/Hooks";
+import { copyAllSceneData } from "../PolyModule/Utils";
 import { PolyForge, mutationCall } from "../PolyForge";
 const editor = PolyForge.editor;
+const editorRenderer = PolyForge.editorRenderer;
 
 
 
@@ -395,7 +397,7 @@ export const PropertyRenderer: React.FC<PropertyRendererProps> = ({ object, path
     const handleChange = (val: any) => {
         editor.setProperty(object, path, val);
     };
-    
+
     // Boolean
     if (typeof value === 'boolean') {
         return <Checkbox label={displayLabel} checked={value} onChange={handleChange} />;
@@ -815,6 +817,293 @@ export const CameraInspector: React.FC<CameraInspectorProps> = ({ camera }) => {
     );
 };
 
+
+/* ============================================================================
+   SCENE INSPECTOR
+============================================================================ */
+
+interface SceneInspectorProps {
+    scene: THREE.Scene;
+}
+
+export const SceneInspector: React.FC<SceneInspectorProps> = ({ scene }) => {
+    const [showBackgroundOptions, setShowBackgroundOptions] = useState(false);
+    const [showEnvOptions, setShowEnvOptions] = useState(false);
+    const [showFogOptions, setShowFogOptions] = useState(false);
+
+
+
+    const addBackgroundColor = () => {
+        const color = new THREE.Color(0x000000);
+        editor.setProperty(scene, 'background', color);
+        mutationCall(scene, 'background');
+        copyAllSceneData(scene, editorRenderer.scene)
+        setShowBackgroundOptions(false);
+    };
+
+    const addBackgroundTexture = () => {
+        const texture = new THREE.Texture();
+        texture.mapping = THREE.EquirectangularReflectionMapping
+        editor.setProperty(scene, 'environment', texture);
+        editor.setProperty(scene, 'background', texture);
+        mutationCall(scene, 'background');
+        mutationCall(scene, 'environment');
+        copyAllSceneData(scene, editorRenderer.scene)
+        setShowBackgroundOptions(false);
+    };
+
+    const addEnvironmentMap = () => {
+        const texture = new THREE.Texture();
+        texture.mapping = THREE.EquirectangularReflectionMapping
+        editor.setProperty(scene, 'environment', texture);
+        mutationCall(scene, 'environment');
+        copyAllSceneData(scene, editorRenderer.scene)
+        setShowEnvOptions(false);
+    };
+
+    const addLinearFog = () => {
+        const fog = new THREE.Fog(0xcccccc, 1, 100);
+        editor.setProperty(scene, 'fog', fog);
+        mutationCall(scene, 'fog');
+        copyAllSceneData(scene, editorRenderer.scene)
+        setShowFogOptions(false);
+    };
+
+    const addExponentialFog = () => {
+        const fog = new THREE.FogExp2(0xcccccc, 0.002);
+        editor.setProperty(scene, 'fog', fog);
+        mutationCall(scene, 'fog');
+        copyAllSceneData(scene, editorRenderer.scene)
+        setShowFogOptions(false);
+    };
+
+    const removeBackground = () => {
+        editor.setProperty(scene, 'background', null);
+        mutationCall(scene, 'background');
+        copyAllSceneData(scene, editorRenderer.scene)
+    };
+
+    const removeEnvironment = () => {
+        editor.setProperty(scene, 'environment', null);
+        mutationCall(scene, 'environment');
+        copyAllSceneData(scene, editorRenderer.scene)
+    };
+
+    const removeFog = () => {
+        editor.setProperty(scene, 'fog', null);
+        mutationCall(scene, 'fog');
+        copyAllSceneData(scene, editorRenderer.scene)
+    };
+
+    return (
+        <>
+            <PropertySection title="Scene Properties" icon={Box}>
+                {/* Background */}
+                {scene.background ? (
+                    <div className="space-y-1">
+                        <PropertyRenderer
+                            object={scene}
+                            path="background"
+                            value={scene.background}
+                            label="Background"
+                        />
+                        <button
+                            onClick={removeBackground}
+                            className="w-full px-2 py-1 text-[10px] bg-red-900/30 hover:bg-red-900/50 text-red-300 rounded"
+                        >
+                            Remove Background
+                        </button>
+                    </div>
+                ) : (
+                    <div className="space-y-1">
+                        <div className="text-[9px] text-editor-textDim uppercase mb-1">Background</div>
+                        <button
+                            onClick={() => setShowBackgroundOptions(!showBackgroundOptions)}
+                            className="w-full px-2 py-1 text-[10px] bg-[#3f3f46] hover:bg-[#52525b] text-[#d4d4d8] rounded flex items-center justify-center gap-1"
+                        >
+                            <Plus size={12} />
+                            Add Background
+                        </button>
+                        {showBackgroundOptions && (
+                            <div className="space-y-1 border border-[#3f3f46] rounded p-2 bg-[#18181b]">
+                                <button
+                                    onClick={addBackgroundColor}
+                                    className="w-full px-2 py-1 text-[10px] bg-[#27272a] hover:bg-[#3f3f46] text-[#d4d4d8] rounded text-left"
+                                >
+                                    Solid Color
+                                </button>
+                                <button
+                                    onClick={addBackgroundTexture}
+                                    className="w-full px-2 py-1 text-[10px] bg-[#27272a] hover:bg-[#3f3f46] text-[#d4d4d8] rounded text-left"
+                                >
+                                    Texture/Image
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {/* Fog */}
+                {scene.fog ? (
+                    <div className="space-y-1">
+                        <div className="text-[9px] text-editor-textDim uppercase mb-1">
+                            Fog ({scene.fog instanceof THREE.Fog ? 'Linear' : 'Exponential'})
+                        </div>
+                        <PropertyRenderer
+                            object={scene}
+                            path="fog.color"
+                            value={scene.fog.color}
+                            label="Fog Color"
+                        />
+                        {scene.fog instanceof THREE.Fog && (
+                            <>
+                                <PropertyRenderer
+                                    object={scene}
+                                    path="fog.near"
+                                    value={scene.fog.near}
+                                    label="Near Distance"
+                                />
+                                <PropertyRenderer
+                                    object={scene}
+                                    path="fog.far"
+                                    value={scene.fog.far}
+                                    label="Far Distance"
+                                />
+                            </>
+                        )}
+                        {scene.fog instanceof THREE.FogExp2 && (
+                            <PropertyRenderer
+                                object={scene}
+                                path="fog.density"
+                                value={scene.fog.density}
+                                label="Density"
+                            />
+                        )}
+                        <button
+                            onClick={removeFog}
+                            className="w-full px-2 py-1 text-[10px] bg-red-900/30 hover:bg-red-900/50 text-red-300 rounded"
+                        >
+                            Remove Fog
+                        </button>
+                    </div>
+                ) : (
+                    <div className="space-y-1">
+                        <div className="text-[9px] text-editor-textDim uppercase mb-1">Fog</div>
+                        <button
+                            onClick={() => setShowFogOptions(!showFogOptions)}
+                            className="w-full px-2 py-1 text-[10px] bg-[#3f3f46] hover:bg-[#52525b] text-[#d4d4d8] rounded flex items-center justify-center gap-1"
+                        >
+                            <Plus size={12} />
+                            Add Fog
+                        </button>
+                        {showFogOptions && (
+                            <div className="space-y-1 border border-[#3f3f46] rounded p-2 bg-[#18181b]">
+                                <button
+                                    onClick={addLinearFog}
+                                    className="w-full px-2 py-1 text-[10px] bg-[#27272a] hover:bg-[#3f3f46] text-[#d4d4d8] rounded text-left"
+                                >
+                                    Linear Fog (Near/Far)
+                                </button>
+                                <button
+                                    onClick={addExponentialFog}
+                                    className="w-full px-2 py-1 text-[10px] bg-[#27272a] hover:bg-[#3f3f46] text-[#d4d4d8] rounded text-left"
+                                >
+                                    Exponential Fog (Density)
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                <PropertyRenderer
+                    object={scene}
+                    path="overrideMaterial"
+                    value={scene.overrideMaterial}
+                    label="Override Material"
+                />
+                <PropertyRenderer
+                    object={scene}
+                    path="autoUpdate"
+                    value={scene.autoUpdate}
+                    label="Auto Update"
+                />
+
+                <div className="pt-2 border-t border-editor-border/20">
+                    <div className="text-[9px] text-editor-textDim uppercase mb-1">Statistics</div>
+                    <div className="flex justify-between text-[10px] text-editor-textDim">
+                        <span>Children</span>
+                        <span className="text-editor-text">{scene.children.length}</span>
+                    </div>
+                </div>
+            </PropertySection>
+
+            <PropertySection title="Environment" icon={Palette}>
+                {/* Environment Map */}
+                {scene.environment ? (
+                    <div className="space-y-1">
+                        <PropertyRenderer
+                            object={scene}
+                            path="environment"
+                            value={scene.environment}
+                            label="Environment Map"
+                        />
+                        <button
+                            onClick={removeEnvironment}
+                            className="w-full px-2 py-1 text-[10px] bg-red-900/30 hover:bg-red-900/50 text-red-300 rounded"
+                        >
+                            Remove Environment Map
+                        </button>
+                    </div>
+                ) : (
+                    <div className="space-y-1">
+                        <div className="text-[9px] text-editor-textDim uppercase mb-1">Environment Map</div>
+                        <button
+                            onClick={() => setShowEnvOptions(!showEnvOptions)}
+                            className="w-full px-2 py-1 text-[10px] bg-[#3f3f46] hover:bg-[#52525b] text-[#d4d4d8] rounded flex items-center justify-center gap-1"
+                        >
+                            <Plus size={12} />
+                            Add Environment Map
+                        </button>
+                        {showEnvOptions && (
+                            <div className="space-y-1 border border-[#3f3f46] rounded p-2 bg-[#18181b]">
+                                <button
+                                    onClick={addEnvironmentMap}
+                                    className="w-full px-2 py-1 text-[10px] bg-[#27272a] hover:bg-[#3f3f46] text-[#d4d4d8] rounded text-left"
+                                >
+                                    Texture Map
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {scene.background && (
+                    <>
+                        <PropertyRenderer
+                            object={scene}
+                            path="backgroundBlurriness"
+                            value={scene.backgroundBlurriness}
+                            label="Background Blur"
+                        />
+                        <PropertyRenderer
+                            object={scene}
+                            path="backgroundIntensity"
+                            value={scene.backgroundIntensity}
+                            label="Background Intensity"
+                        />
+                    </>
+                )}
+                <button
+                    onClick={e => copyAllSceneData(scene, editorRenderer.scene)}
+                    className="w-full px-2 py-1 text-[10px] bg-blue-900/30 hover:bg-blue-900/50 text-blue-300 rounded"
+                >
+                    Update Scene
+                </button>
+            </PropertySection>
+        </>
+    );
+};
+
 /* ============================================================================
    OBJECT3D INSPECTOR (Generic/Fallback)
 ============================================================================ */
@@ -844,8 +1133,14 @@ interface TypedInspectorProps {
 
 export const TypedInspector: React.FC<TypedInspectorProps> = ({ object }) => {
     // Mesh
-    if (object instanceof THREE.Mesh||object instanceof THREE.Sprite) {
+    if (object instanceof THREE.Mesh || object instanceof THREE.Sprite) {
         return <MeshInspector mesh={object} />;
+    }
+
+    // Scene
+
+    if (object instanceof THREE.Scene) {
+        return <SceneInspector scene={object} />;
     }
 
     // Light

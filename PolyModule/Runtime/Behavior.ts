@@ -13,6 +13,12 @@ export interface BehaviorContext {
     // you can add input, time, physics, etc.
 }
 
+/**
+ *     v1 
+ * 
+ */
+
+
 export abstract class Behavior {
     public object!: import('three').Object3D;
     public scene!: import('three').Scene;
@@ -45,7 +51,7 @@ export abstract class Behavior {
     }
 
     // Lifecycle hooks
-    onBeforeStart?(): void;
+    onBeforeStart?(): void; // at first like on awake 
     onStart?(): void;
     onUpdate?(dt: number): void;
     onDestroy?(): void;

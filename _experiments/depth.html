@@ -23,7 +23,7 @@
     <script type="module">
         import {threeWebgl, threeWebgpu, randMesh}  from './threeBase.js';
 import { TransformControls } from 'three/addons/controls/TransformControls.js';
-
+		
 
 
 const {
@@ -38,7 +38,9 @@ const {
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x222222);
 
+const gui = renderer.inspector.createParameters( 'Model' );
 
+gui.add( scene, 'backgroundBlurriness', 0, 1 );
 camera.position.set(3, 3, 5);
 camera.lookAt(0, 0, 0);
 
@@ -93,9 +95,87 @@ scene.add(sphere);
 
 
 
+function createDisposeOnly(scene) {
+  const group = new THREE.Group();
+  group.name = 'dispose-only';
+
+  for (let i = 0; i < 250; i++) {
+    const geo = new THREE.SphereGeometry(0.2, 16, 16);
+    const mat = new THREE.MeshStandardMaterial({ color: 0xff4444 });
+    const mesh = new THREE.Mesh(geo, mat);
+
+    mesh.position.set(
+      (Math.random() - 0.5) * 6,
+      (Math.random() - 0.5) * 6,
+      0
+    );
+
+    group.add(mesh);
+  }
+
+  scene.add(group);
+
+  // after 20 seconds: dispose ONLY
+  setTimeout(() => {
+    group.traverse(obj => {
+      if (obj.isMesh) {
+        obj.geometry.dispose();
+        obj.material.dispose();
+      }
+    });
+
+    console.log('Disposed resources ONLY (still in scene)');
+  }, 20000);
+
+ 
+}
+
+function createRemoveAndDispose(scene) {
+  const group = new THREE.Group();
+  group.name = 'remove-and-dispose';
+
+  for (let i = 0; i < 250; i++) {
+    const geo = new THREE.SphereGeometry(0.2, 16, 16);
+    const mat = new THREE.MeshStandardMaterial({ color: 0x44ff44 });
+    const mesh = new THREE.Mesh(geo, mat);
+
+    mesh.position.set(
+      (Math.random() - 0.5) * 6,
+      (Math.random() - 0.5) * 6,
+      -2
+    );
+
+    group.add(mesh);
+  }
+
+  scene.add(group);
+
+  // after 20 seconds: REMOVE + DISPOSE
+  setTimeout(() => {
+    scene.remove(group);
+
+    group.traverse(obj => {
+      if (obj.isMesh) {
+        obj.geometry.dispose();
+        obj.material.dispose();
+      }
+    });
+
+    console.log('Removed from scene AND disposed');
+  }, 20000);
+
+  
+}
+
+
+
+window.ex1 = ()=>createDisposeOnly(scene);
+window.ex2 = ()=>createRemoveAndDispose(scene);
+
+
 const tfControl = new TransformControls(camera, renderer.domElement);
-tfControl.attach(sphere);
-scene.add(tfControl.getHelper());
+//tfControl.attach(sphere);
+//scene.add(tfControl.getHelper());
 
 
 tfControl.addEventListener('dragging-changed', (e) => {
@@ -148,7 +228,9 @@ material.opacityNode = float(1);
 //material.positionNode = float(0);
 material.transparent = true;
 sphere.material = material 
-
+window.sphere = sphere
+window.parent = scene
+window.re = renderer
 const rawShader = await renderer.debug.getShaderAsync(scene, camera, sphere)
 console.log(rawShader)
 
@@ -164,6 +246,7 @@ postProcessing.outputNode = scenePass;
 function animate() {
   requestAnimationFrame(animate);
     postProcessing.render()
+    controls.update()
 }
 
 animate();

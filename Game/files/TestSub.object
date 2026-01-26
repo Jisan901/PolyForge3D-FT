@@ -1,0 +1,62 @@
+{
+  "metadata": {
+    "version": 4.7,
+    "type": "Object",
+    "generator": "Object3D.toJSON"
+  },
+  "object": {
+    "uuid": "a329d315-1625-4b82-a35c-df85be9719d8",
+    "type": "Group",
+    "name": "TestSub",
+    "userData": {
+      "special": true,
+      "components": {
+        "7": {
+          "id": 0,
+          "nameCode": 7,
+          "key": "script",
+          "data": {
+            "path": {
+              "isFile": true,
+              "value": "/Game/files/sys1.ts"
+            },
+            "enabled": true,
+            "variables": {
+              "speed": 50,
+              "target": {
+                "isRef": true,
+                "ref": "03f8d40e-acfc-4e0a-9ffd-53943b372d03",
+                "name": "Mesh"
+              }
+            }
+          }
+        }
+      },
+      "helper": null
+    },
+    "layers": 1,
+    "matrix": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    "up": [
+      0,
+      1,
+      0
+    ]
+  }
+}

@@ -1,5 +1,5 @@
 // game/scripts/Rotate.ts
-import { Behavior } from '@/PolyModule/Runtime/Behavior';
+import { Behavior } from "@/Core/Behavior";
 import { INumber, IObject3D } from '@/PolyModule/Runtime/ITypes';
 import * as THREE from 'three';
 
@@ -15,7 +15,6 @@ export default class Rotate extends Behavior{
   }
 
   onUpdate(dt: number) {
-    if (this.target) this.target.rotation.y += dt * this.speed||0.002;
     if (this.object) this.object.rotation.y += dt * this.speed||0.002;
   }
 }
