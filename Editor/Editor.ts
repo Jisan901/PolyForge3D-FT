@@ -1,10 +1,21 @@
 import { Instance } from "@/Core/PolyForge";
 import { DEFINITION } from '@/Core/DEFINITION';
+import { THREE } from '@/Core/lib/THREE';
+
+
+import { LightGamePad } from "@/Core/Utils/GamePad";
+
 import { Api } from "@/Editor/Api";
 import { AssetBrowserManager } from "@/Editor/AssetBrowser"
 import { Commander, commands } from "@/Editor/Commander";
-import { THREE } from '@/Core/lib/THREE';
+import { TransformControlHistoryHandler } from "@/Editor/Three/TransformControlHistoryHandler";
 import { toast } from "@/Editor/Mutation";
+
+
+
+import { refreshScriptVariables } from "@/Editor/Utils";
+
+
 
 
 type EditorMode = 'edit' | 'play' | 'paused';
@@ -22,18 +33,27 @@ class EditorClass {
     
     constructor() {
         this.commander = new Commander();
+        this.gamePad = new LightGamePad();
+        this.gamePad.addToGlobal();
+        this.gamePad.setVisibility(false);
     }
     /**
     * init
     */
     public async init() {
-        await this.core.init();
+        
+        await this.core.init(false);
+        
         this.api = new Api(this.core.engine, this.core.loaders.objectLoader);
         this.assetBrowser = new AssetBrowserManager(
             this.api.file,
             this.api.buses
         );
+        new TransformControlHistoryHandler(this.api.three.helpers.transformControls,this)
         await this.assetBrowser.openDirectory(DEFINITION.resourcesFolder, false)
+        
+        await this.core.initScripting()
+        this.core.settings.applySettings(this.core);
     }
     
     
@@ -85,6 +105,44 @@ class EditorClass {
     clearHistory() {
         this.commander.clear();
     }
+    
+    /**
+     * scene 
+     */
+    
+    async unmountScene(save = true) {
+        let api = this.core;
+        if (api.sceneManager.activeScene) {
+            save && (await api.sceneManager.saveActive())
+            api.sceneManager.clear()
+        }
+    }
+    
+    async mountScene(url, unmount = true, save = true) {
+        let api = this.core;
+        unmount && await this.unmountScene(save)
+        await api.sceneManager.loadScene(url)
+        this.api.three.setScene(api.sceneManager.activeScene);
+        this.api.buses.sceneUpdate.emit(api.sceneManager.activeScene);
+    }
+    
+    async newScene(unmount = true, save = true) {
+        let core = this.core;
+        unmount && await this.unmountScene(save)
+        const newScene = new THREE.Scene();
+        core.sceneManager.setScene(newScene)
+        this.api.three.setScene(core.sceneManager.activeScene);
+        this.api.buses.sceneUpdate.emit(core.sceneManager.activeScene);
+        return newScene;
+    }
+    
+    
+    
+    
+    
+    
+    
+    
     /**
     * boot
     */
@@ -116,7 +174,7 @@ class EditorClass {
         this.deltaTime = (currentTime - this.lastTime) / 1000;
         this.lastTime = currentTime;
         // Always api update //#endregion
-        this.api.three.update();
+        this.api.three.update(this.deltaTime);
         // Update game logic if in play mode (not paused)
         if (this.mode === 'play') {
             this.core.update(this.deltaTime);
@@ -126,8 +184,7 @@ class EditorClass {
 
 
         // // minimal update
-        this.core.time.update(this.deltaTime);
-        this.core.engine.update(this.deltaTime);
+        this.core.alwaysUpdate(this.deltaTime)
     };
 
     // ----------------------------------------------------------
@@ -138,12 +195,14 @@ class EditorClass {
 
         // await this.refreshRegistry();
 
-        // await this.api.sceneManager.saveActive();
+        await this.core.sceneManager.saveActive();
         toast('Saved Editor')
 
         this.api.three.selectObject(null);
         this.api.three.helpers.setTool('select');
-
+        
+        this.core.scriptExecutor.init()
+        
         // try {
         //     this.systemExecutor.init();
         //     await this.behaviorRegistry.runOnStartCall()
@@ -169,9 +228,10 @@ class EditorClass {
         if (this.mode === 'edit') return;
         this.mode = 'edit';
 
-        // await this.behaviorRegistry.runOnDestroyCall()
-        // this.systemExecutor.destroy()
-        // await this.editor.mountScene(this.api.sceneManager.activeUrl, true, false)
+        
+        this.core.scriptExecutor.destroy(false)// destroy all scripts! don't clear systems
+        
+        await this.mountScene(this.core.sceneManager.activeUrl, true, false)
 
     }
 
@@ -222,7 +282,28 @@ class EditorClass {
     public setSize(w:number, h:number) {
         this.core.engine.setSize(w,h)
         this.api.three.resize(w,h)
+        this.gamePad.syncWith(this.core.engine.getCanvas());
     }
+    
+    /**
+    * prepareForPlayMode
+    */
+    public prepareForPlayMode(value: boolean) {
+        console.log('switching' )
+        const cam = value ? this.core.sceneManager.activeScene.getObjectByProperty('isCamera', true)||this.core.engine.activeCamera as THREE.Camera: this.api.three.editorCamera;
+        Instance.engine.setActiveCamera(cam);
+        
+        this.api.three.toggleHelpers(!value)
+        this.api.three.toggleLights(!value)
+        
+        this.gamePad.setVisibility(value);
+    }
+    
+    
+    private refreshRegistry(){
+        refreshScriptVariables();
+    }
+    
 }
 
 

@@ -1,5 +1,3 @@
-import * as THREE from 'three';
-
 export function INumber(defaultValue = 0) {
   return function (target: any, propertyKey: string) {
     const ctor = target.constructor;
@@ -14,7 +12,7 @@ export function INumber(defaultValue = 0) {
   };
 }
 
-export function IRef(defaultValue = null) {
+export function IRef(defaultValue) {
   return function (target: any, propertyKey: string) {
     const ctor = target.constructor;
 
@@ -23,15 +21,21 @@ export function IRef(defaultValue = null) {
     ctor.propMap[propertyKey] = {
       name: propertyKey,
       type: "ref",
-      default: defaultValue
+      default: {isRef: true, ref: defaultValue}
     };
   };
 }
 
-export function IObject3D(target: any, propertyKey: string) {
-  if (!target.constructor.propMap) target.constructor.propMap = {};
-  target.constructor.propMap[propertyKey] = {
-    name: propertyKey,
-    type: "ref",
+export function IVec(defaultValue) {
+  return function (target: any, propertyKey: string) {
+    const ctor = target.constructor;
+
+    if (!ctor.propMap) ctor.propMap = {};
+
+    ctor.propMap[propertyKey] = {
+      name: propertyKey,
+      type: "vec",
+      default: {isVector3: true}
+    };
   };
 }

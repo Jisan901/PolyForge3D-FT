@@ -266,26 +266,3 @@ export class ThreeRegistry {
 }
 
 
-
-import {getComponent, isSpacial} from "@/Core/Functions"
-import {Components} from "@/Core/Types/Components";
-
-export const registerHandler = (e:AnyThree, app)=>{
-    if (isSpacial(e)){
-        let script = getComponent(Components.SCRIPT, e)
-        if (!script) return true;
-        const path = script.data.path.value;
-        if (!path) return true;
-        
-        app.loaders
-        
-        
-    }
-    return true;
-}
-export const unregisterHandler = (e:AnyThree, app)=>{
-    if (isSpacial(e)){
-        let script = getComponent(Components.SCRIPT, e)
-    }
-    return true;
-}

@@ -1,12 +1,13 @@
 import { Behavior } from "@/Core/Behavior";
 import { Instance } from "@/Core/PolyForge";
-import * as THREE from "three";
-import { getCamera } from "@/Core/Functions";
-
+import { getCamera, getRef } from "@/Core/Functions";
+import { THREE } from '@/Core/lib/THREE';
+import { INumber, IRef } from '@/Editor/ITypes';
 
 const input = (window as any).gamePad.data;
 
 export default class PlayerController extends Behavior {
+    @IRef()
     private camera: THREE.Camera;
     private RAPIER: any;
     private world: any;
@@ -15,6 +16,7 @@ export default class PlayerController extends Behavior {
     private controller: any;
 
     // Visual mesh
+    @IRef()
     private capsuleMesh: THREE.Group;
 
     // Movement properties
@@ -30,34 +32,31 @@ export default class PlayerController extends Behavior {
     private capsuleHeight = 1.0; // half-height for physics
     private capsuleRadius = 0.3;
 
-    // Camera/rotation
-    private yaw = 0;
-    private pitch = 0;
-    private mouseSensitivity = 0.002;
-    
-    
+
+
     private nextPosition = new THREE.Vector3();
 
     onStart() {
-        this.camera = getCamera();
-        this.object.position.set(0, 10, 0)
+        this.camera = getRef(this.camera) || getCamera();
+
         console.log('PlayerController started');
 
         this.RAPIER = Instance.pluginData.physics.RAPIER;
         this.world = Instance.pluginData.physics.world;
 
-        // Create visual capsule mesh
-        this.createCapsuleMesh();
+        // get visual capsule mesh
+        this.capsuleMesh = getRef(this.capsuleMesh);
 
         // Create character controller
         this.controller = this.world.createCharacterController(0.01);
+        globalThis.ctr = this.controller;
         this.controller.setUp({ x: 0, y: 1, z: 0 });
         this.controller.setSlideEnabled(true);
         this.controller.setMaxSlopeClimbAngle(45 * Math.PI / 180);
         this.controller.setMinSlopeSlideAngle(30 * Math.PI / 180);
         this.controller.enableAutostep(0.5, 0.2, false);
         this.controller.setCharacterMass(30);
-        this.controller.enableSnapToGround(0.5);
+        this.controller.enableSnapToGround(0);
         this.controller.setApplyImpulsesToDynamicBodies(true);
 
         // Create character rigid body (kinematic)
@@ -78,53 +77,6 @@ export default class PlayerController extends Behavior {
         if (input.theta !== undefined) this.pitch = input.theta;
     }
 
-    private createCapsuleMesh() {
-        this.capsuleMesh = new THREE.Group();
-
-        // Create capsule geometry (cylinder + 2 hemispheres)
-        const cylinderHeight = this.capsuleHeight * 2;
-        const cylinderGeometry = new THREE.CylinderGeometry(
-            this.capsuleRadius,
-            this.capsuleRadius,
-            cylinderHeight,
-            16
-        );
-
-        const sphereGeometry = new THREE.SphereGeometry(
-            this.capsuleRadius,
-            16,
-            8,
-            0,
-            Math.PI * 2,
-            0,
-            Math.PI / 2
-        );
-
-        // Material
-        const material = new THREE.MeshStandardMaterial({
-            color: 0x3498db,
-            roughness: 0.7,
-            metalness: 0.3
-        });
-
-        // Cylinder body
-        const cylinder = new THREE.Mesh(cylinderGeometry, material);
-        this.capsuleMesh.add(cylinder);
-
-        // Top hemisphere
-        const topHemisphere = new THREE.Mesh(sphereGeometry, material);
-        topHemisphere.position.y = this.capsuleHeight;
-        this.capsuleMesh.add(topHemisphere);
-
-        // Bottom hemisphere
-        const bottomHemisphere = new THREE.Mesh(sphereGeometry.clone(), material);
-        bottomHemisphere.rotation.x = Math.PI;
-        bottomHemisphere.position.y = -this.capsuleHeight;
-        this.capsuleMesh.add(bottomHemisphere);
-
-        // Add to parent object
-        this.object.add(this.capsuleMesh);
-    }
 
     onUpdate(dt: number) {
         if (!this.characterBody) return;
@@ -139,10 +91,10 @@ export default class PlayerController extends Behavior {
         const moveX = input.hudData.deltaX * dt;
         const moveZ = input.hudData.deltaY * dt;
 
-        const target = this.object;
+        const target = this.capsuleMesh;
 
         // Get movement directions
-        const forward = target.getWorldDirection(new THREE.Vector3()).setY(0).normalize();
+        const forward = target.getWorldDirection(new THREE.Vector3(0, 0, 1)).setY(0).normalize();
         const left = new THREE.Vector3().crossVectors(forward, target.up).normalize();
 
         // Create movement vector with SPEED, not delta accumulation
@@ -166,16 +118,27 @@ export default class PlayerController extends Behavior {
     }
 
     private applyPhysics(dt: number) {
-        // Apply gravity (but not if we're grounded and not jumping)
+        // Track platform movement BEFORE physics update
+        let platformDelta = new THREE.Vector3();
+        if (this.standingOnBody && this.isGrounded) {
+            const currentPos = this.standingOnBody.translation();
+            platformDelta.set(
+                currentPos.x - this.lastPlatformPosition.x,
+                currentPos.y - this.lastPlatformPosition.y,
+                currentPos.z - this.lastPlatformPosition.z
+            );
+        }
+
+        // Apply gravity
         if (!this.isGrounded || this.velocity.y > 0) {
             this.velocity.y -= 9.81 * dt;
         }
 
-        // Calculate desired movement
+        // Calculate desired movement (include platform delta)
         const desiredMovement = {
-            x: this.velocity.x ,
-            y: this.velocity.y * dt,
-            z: this.velocity.z 
+            x: this.velocity.x + platformDelta.x,
+            y: this.velocity.y * dt + platformDelta.y,
+            z: this.velocity.z + platformDelta.z
         };
 
         // Compute collision-aware movement
@@ -184,21 +147,16 @@ export default class PlayerController extends Behavior {
             desiredMovement
         );
 
-        let movement = this.controller.computedMovement();
+        const movement = this.controller.computedMovement();
         const rawGrounded = this.controller.computedGrounded();
 
-        // SOLUTION: Snap to ground for slopes (prevents flickering)
-        if (this.isGrounded && this.velocity.y <= 0) {
+        // Detect what we're standing on
+        this.standingOnBody = null;
+        if (rawGrounded) {
             const pos = this.characterBody.translation();
-            const ray = new this.RAPIER.Ray(
-                { x: pos.x, y: pos.y, z: pos.z },
-                { x: 0, y: -1, z: 0 }
-            );
-
-            
         }
 
-        // SOLUTION: Grounded buffer (coyote time)
+        // Grounded buffer (coyote time)
         if (rawGrounded) {
             this.groundedBuffer = this.groundedBufferTime;
         } else {
@@ -207,37 +165,43 @@ export default class PlayerController extends Behavior {
 
         this.isGrounded = this.groundedBuffer > 0;
 
-        // Reset vertical velocity ONLY if grounded and moving down
-        if (this.isGrounded && this.velocity.y <= 0) {
-            this.velocity.y = 0;
+        // FIXED: Only reset velocity if on flat ground (not sliding)
+        // Let the controller handle slope sliding naturally
+        if (this.isGrounded && this.velocity.y < 0) {
+            // Only zero out if movement.y is near zero (truly flat ground)
+            // This allows the controller's slide logic to work
+            if (Math.abs(movement.y) < 0.001) {
+                this.velocity.y = 0;
+            }
         }
 
         // Apply movement to physics body
         const pos = this.characterBody.translation();
-        pos.x += movement.x
-        pos.y += movement.y
-        pos.z += movement.z
-        this.characterBody.setNextKinematicTranslation(pos);
+        this.nextPosition.set(
+            pos.x + movement.x,
+            pos.y + movement.y,
+            pos.z + movement.z
+        );
+
+        this.characterBody.setNextKinematicTranslation(this.nextPosition);
+    }
+    
+    
+    onLateUpdate(deltaTime: number){
         
-        this.nextPosition.copy(pos)
+    }
+    onBeforeUpdate(deltaTime: number){
+        
     }
 
     private updateObjectTransform(dt) {
         // Sync Three.js object with physics body
         const pos = this.nextPosition;
-        this.object.position.lerp(pos, 1.0 - Math.pow(0.001, dt));
-        
+        this.object.position.lerp(pos, 1 - Math.exp(-50 * dt));
+
     }
 
     // Public getters
-    public getYaw(): number {
-        return this.yaw;
-    }
-
-    public getPitch(): number {
-        return this.pitch;
-    }
-
     public getIsGrounded(): boolean {
         return this.isGrounded;
     }

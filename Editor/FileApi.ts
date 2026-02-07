@@ -62,10 +62,10 @@ export class FileAPI {
   async readDir(dir: string): Promise<DirInfo[]> {
     const result: DirInfo[] = [];
     const files = await fs.readdir(dir);
-
     for (const file of files) {
-      const full = dir + "/" + file;
+      let full = dir + file;
       const stats = await fs.stat(full);
+      if(stats.isDirectory) full = full+'/'
       result.push({
         name: file,
         fullPath: full,

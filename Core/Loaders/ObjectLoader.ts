@@ -35,7 +35,8 @@ export class MemoLoader {
     private maxSize: number
 
     /** Three.js ObjectLoader instance */
-    private objectLoader = new THREE.ObjectLoader()
+    private objectLoader = new THREE.ObjectLoader();
+    private nodeObjectLoader = new THREE.NodeObjectLoader();
 
     /** Three.js TextureLoader instance */
     private textureLoader = new THREE.TextureLoader()

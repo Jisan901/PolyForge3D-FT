@@ -34,6 +34,6 @@ export default class RapierPhysicsPlugin extends Plugin {
     }
 
     async onDestroy() {
-        this.world.free();
+        //this.world.free();
     }
 }

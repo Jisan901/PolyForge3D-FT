@@ -7,6 +7,7 @@ import { Box, Layers, Palette, Grid3x3, Image as ImageIcon, Plus, RefreshCw } fr
 import { useObserver, useRawProperty } from "../Hooks";
 
 import { Editor } from "@/Editor/Editor";
+import { mutationCall } from "@/Editor/Mutation";
 
 const editor = Editor;
 

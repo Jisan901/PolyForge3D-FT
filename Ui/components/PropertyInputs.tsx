@@ -2,6 +2,8 @@ import React from 'react';
 import { Target, File } from 'lucide-react';
 import { DragAndDropZone } from "./Utils/DragNDrop";
 import { Editor } from "@/Editor/Editor";
+import fs from '@/Core/lib/fs';
+import { THREE } from '@/Core/lib/THREE';
 const editor = Editor;
 
 
@@ -317,7 +319,7 @@ export const RefInput: React.FC<{ label: string; value: string; onChange?: (v: s
 
 
 
-import fs from "@/lib/fs";
+
 
 const loader = new THREE.ObjectLoader();
 
@@ -428,7 +430,7 @@ export const MaterialGeoRefInput: React.FC<{ label: string; value: string; onCha
 
 import { useRef, useState } from 'react';
 import { Upload, X, Image as ImageIcon, RefreshCw, Download } from 'lucide-react';
-import * as THREE from 'three';
+
 
 
 
@@ -450,6 +452,7 @@ export const TextureInput: React.FC<TextureInputProps> = ({
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isExpanded, setIsExpanded] = useState(false);
     const [preview, setPreview] = useState<string | null>(null);
+    const [updatePreview, setUpdatePreview] = useState<string | null>(null);
 
     // Generate preview when texture changes
     React.useEffect(() => {
@@ -474,7 +477,7 @@ export const TextureInput: React.FC<TextureInputProps> = ({
         } else {
             setPreview(null);
         }
-    }, [value]);
+    }, [value, updatePreview]);
 
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -491,6 +494,7 @@ export const TextureInput: React.FC<TextureInputProps> = ({
                 if (value) {
                     value.copy(texture);
                     onChange(value);
+                    setUpdatePreview(value.name);
                 } else {
                     onChange(texture);
                 }

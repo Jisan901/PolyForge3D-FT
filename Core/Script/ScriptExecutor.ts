@@ -9,7 +9,7 @@ export abstract class BaseScript {
   onDisable?(): void;
   onUpdate?(deltaTime: number): void;
   onLateUpdate?(deltaTime: number): void;
-  onFixedUpdate?(fixedDeltaTime: number): void;
+  onBeforeUpdate?(deltaTime: number): void;
   onDestroy?(): void;
   onBeforeRender?(): void;
   onAfterRender?(): void;
@@ -168,7 +168,11 @@ export class ScriptExecutor {
    * Update all scripts (called every frame)
    */
   update(deltaTime: number): void {
+      
+    this.invokeLifecycleAll('onBeforeUpdate', deltaTime);
     this.invokeLifecycleAll('onUpdate', deltaTime);
+    this.invokeLifecycleAll('onLateUpdate', deltaTime);
+    
   }
 
   /**
@@ -179,10 +183,10 @@ export class ScriptExecutor {
   }
 
   /**
-   * Fixed update (called at fixed intervals)
+   * before update (called at before update)
    */
-  fixedUpdate(fixedDeltaTime: number): void {
-    this.invokeLifecycleAll('onFixedUpdate', fixedDeltaTime);
+  beforeUpdate(deltaTime: number): void {
+    this.invokeLifecycleAll('onBeforeUpdate', deltaTime);
   }
 
   /**
@@ -202,7 +206,7 @@ export class ScriptExecutor {
   /**
    * Destroy all scripts
    */
-  destroy(): void {
+  destroy(clear=true): void {
     // Call onDisable for enabled scripts
     for (const script of this.scriptOrder) {
       if (script.enabled) {
@@ -212,9 +216,10 @@ export class ScriptExecutor {
 
     // Call onDestroy for all scripts
     this.invokeLifecycleAll('onDestroy');
-
-    this.scripts.clear();
-    this.scriptOrder.length = 0;
+    if (clear){
+        this.scripts.clear();
+        this.scriptOrder.length = 0;
+    }
     this.initialized = false;
   }
 

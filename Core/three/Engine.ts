@@ -127,8 +127,10 @@ export class Engine {
     // CAMERA MANAGEMENT
     // ----------------------------------------------------------
 
-    public setActiveCamera(camera: THREE.Camera): void {
-
+    public setActiveCamera(c: THREE.Camera): void {
+        
+        let camera = c || this.three.camera;
+        
         this.activeCamera = camera;
 
         // Sync postprocessor scene pass

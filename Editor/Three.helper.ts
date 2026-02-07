@@ -1,11 +1,27 @@
-import { THREE } from '@/Core/lib/THREE';
-import { Engine } from "@/Core/three/Engine";
-import { ThreeHelpers } from '@/Core/three/Helper';
+import {
+    THREE
+} from '@/Core/lib/THREE';
+import {
+    Engine
+} from "@/Core/three/Engine";
+import {
+    ThreeHelpers
+} from '@/Core/three/Helper';
 
-import { mutationCall } from "@/Editor/Mutation";
+import {
+    mutationCall
+} from "@/Editor/Mutation";
 
-import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import {
+    TransformControls
+} from 'three/examples/jsm/controls/TransformControls';
+import {
+    OrbitControls
+} from 'three/examples/jsm/controls/OrbitControls';
+
+import {
+    InteractiveViewHelper
+} from "@/Editor/Three/Gizmo";
 
 export class HelperManager {
     public transformControls: TransformControls;
@@ -18,8 +34,15 @@ export class HelperManager {
     private _box = new THREE.Box3();
 
     // Cleanup refs
-    private _listeners: { [key: string]: Function } = {};
+    private _listeners: {
+        [key: string]: Function
+    } = {};
     private _sub?: any;
+
+    private currentObject: null| THREE.Object3D = null;
+
+    private _helpers = new Map < string,
+    THREE.Object3D > ();
 
     constructor(
         private bus: BusHub,
@@ -49,7 +72,7 @@ export class HelperManager {
             const sel = this.transformControls.object;
             if (sel) {
                 if (['translate', 'rotate', 'scale'].includes(this.transformControls.mode)) {
-                    mutationCall(sel, this.transformControls.mode === 'translate' ? 'position' : this.transformControls.mode === 'rotate' ? 'rotation' : 'scale');
+                    mutationCall(sel, this.transformControls.mode === 'translate' ? 'position': this.transformControls.mode === 'rotate' ? 'rotation': 'scale');
                 }
                 sel.userData?.helper?.update?.();
             }
@@ -78,12 +101,11 @@ export class HelperManager {
     }
 
     addSpecificHelper(obj: THREE.Object3D) {
-        // if (!this.editorGroup.visible) return; that's not matter 
+        // if (!this.editorGroup.visible) return; that's not matter
 
         // Cleanup existing
         if (obj.userData.helper) {
-            this.editorGroup.remove(obj.userData.helper);
-            obj.userData.helper.dispose?.();
+            this.removeHelper(obj);
         }
 
         let h;
@@ -96,23 +118,30 @@ export class HelperManager {
 
         if (h) {
             h.userData.isSpecificHelper = true;
-            obj.userData.helper = h;
+            obj.userData.helper = h.uuid;
+            this._helpers.set(h.uuid, h);
             this.editorGroup.add(h);
         }
     }
 
     removeHelper(object3d: THREE.Object3D) {
-        if (object3d.userData.helper) {
-            this.editorGroup.remove(object3d.userData.helper);
-            ThreeHelpers.freeGPU(object3d.userData.helper);
-            delete object3d.userData.helper;
-        }
+        if (!object3d.userData.helper) return;
+        const helper = this._helpers.get(object3d.userData.helper);
+        if (!helper) return;
+
+
+        this.editorGroup.remove(helper);
+        ThreeHelpers.freeGPU(helper);
+        delete object3d.userData.helper;
+        this._helpers.delete(object3d.userData.helper)
+
         object3d.traverse(obj => {
             if (obj !== object3d) this.removeHelper(obj)
         })
     }
 
     attach(target: THREE.Object3D | null) {
+        this.currentObject = target;
         if (!this.editorGroup.visible) return;
 
         // Box
@@ -127,16 +156,20 @@ export class HelperManager {
         }
 
         // Gizmo
-        if (!target || target.isScene || !this.activeGizmo) this.transformControls.detach();
+        if (!target || target.isScene || !this.activeGizmo && target.userData.locked) this.transformControls.detach();
         else this.transformControls.attach(target);
     }
 
     setTool(tool: string) {
-        this.activeGizmo = ['translate', 'rotate', 'scale'].includes(tool);
+        this.activeGizmo = ['translate',
+            'rotate',
+            'scale'].includes(tool);
         this.activeTool = tool;
         if (this.activeGizmo) this.transformControls.setMode(tool as any);
-        else this.transformControls.detach();
-        if (this.transformControls.object) this.attach(this.transformControls.object);
+        else {
+            this.transformControls.detach();
+        }
+        if (this.currentObject) this.attach(this.currentObject);
     }
     setSpace(space: string) {
         this.transformControls.setSpace(space);
@@ -155,6 +188,8 @@ export class HelperManager {
 export class ThreeAPI {
     public selectedObject?: THREE.Object3D;
     public helpers: HelperManager;
+
+    public gizmo: InteractiveViewHelper;
 
     // --- Editor Internals ---
     public editorGroup = new THREE.Group();
@@ -177,12 +212,19 @@ export class ThreeAPI {
         this._canvas = this.engine.getCanvas.bind(this.engine)();
         this.scene = this.engine.getActiveScene.bind(this.engine)();
 
+
+
         // 1. Setup Editor Group (Hidden from game logic via flag)
-        this.editorGroup.userData.activeOnEditor = false;
+        this.editorGroup.userData.hiddenOnEditor = true;
         this.editorGroup.name = 'Editor_Helpers_Root';
-        
+        this.editorGroup.toJSON = () => {
+            const object = new THREE.Object3D()
+            object.name = 'Editor_Helpers_Root';
+            return object.toJSON()
+        }
+
         this.editorGroup.add(this.editorHelperGroup);
-        
+
         // 2. Setup Internal Camera & Controls
         const aspect = this._canvas.clientWidth / this._canvas.clientHeight;
         this.editorCamera = new THREE.PerspectiveCamera(70, aspect, 0.001, 5000);
@@ -192,6 +234,9 @@ export class ThreeAPI {
         this.engine.setActiveCamera(this.editorCamera);
 
         this.editorControls = new OrbitControls(this.editorCamera, this._canvas);
+
+        this.gizmo = new InteractiveViewHelper(this._canvas, this.editorCamera);
+        this.gizmo.setControll(this.editorControls)
 
         // Start in Editor Mode
         this._activeCamera = this.editorCamera;
@@ -211,18 +256,31 @@ export class ThreeAPI {
     }
 
     /**
-     * Maps the API to a new scene. Handles moving the editor group and refreshing helpers.
-     */
+    * Maps the API to a new scene. Handles moving the editor group and refreshing helpers.
+    */
     setScene(newScene: THREE.Scene) {
+
+        if (newScene.userData.helperSceneId) {
+            const previous = newScene.getObjectByName(newScene.userData.helperSceneId);
+            if (previous) {
+                previous.removeFromParent();
+                ThreeHelpers.freeGPU(previous);
+            }
+        }
+
+
+        newScene.userData.helperSceneId = 'Editor_Helpers_Root';
+
         // Remove from old
         this.editorGroup.removeFromParent();
 
         this.scene = newScene;
 
         // Add to new (Always ensure editor group is part of the scene graph)
-        this.scene.add(this.editorGroup);
 
         this.helpers.refreshHelpers(newScene);
+
+        this.scene.add(this.editorGroup);
 
         // Reset selection if strictly needed, or keep if UUID matches
         this.selectObject(null);
@@ -282,8 +340,8 @@ export class ThreeAPI {
     }
 
 
-    public getHitFromMouse(event: MouseEvent) {
-        if (!this.helperActive) return null;
+    public getHitFromMouse = (event: MouseEvent) => {
+        
 
         const rect = this._canvas.getBoundingClientRect();
         this._mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -291,7 +349,7 @@ export class ThreeAPI {
 
         this._raycaster.setFromCamera(
             this._mouse,
-            this._activeCamera
+            this.editorCamera
         );
 
         const hits = this._raycaster.intersectObjects(
@@ -316,8 +374,10 @@ export class ThreeAPI {
         }
 
         return {
-            point: hit.point.clone(),   // world space
-            normal,                     // world space
+            point: hit.point.clone(),
+            // world space
+            normal,
+            // world space
             object: hit.object,
             distance: hit.distance,
             hits
@@ -342,34 +402,36 @@ export class ThreeAPI {
 
     /* --- Shorthands & Proxies --- */
 
-    update() {
+    update(dt) {
         if (this._activeCamera === this.editorCamera) this.editorControls.update();
+        this.gizmo.update(dt);
     }
 
     toggleHelpers(activate: boolean) {
-        this.editorHelperGroup.visible = typeof activate === 'boolean' ? activate : !this.editorHelperGroup.visible;
+        this.editorHelperGroup.visible = typeof activate === 'boolean' ? activate: !this.editorHelperGroup.visible;
         if (!activate) this.helpers.attach(null);
     }
 
     toggleLights(activate: boolean) {
-        this.editorLights.visible = typeof activate === 'boolean' ? activate : !this.editorLights.visible;
+        this.editorLights.visible = typeof activate === 'boolean' ? activate: !this.editorLights.visible;
     }
 
     resize(width: number, height: number) {
+        this.gizmo.handleResize()
         if (this.editorCamera instanceof THREE.PerspectiveCamera) {
             this.editorCamera.aspect = width / height;
             this.editorCamera.updateProjectionMatrix();
         }
     }
 
-    focusSelected() {
+    public focusSelected = () => {
         if (!this.selectedObject) return;
         const box = new THREE.Box3().setFromObject(this.selectedObject);
         if (box.isEmpty()) return;
 
         const center = box.getCenter(new THREE.Vector3());
         const size = box.getSize(new THREE.Vector3()).length();
-
+        
         const offset = size * 1.5;
         const direction = new THREE.Vector3(0, 0, 1).applyQuaternion(this.editorCamera.quaternion); // relative to cam
 
@@ -378,6 +440,134 @@ export class ThreeAPI {
         this.editorControls.target.copy(center);
         this.editorControls.update();
     }
+    public toggleCameraPreview = ()=> {
+        this.engine.setActiveCamera(this.selectedObject.uuid === this.engine.activeCamera.uuid?this.editorCamera: this.selectedObject)
+    }
+    public toggleObjectLock = () => {
+        const selected = this.selectedObject;
+
+        if (!selected) {
+            console.warn('No object selected');
+            return;
+        }
+
+        // Toggle lock state
+        selected.userData.locked = !selected.userData.locked;
+
+        // Update selectable state
+        selected.userData.selectable = !selected.userData.locked;
+
+        // Optionally disable transform controls when locked
+        if (selected.userData.locked && this.helpers.transformControls) {
+            this.helpers.transformControls.detach()
+        } else {
+            this.selectObject(selected)
+        }
+
+        console.log(`Object ${selected.userData.locked ? 'locked': 'unlocked'}: ${selected.name || selected.uuid}`);
+    };
+
+
+    /**
+    * Snaps a 3D object to the ground using raycasting and bounding box computation
+    * @param {THREE.Object3D} object - The object to snap to ground
+    * @param {THREE.Scene} scene - The scene containing the ground
+    * @param {Object} options - Configuration options
+    * @returns {Object} Result object with success status and raycast info
+    */
+    public snapToGround = (object, options = {})=> {
+        const {
+            groundLayerMask = null,
+            // Optional: specific layer for ground objects
+            offset = 0,
+            // Additional vertical offset from ground
+            useObjectCenter = false,
+            // Use object center instead of bottom
+            maxDistance = 1000,
+            // Maximum raycast distance
+            raycastDirection = new THREE.Vector3(0, -1, 0) // Downward by default
+        } = options;
+
+        // Initialize raycaster
+        const raycaster = new THREE.Raycaster();
+
+        // Compute bounding box for the object
+        const boundingBox = new THREE.Box3();
+        boundingBox.setFromObject(object);
+
+        // Get bounding box dimensions
+        const boxSize = new THREE.Vector3();
+        boundingBox.getSize(boxSize);
+
+        const boxCenter = new THREE.Vector3();
+        boundingBox.getCenter(boxCenter);
+
+        // Determine raycast origin
+        let rayOrigin;
+        if (useObjectCenter) {
+            rayOrigin = boxCenter.clone();
+        } else {
+            // Start from bottom center of bounding box
+            rayOrigin = new THREE.Vector3(
+                boxCenter.x,
+                boundingBox.min.y,
+                boxCenter.z
+            );
+        }
+
+        // Set up raycaster
+        raycaster.set(rayOrigin, raycastDirection.clone().normalize());
+        raycaster.far = maxDistance;
+
+
+
+        // Perform raycast
+        const intersects = raycaster.intersectObjects(this.scene.children.filter(child => child.name !== "Editor_Helpers_Root"), true);
+
+        if (intersects.length > 0) {
+            const hitPoint = intersects[0].point;
+            const hitNormal = intersects[0].normal;
+            const hitObject = intersects[0].object;
+
+            // Calculate new position
+            let newY;
+            if (useObjectCenter) {
+                // Position center at hit point
+                newY = hitPoint.y + offset;
+            } else {
+                // Position bottom of bounding box at hit point
+                const bottomOffset = boxCenter.y - boundingBox.min.y;
+                newY = hitPoint.y + bottomOffset + offset;
+            }
+
+            // Update object position
+            object.position.y = newY;
+
+            return {
+                success: true,
+                hitPoint: hitPoint.clone(),
+                hitNormal: hitNormal.clone(),
+                hitObject: hitObject,
+                distance: intersects[0].distance,
+                boundingBox: boundingBox,
+                boxSize: boxSize,
+                originalY: rayOrigin.y,
+                newY: newY
+            };
+        } else {
+            return {
+                success: false,
+                message: 'No ground found within raycast distance',
+                rayOrigin: rayOrigin.clone(),
+                rayDirection: raycastDirection.clone(),
+                maxDistance: maxDistance,
+                boundingBox: boundingBox,
+                boxSize: boxSize
+            };
+        }
+    }
+
+
 
     dispose() {
         this.helpers.dispose();

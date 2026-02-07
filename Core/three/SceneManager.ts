@@ -82,8 +82,12 @@ export class SceneManager {
   public fromJson(json: any, setActive = true): THREE.Scene {
 
     const loader = new THREE.ObjectLoader()
-    const scene = loader.parse(json) as THREE.Scene
-
+    let scene = loader.parse(json) as THREE.Scene
+    if (!scene.isScene){
+        let temp = new THREE.Scene();
+        temp.add(scene)
+        scene = temp
+    } 
     if (setActive) {
       this.setScene(scene)
     }
@@ -118,6 +122,8 @@ export class SceneManager {
 
     // Register new scene tree
     this.registry.register(scene, true)
+    
+    this.onSceneLoad(scene);
   }
 
   // =====================================================
@@ -195,7 +201,6 @@ export class SceneManager {
       this.activeUrl = filePath
     }
     
-    this.onSceneLoad(scene);
     
     return scene
   }

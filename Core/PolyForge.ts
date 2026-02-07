@@ -9,6 +9,7 @@ import { ThreadPool } from "@/Core/Parallelism/ThreadPool";
 import { ThreeRegistry } from '@/Core/three/ThreeRegistry';
 import { Engine } from "@/Core/three/Engine";
 import { SceneManager } from "@/Core/three/SceneManager";
+import { ThreeHelpers } from "@/Core/three/Helper";
 import { MeshBuilder } from "@/Core/three/MeshBuilder";
 
 import { Loaders } from "@/Core/Loaders";
@@ -63,32 +64,46 @@ export class PolyForge {
     /**
     * init
     */
-    public async init() {
+    public async init(initScripting: boolean) {
         await this.settings.init();
         await this.componentManager.loadTemplates();
         await this.engine.init();
-        await this.sceneManager.loadScene(DEFINITION.primaryScene);
+        try{
+            await this.sceneManager.loadScene(DEFINITION.primaryScene);
+        }catch(e){
+            console.warn(e);
+        }
         
+        if(initScripting){
+            await this.initScripting();
+            this.settings.applySettings(this);
+        }
+    }
+    
+    public async initScripting(){
         const instances = await this.loaders.scriptLoader.initGlobalSystems(this);
         instances.forEach(instance => {
             this.scriptExecutor.addScript(instance);
         });
         this.scriptExecutor.init();
-
-        
-
-        this.settings.applySettings(this);
     }
-
+    
 
     /**
     * update
     */
     public update(rawDelta: number) {
-        this.time.update(rawDelta);
+        this.alwaysUpdate(rawDelta);
         this.JobSystem.update(this.time.deltaTime);
-        this.engine.update();
         this.scriptExecutor.update(this.time.deltaTime)
+    }
+    /**
+    * update
+    */
+    public alwaysUpdate(rawDelta: number) {
+        this.time.update(rawDelta);
+        this.engine.update();
+        ThreeHelpers.disposeQueue.update()
     }
     /**
     * dispose

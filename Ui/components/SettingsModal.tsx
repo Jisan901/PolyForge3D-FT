@@ -54,7 +54,7 @@ interface InputBindings {
   playPause: string;
 }
 
-const defaultSettings = Editor.core.settings.settings;
+const defaultSettings = Editor.core.settings.defaultSettings;
 const currentSettings = Editor.core.settings.settings;
 
 const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
@@ -91,7 +91,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
     currentSettings.physics = physics
     currentSettings.input = input
     
-    
+    Editor.core.settings.applySettings(Editor.core)
+    Editor.core.settings.save()
    // await PolyForge.editor.saveSettings(currentSettings)
 
     // Apply settings

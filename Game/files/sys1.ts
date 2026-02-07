@@ -1,20 +1,19 @@
-// game/scripts/Rotate.ts
 import { Behavior } from "@/Core/Behavior";
-import { INumber, IObject3D } from '@/PolyModule/Runtime/ITypes';
-import * as THREE from 'three';
+import { INumber, IRef } from '@/Editor/ITypes';
+import { getRef } from '@/Core/Functions';
+import { THREE } from '@/Core/lib/THREE';
 
 export default class Rotate extends Behavior{
-  @INumber
+  @INumber(50)
   speed: number = 50;
-  @IObject3D
+  @IRef()
   target: THREE.Object3D = null; 
 
   onStart() {
-    console.log('Rotate started', this.speed, this.target);
-    
+    this.target = getRef(this.target);
   }
 
   onUpdate(dt: number) {
-    if (this.object) this.object.rotation.y += dt * this.speed||0.002;
+    if (this.target) this.target.rotation.x += 0.5 * dt;
   }
 }

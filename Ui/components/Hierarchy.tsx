@@ -94,6 +94,9 @@ const EditableName = ({ name, onRename }) => {
 
 // Hierarchy node component
 const HierarchyNode = ({ node, depth, isFlat, handleContextMenu, sceneVersion }) => {
+    
+    if(node?.userData?.hiddenOnEditor) return;
+    
   const name = useObserver(node, 'name');
   const expanded = useObserver(node.userData, 'expanded');
 //   const render = useRef(0);
@@ -273,6 +276,7 @@ const Hierarchy: React.FC = () => {
     });
     return result;
   };
+  
 
   const handleEmptySpaceContextMenu = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {

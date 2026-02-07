@@ -1,15 +1,15 @@
 import { Vector3, Object3D } from 'three';
-import {memoLoader} from '../PolyForge'
+
 const _v1 = /*@__PURE__*/ new Vector3();
 const _v2 = /*@__PURE__*/ new Vector3();
 
 
 class DLOD extends Object3D {
 
-	constructor() {
+	constructor(loader) {
 
 		super();
-        this.loader = memoLoader;
+        this.loader = loader;
 		/**
 		 * This flag can be used for type testing.
 		 *
@@ -154,7 +154,7 @@ class DLOD extends Object3D {
 
 
     async loadLODLevel(level, onLoad){
-        const data = await this.loader.load(level.assetId)
+        const data = await this.loader.loadObject(level.assetId)
         onLoad?.(data)
         return data
     }

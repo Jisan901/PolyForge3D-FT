@@ -174,8 +174,8 @@ window.ex2 = ()=>createRemoveAndDispose(scene);
 
 
 const tfControl = new TransformControls(camera, renderer.domElement);
-//tfControl.attach(sphere);
-//scene.add(tfControl.getHelper());
+tfControl.attach(sphere);
+scene.add(tfControl.getHelper());
 
 
 tfControl.addEventListener('dragging-changed', (e) => {
@@ -231,8 +231,10 @@ sphere.material = material
 window.sphere = sphere
 window.parent = scene
 window.re = renderer
-const rawShader = await renderer.debug.getShaderAsync(scene, camera, sphere)
-console.log(rawShader)
+//const rawShader = await renderer.debug.getShaderAsync(scene, camera, sphere)
+//console.log(rawShader)
+
+
 
 
 const postProcessing = new THREE.PostProcessing( renderer );

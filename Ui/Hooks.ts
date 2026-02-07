@@ -10,9 +10,9 @@ function validateSelection(uuid?: string) {
 }
 
 
-export function useObserver(target, path) {
+export function useObserver(target:any, path:string) {
 
-    const [, rerender] = useState(0);
+    const [, rerender] = useState<number>(0);
 
     useEffect(() =>
         BusHub.mutationBus.subscribe(({ target: t, path: changedPath }) => {
@@ -30,7 +30,7 @@ export function useObserver(target, path) {
 }
 
 
-export function useRawProperty(target, path) {
+export function useRawProperty(target: any, path: string) {
     // Resolve deep value
     if (!target || !path) return
     try {
@@ -45,7 +45,7 @@ export function useRawProperty(target, path) {
 }
 
 
-export function useTargetObserver(target) {
+export function useTargetObserver(target: object) {
 
     const [, rerender] = useState(0);
 
@@ -64,7 +64,7 @@ export function useTargetObserver(target) {
 }
 
 export function useSceneObserver() {
-    const [sv, forceUpdate] = React.useState(0);
+    const [sv, forceUpdate] = React.useState<number>(0);
 
     React.useEffect(() => {
         return BusHub.sceneUpdate.subscribe(

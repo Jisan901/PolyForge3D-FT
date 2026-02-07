@@ -23,7 +23,7 @@ import { ObjectType } from '@/Core/Types/Objects'
  */
 export class MeshBuilder {
     
-    private _defaultMaterial = new THREE.MeshStandardNodeMaterial({ color: 0xaaaaaa });
+    private _defaultMaterial = new THREE.MeshStandardMaterial({ color: 0xaaaaaa });
     
   /**
    * Create MeshBuilder instance.

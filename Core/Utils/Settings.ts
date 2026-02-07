@@ -74,6 +74,7 @@ type SettingsType = typeof defaultSettings;
 export class Settings {
     private static instance: Settings;
     private settings: SettingsType;
+    private defaultSettings = defaultSettings;
     private initialized: boolean = false;
     private saveTimeout: any | null = null;
 

@@ -41,14 +41,14 @@ export class ScriptLoader {
     }
 
     // Load script class (lazy or cached) using full URL
-    public async getScriptClass(url: string): Promise<ScriptConstructor> {
+    public async getScriptClass(url: string, cache = true): Promise<ScriptConstructor> {
         // Already cached? return it
-        if (this.cache[url]) return this.cache[url];
+        if (this.cache[url] && cache) return this.cache[url];
 
         const loader = this.lazyScripts[url];
         if (!loader) throw new Error(`Script not found: ${url}`);
 
-        const mod = await loader();
+        let mod = await import(/* @vite-ignore */`${url}?${Date.now()}`);
         const ScriptClass = mod.default;
         this.cache[url] = ScriptClass; // cache after load
         return ScriptClass;

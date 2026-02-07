@@ -27,7 +27,7 @@ export class InputData {
 export class LightGamePad {
     domElement: HTMLElement; // The full-screen overlay
     data: InputData;
-    
+
     private movementPad?: MovementPad;
     private wasd?: WASD;
     private rotationPad!: RotationPad;
@@ -37,16 +37,16 @@ export class LightGamePad {
         // 1. Create the container
         this.domElement = document.createElement('div');
         this.domElement.id = 'light-gamepad-overlay';
-        
+
         // 2. Initialize Data
         this.data = new InputData();
-        
+
         // 3. Inject CSS & Styles
         this.injectStyles();
-        
+
         // 4. Check Device Type
         this.isTouch = window.matchMedia('(pointer: coarse)').matches;
-        
+
         this.init();
     }
 
@@ -60,8 +60,7 @@ export class LightGamePad {
             height: '100dvh',
             overflow: 'hidden',
             zIndex: '9999', // Ensure it sits on top of canvas
-            touchAction: 'none', // Prevents browser zooming/scrolling
-            userSelect: 'none'
+
         });
 
         // Inject the Joystick CSS dynamically
@@ -70,8 +69,8 @@ export class LightGamePad {
             const css = `
                 .movement-pad {
                     position: absolute;
-                    bottom: 30%; /* Adjusted for better ergonomics */
-                    left: 10%;
+                    bottom: 150px; /* Adjusted for better ergonomics */
+                    left: 60px;
                     z-index: 10001;
                 }
                 
@@ -83,7 +82,6 @@ export class LightGamePad {
                     /* url("/images/nav.png") center center no-repeat; -- Optional image */
                     border: 2px solid rgba(218, 225, 230, 0.25);
                     border-radius: 50%;
-                    box-shadow: 0px 0px 5px rgba(194, 200, 204, 0.55);
                     user-select: none;
                     touch-action: none;
                 }
@@ -98,7 +96,6 @@ export class LightGamePad {
                     transform: translate(-50%, -50%); /* Center by default */
                     background: radial-gradient(rgba(215, 225, 255, 0.70) 0%, rgba(215, 225, 255, 0.50) 100%);
                     border-radius: 50%;
-                    box-shadow: 0px 0px 7px rgba(195, 205, 245, 0.9);
                     pointer-events: none; /* Let clicks pass to region */
                 }
             `;
@@ -123,14 +120,14 @@ export class LightGamePad {
 
     private setupTouchControls(): void {
         this.movementPad = new MovementPad(this.domElement);
-        
+
         this.movementPad.onStateChange = (deltaX, deltaY, isDown) => {
             this.data.keyDown = isDown;
             if (isDown) {
                 this.data.hudData = { deltaX, deltaY, middle: 0 };
                 // Standard mapping: Y < 0 is Forward in many 3D coord systems (screen top is 0)
                 // Adjust boolean logic to match your game's coordinate system
-                this.data.forward = deltaY < -0.2; 
+                this.data.forward = deltaY < -0.2;
                 this.data.backward = deltaY > 0.2;
                 this.data.left = deltaX < -0.2;
                 this.data.right = deltaX > 0.2;
@@ -171,7 +168,7 @@ export class LightGamePad {
     }
 
     private addKeyboardKeys(): void {
-        this.addKey(new VirtualKey('action'), 'KeyE'); 
+        this.addKey(new VirtualKey('action'), 'KeyE');
         this.addKey(new VirtualKey('jump'), 'Space');
     }
 
@@ -186,6 +183,37 @@ export class LightGamePad {
         this.data.buttons[key.name] = key;
         this.wasd?.registerCustomKey(code, key);
     }
+
+    /**
+    * addtoGlobal
+    */
+    public addToGlobal() {
+        (window as any).gamePad = this;
+        window.document.body.appendChild(this.domElement);
+    }
+    /**
+    * syncWith
+    */
+    public syncWith(source) {
+        
+        const target = this.domElement;
+        const rect = source.getBoundingClientRect();
+        Object.assign(target.style, {
+            position: "fixed",
+            left: rect.left + "px",
+            top: rect.top + "px",
+            width: rect.width + "px",
+            height: rect.height + "px"
+        });
+        
+        this.movementPad.align();
+    }
+    
+    public setVisibility(val: boolean){
+        this.domElement.style.display = val?"block":"none";
+        this.movementPad.align();
+    }
+    
 }
 
 // --- 3. Components (Joystick, WASD, Rotation) ---
@@ -195,8 +223,8 @@ class WASD {
     keys = { w: false, a: false, s: false, d: false };
     customKeys: Record<string, VirtualKey> = {};
     deltaX = 0; deltaY = 0;
-    
-    onStateChange: (keys: any, dx: number, dy: number, isDown: boolean) => void = () => {};
+
+    onStateChange: (keys: any, dx: number, dy: number, isDown: boolean) => void = () => { };
 
     constructor() {
         document.addEventListener('keydown', (e) => this.handleKey(e, true));
@@ -213,13 +241,13 @@ class WASD {
             return;
         }
 
-        switch(e.code) {
+        switch (e.code) {
             case 'KeyW': this.keys.w = isDown; this.deltaY = isDown ? -1 : 0; break; // -1 is usually forward (up)
             case 'KeyS': this.keys.s = isDown; this.deltaY = isDown ? 1 : 0; break;
             case 'KeyA': this.keys.a = isDown; this.deltaX = isDown ? -1 : 0; break;
             case 'KeyD': this.keys.d = isDown; this.deltaX = isDown ? 1 : 0; break;
         }
-        
+
         const isMoving = this.keys.w || this.keys.s || this.keys.a || this.keys.d;
         this.onStateChange(this.keys, this.deltaX, this.deltaY, isMoving);
     }
@@ -231,11 +259,11 @@ class MovementPad {
     pad: HTMLDivElement;
     region: HTMLDivElement;
     handle: HTMLDivElement;
-    
+
     centerX = 0; centerY = 0; maxRadius = 0;
     mouseDown = false;
 
-    onStateChange: (dx: number, dy: number, active: boolean) => void = () => {};
+    onStateChange: (dx: number, dy: number, active: boolean) => void = () => { };
 
     constructor(container: HTMLElement) {
         this.container = container;
@@ -269,8 +297,8 @@ class MovementPad {
         const update = (pageX: number, pageY: number) => {
             let dx = pageX - this.centerX;
             let dy = pageY - this.centerY;
-            const dist = Math.sqrt(dx*dx + dy*dy);
-            
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
             // Clamp
             if (dist > this.maxRadius) {
                 const angle = Math.atan2(dy, dx);
@@ -283,7 +311,7 @@ class MovementPad {
             this.handle.style.opacity = '1.0';
 
             // Normalize -1 to 1
-            this.onStateChange(dx/this.maxRadius, dy/this.maxRadius, true);
+            this.onStateChange(dx / this.maxRadius, dy / this.maxRadius, true);
         };
 
         region.addEventListener('touchstart', (e) => {
@@ -316,13 +344,13 @@ class RotationPad {
     phi = 0; theta = 0;
     lastX = 0; lastY = 0;
     isTouching = false;
-    
-    onStateChange: (phi: number, theta: number, active: boolean) => void = () => {};
+
+    onStateChange: (phi: number, theta: number, active: boolean) => void = () => { };
 
     constructor(dom: HTMLElement) {
         this.domElement = dom;
         const isTouch = window.matchMedia('(pointer: coarse)').matches;
-        if(isTouch) this.bindTouch();
+        if (isTouch) this.bindTouch();
         else this.bindMouse();
     }
 
@@ -342,11 +370,11 @@ class RotationPad {
                 const x = e.targetTouches[0].pageX;
                 const y = e.targetTouches[0].pageY;
                 const sensitivity = 0.005;
-                
+
                 this.phi -= (x - this.lastX) * sensitivity;
                 this.theta -= (y - this.lastY) * sensitivity;
-                
-                this.lastX = x; 
+
+                this.lastX = x;
                 this.lastY = y;
                 this.onStateChange(this.phi, this.theta, true);
             }
@@ -398,11 +426,11 @@ export class ActionButton extends VirtualKey {
             zIndex: '10002',
             touchAction: 'none'
         });
-        
+
         const start = (e: Event) => { e.stopPropagation(); this.down(); this.dom.style.background = 'rgba(255,255,255,0.3)'; };
         const end = (e: Event) => { e.stopPropagation(); this.up(); this.dom.style.background = 'rgba(255,255,255,0.1)'; };
-        
-        this.dom.addEventListener('touchstart', start, {passive:false});
+
+        this.dom.addEventListener('touchstart', start, { passive: false });
         this.dom.addEventListener('touchend', end);
         this.dom.addEventListener('mousedown', start); // For testing on desktop
         this.dom.addEventListener('mouseup', end);

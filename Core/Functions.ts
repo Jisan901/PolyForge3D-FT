@@ -1,18 +1,27 @@
 import {Components} from "@/Core/Types/Components";
 import { THREE } from '@/Core/lib/THREE';
-
+import { Instance } from "@/Core/PolyForge";
 
 
 export const getComponent = (componentId:Components, object:THREE.Object3D):unknown=>{
     return object?.userData?.components?.[componentId]?.data
 }
 
+export const getRef = (ref: {isRef: boolean, ref: string}) => {
+    if (ref && ref?.isRef && ref?.ref) return Instance.threeRegistry.getObject(ref.ref);
+}
 
-import { Instance } from "@/Core/PolyForge";
+
+
 
 export const queryAll = ()=>{
     return Instance.threeRegistry.getSpecialObjects();
 }
+
+export const queryCamera = (i: typeof Instance) => {
+    return i.sceneManager.activeScene.getObjectByProperty('isCamera', true) as THREE.Camera || Instance.engine.getActiveCamera();
+}
+
 
 export const getEntities = (...components: Components[]): THREE.Object3D[] => {
   const result: THREE.Object3D[] = [];
@@ -40,7 +49,7 @@ export const getEntities = (...components: Components[]): THREE.Object3D[] => {
 export const isSpacial = (e)=>e?.isObject3D && e.userData?.special
 
 export function getCamera() {
-    return Instance.engine.getActiveCamera();
+    return queryCamera(Instance);
 }
 
 

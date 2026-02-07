@@ -1,0 +1,889 @@
+{
+    "metadata": {
+        "version": 4.7,
+        "type": "Object",
+        "generator": "Object3D.toJSON"
+    },
+    "geometries": [
+        {
+            "uuid": "306f2859-cd95-4142-a572-65bcbc9d0918",
+            "type": "SphereGeometry",
+            "radius": 2,
+            "widthSegments": 32,
+            "heightSegments": 32,
+            "phiStart": 0,
+            "phiLength": 6.283185307179586,
+            "thetaStart": 0,
+            "thetaLength": 3.141592653589793
+        }
+    ],
+    "materials": [
+        {
+            "uuid": "2fe3c534-1dcb-4e0e-b8d8-215e9f4c4200",
+            "type": "MeshBasicNodeMaterial",
+            "color": 16777215,
+            "envMapRotation": [
+                0,
+                0,
+                0,
+                "XYZ"
+            ],
+            "reflectivity": 1,
+            "refractionRatio": 0.98,
+            "transparent": true,
+            "blendColor": 0,
+            "inputNodes": {
+                "opacityNode": "7b397d82-3202-4faa-90f5-c5dff98db437",
+                "fragmentNode": "01787f1e-ca93-4db4-9ade-be833ad79270"
+            }
+        }
+    ],
+    "textures": [
+        {
+            "uuid": "30f52bdd-2499-4230-b925-0396264e396a",
+            "name": "",
+            "image": "faa2c556-d0d5-44f5-8847-c6f99469603e",
+            "mapping": 300,
+            "channel": 0,
+            "repeat": [
+                1,
+                1
+            ],
+            "offset": [
+                0,
+                0
+            ],
+            "center": [
+                0,
+                0
+            ],
+            "rotation": 0,
+            "wrap": [
+                1001,
+                1001
+            ],
+            "format": 1023,
+            "internalFormat": null,
+            "type": 1009,
+            "colorSpace": "",
+            "minFilter": 1008,
+            "magFilter": 1006,
+            "anisotropy": 1,
+            "flipY": true,
+            "generateMipmaps": true,
+            "premultiplyAlpha": false,
+            "unpackAlignment": 4
+        },
+        {
+            "uuid": "22a9a131-c6c0-407a-8310-0c2f7c4bc4f3",
+            "name": "",
+            "image": "e6682628-4eb1-4edc-97d4-47b19f8900a4",
+            "mapping": 300,
+            "channel": 0,
+            "repeat": [
+                1,
+                1
+            ],
+            "offset": [
+                0,
+                0
+            ],
+            "center": [
+                0,
+                0
+            ],
+            "rotation": 0,
+            "wrap": [
+                1001,
+                1001
+            ],
+            "format": 1026,
+            "internalFormat": null,
+            "type": 1014,
+            "colorSpace": "",
+            "minFilter": 1003,
+            "magFilter": 1003,
+            "anisotropy": 1,
+            "flipY": false,
+            "generateMipmaps": false,
+            "premultiplyAlpha": false,
+            "unpackAlignment": 4
+        }
+    ],
+    "images": [
+        {
+            "uuid": "faa2c556-d0d5-44f5-8847-c6f99469603e",
+            "url": ""
+        },
+        {
+            "uuid": "e6682628-4eb1-4edc-97d4-47b19f8900a4",
+            "url": {}
+        }
+    ],
+    "nodes": [
+        {
+            "uuid": "7b397d82-3202-4faa-90f5-c5dff98db437",
+            "type": "VarNode",
+            "inputNodes": {
+                "node": "d8c47636-f274-44b0-9378-d8f0d5ea1db5"
+            }
+        },
+        {
+            "uuid": "d8c47636-f274-44b0-9378-d8f0d5ea1db5",
+            "type": "ConstNode",
+            "value": 1,
+            "valueType": "float",
+            "nodeType": "float",
+            "precision": null
+        },
+        {
+            "uuid": "01787f1e-ca93-4db4-9ade-be833ad79270",
+            "type": "VarNode",
+            "inputNodes": {
+                "node": "4285cd06-8ce9-444d-8b4f-032425898e43"
+            }
+        },
+        {
+            "uuid": "4285cd06-8ce9-444d-8b4f-032425898e43",
+            "type": "JoinNode",
+            "inputNodes": {
+                "nodes": [
+                    "3990de46-4501-459d-912c-d489393b9b8a",
+                    "50f4cb18-aca6-44b7-bd74-eb1fbababfc9",
+                    "986f5a4c-02c3-4e03-95c5-fd840211eb05",
+                    "12a2f95d-1e73-4c72-b9ac-79bb896fc005"
+                ]
+            }
+        },
+        {
+            "uuid": "3990de46-4501-459d-912c-d489393b9b8a",
+            "type": "SplitNode",
+            "inputNodes": {
+                "node": "cb95d014-58f4-420b-a368-a6c549e370a7"
+            },
+            "components": "x"
+        },
+        {
+            "uuid": "cb95d014-58f4-420b-a368-a6c549e370a7",
+            "type": "VarNode",
+            "inputNodes": {
+                "node": "de35a922-46cf-425a-a650-9c2a194e74e5"
+            }
+        },
+        {
+            "uuid": "de35a922-46cf-425a-a650-9c2a194e74e5",
+            "type": "OperatorNode",
+            "inputNodes": {
+                "aNode": "5d2afe94-94c8-40e1-aff2-83356cc00aaa",
+                "bNode": "4aee999e-3a8b-42df-8309-665fd6c7316b"
+            },
+            "op": "*"
+        },
+        {
+            "uuid": "5d2afe94-94c8-40e1-aff2-83356cc00aaa",
+            "type": "TextureNode",
+            "inputNodes": {
+                "groupNode": "8eb7f006-796e-4afd-8077-aa35afaca350",
+                "uvNode": "592fcaaf-78ca-463c-b9c4-8f2fde881063"
+            },
+            "value": "30f52bdd-2499-4230-b925-0396264e396a",
+            "valueType": null,
+            "nodeType": null,
+            "precision": null,
+            "sampler": true,
+            "updateMatrix": false,
+            "updateType": "object"
+        },
+        {
+            "uuid": "8eb7f006-796e-4afd-8077-aa35afaca350",
+            "type": "UniformGroupNode",
+            "name": "object",
+            "version": 0,
+            "shared": false
+        },
+        {
+            "uuid": "592fcaaf-78ca-463c-b9c4-8f2fde881063",
+            "type": "VarNode",
+            "inputNodes": {
+                "node": "e59d2824-a6a1-4667-a327-4a9194585164"
+            }
+        },
+        {
+            "uuid": "e59d2824-a6a1-4667-a327-4a9194585164",
+            "type": "OperatorNode",
+            "inputNodes": {
+                "aNode": "f10d1d8b-4d33-4131-aad1-cdd9dd405235",
+                "bNode": "d507f720-c536-49af-b3b0-9018d0fb2651"
+            },
+            "op": "+"
+        },
+        {
+            "uuid": "f10d1d8b-4d33-4131-aad1-cdd9dd405235",
+            "type": "VarNode",
+            "inputNodes": {
+                "node": "ae647cd7-53a1-4a23-b6de-666731b53bbb"
+            }
+        },
+        {
+            "uuid": "ae647cd7-53a1-4a23-b6de-666731b53bbb",
+            "type": "OperatorNode",
+            "inputNodes": {
+                "aNode": "7b771b72-3be3-4830-aec1-5687a2dbe783",
+                "bNode": "759eabd9-2da9-482a-8213-3cd745d1325a"
+            },
+            "op": "*"
+        },
+        {
+            "uuid": "7b771b72-3be3-4830-aec1-5687a2dbe783",
+            "type": "AttributeNode",
+            "global": true,
+            "_attributeName": "uv"
+        },
+        {
+            "uuid": "759eabd9-2da9-482a-8213-3cd745d1325a",
+            "type": "ConstNode",
+            "value": 1,
+            "valueType": "float",
+            "nodeType": null,
+            "precision": null
+        },
+        {
+            "uuid": "d507f720-c536-49af-b3b0-9018d0fb2651",
+            "type": "VarNode",
+            "inputNodes": {
+                "node": "f3bd512b-e3f8-4559-afeb-61c6423c3ece"
+            }
+        },
+        {
+            "uuid": "f3bd512b-e3f8-4559-afeb-61c6423c3ece",
+            "type": "JoinNode",
+            "inputNodes": {
+                "nodes": [
+                    "52f4c84d-1ae7-4dea-8ac0-ab6166264f83",
+                    "818a0083-e1ce-4317-b74f-9627c68a00ed"
+                ]
+            }
+        },
+        {
+            "uuid": "52f4c84d-1ae7-4dea-8ac0-ab6166264f83",
+            "type": "VarNode",
+            "inputNodes": {
+                "node": "c48fa6a8-5e46-4f8b-97dd-e32e5bba04d6"
+            }
+        },
+        {
+            "uuid": "c48fa6a8-5e46-4f8b-97dd-e32e5bba04d6",
+            "type": "ConstNode",
+            "value": 0,
+            "valueType": "float",
+            "nodeType": "float",
+            "precision": null
+        },
+        {
+            "uuid": "818a0083-e1ce-4317-b74f-9627c68a00ed",
+            "type": "VarNode",
+            "inputNodes": {
+                "node": "279a08a4-e9fe-4e0d-ae70-cf162f33bb60"
+            }
+        },
+        {
+            "uuid": "279a08a4-e9fe-4e0d-ae70-cf162f33bb60",
+            "type": "OperatorNode",
+            "inputNodes": {
+                "aNode": "c0e263e6-164f-4c9f-b0de-c2e0c22cefe2",
+                "bNode": "b42a9aa2-028c-47cd-8c6e-7b919dcd9419"
+            },
+            "op": "*"
+        },
+        {
+            "uuid": "c0e263e6-164f-4c9f-b0de-c2e0c22cefe2",
+            "type": "UniformNode",
+            "inputNodes": {
+                "groupNode": "20832546-c7af-464f-b69e-866ebf2a6fbe"
+            },
+            "value": 99.44230000003414,
+            "valueType": "float",
+            "nodeType": null,
+            "precision": null
+        },
+        {
+            "uuid": "20832546-c7af-464f-b69e-866ebf2a6fbe",
+            "type": "UniformGroupNode",
+            "name": "render",
+            "version": 0,
+            "shared": true
+        },
+        {
+            "uuid": "b42a9aa2-028c-47cd-8c6e-7b919dcd9419",
+            "type": "VarNode",
+            "inputNodes": {
+                "node": "a160baf4-1f68-4398-9629-e3cfbee8d5d6"
+            }
+        },
+        {
+            "uuid": "a160baf4-1f68-4398-9629-e3cfbee8d5d6",
+            "type": "ConstNode",
+            "value": 0.3,
+            "valueType": "float",
+            "nodeType": "float",
+            "precision": null
+        },
+        {
+            "uuid": "4aee999e-3a8b-42df-8309-665fd6c7316b",
+            "type": "VarNode",
+            "inputNodes": {
+                "node": "f832b2e7-9444-4383-b874-6558e1ac1d64"
+            }
+        },
+        {
+            "uuid": "f832b2e7-9444-4383-b874-6558e1ac1d64",
+            "type": "ConstNode",
+            "value": [
+                0,
+                1,
+                0
+            ],
+            "valueType": "color",
+            "nodeType": "color",
+            "precision": null
+        },
+        {
+            "uuid": "50f4cb18-aca6-44b7-bd74-eb1fbababfc9",
+            "type": "SplitNode",
+            "inputNodes": {
+                "node": "cb95d014-58f4-420b-a368-a6c549e370a7"
+            },
+            "components": "y"
+        },
+        {
+            "uuid": "986f5a4c-02c3-4e03-95c5-fd840211eb05",
+            "type": "SplitNode",
+            "inputNodes": {
+                "node": "cb95d014-58f4-420b-a368-a6c549e370a7"
+            },
+            "components": "z"
+        },
+        {
+            "uuid": "12a2f95d-1e73-4c72-b9ac-79bb896fc005",
+            "type": "VarNode",
+            "inputNodes": {
+                "node": "cb016680-c294-4bc6-8b43-bfebc2098b1c"
+            }
+        },
+        {
+            "uuid": "cb016680-c294-4bc6-8b43-bfebc2098b1c",
+            "type": "OperatorNode",
+            "inputNodes": {
+                "aNode": "d53fa893-6143-41c7-87ff-f7406ee4e2bf",
+                "bNode": "48c5fb18-75b2-446b-b77f-203ff3ce2759"
+            },
+            "op": "/"
+        },
+        {
+            "uuid": "d53fa893-6143-41c7-87ff-f7406ee4e2bf",
+            "type": "VarNode",
+            "inputNodes": {
+                "node": "2b26556d-3e8b-453c-8261-f08d721254fb"
+            }
+        },
+        {
+            "uuid": "2b26556d-3e8b-453c-8261-f08d721254fb",
+            "type": "OperatorNode",
+            "inputNodes": {
+                "aNode": "463a0db2-fa99-4f4d-bce4-65bdca13fc58",
+                "bNode": "18a815d6-b3fa-4e89-b460-c66cd84dfecf"
+            },
+            "op": "+"
+        },
+        {
+            "uuid": "463a0db2-fa99-4f4d-bce4-65bdca13fc58",
+            "type": "VarNode",
+            "inputNodes": {
+                "node": "5474b207-cc78-41b9-a4d7-22a400dfaa6a"
+            }
+        },
+        {
+            "uuid": "5474b207-cc78-41b9-a4d7-22a400dfaa6a",
+            "type": "MathNode",
+            "inputNodes": {
+                "aNode": "c1cabd23-568c-4f5f-ba60-c81e12391b38",
+                "bNode": "227971ae-e5e5-494f-8aa0-5cd6ddb806f8"
+            },
+            "method": "pow"
+        },
+        {
+            "uuid": "c1cabd23-568c-4f5f-ba60-c81e12391b38",
+            "type": "VarNode",
+            "inputNodes": {
+                "node": "a2338050-06a5-44de-8330-85ac0617f230"
+            }
+        },
+        {
+            "uuid": "a2338050-06a5-44de-8330-85ac0617f230",
+            "type": "OperatorNode",
+            "inputNodes": {
+                "aNode": "4de052d2-e7ff-44b6-96eb-edcfd0d3c20f",
+                "bNode": "7287d4ae-8522-4a63-add4-7186be3d6041"
+            },
+            "op": "-"
+        },
+        {
+            "uuid": "4de052d2-e7ff-44b6-96eb-edcfd0d3c20f",
+            "type": "VarNode",
+            "inputNodes": {
+                "node": "69c7621b-62b5-46c2-916d-465e27a3a407"
+            }
+        },
+        {
+            "uuid": "69c7621b-62b5-46c2-916d-465e27a3a407",
+            "type": "ConstNode",
+            "value": 1,
+            "valueType": "float",
+            "nodeType": "float",
+            "precision": null
+        },
+        {
+            "uuid": "7287d4ae-8522-4a63-add4-7186be3d6041",
+            "type": "VarNode",
+            "inputNodes": {
+                "node": "f8a7f201-73de-4fb7-8280-cc1262bd6488"
+            }
+        },
+        {
+            "uuid": "f8a7f201-73de-4fb7-8280-cc1262bd6488",
+            "type": "MathNode",
+            "inputNodes": {
+                "aNode": "251fdd73-e303-4c44-9452-fc66eb6d0e60",
+                "bNode": "816bb1ef-2d46-4b9f-a08d-c61e2a974524"
+            },
+            "method": "dot"
+        },
+        {
+            "uuid": "251fdd73-e303-4c44-9452-fc66eb6d0e60",
+            "type": "VarNode",
+            "inputNodes": {
+                "node": "de02556a-393e-4aaa-8722-5b5cbab2141d"
+            }
+        },
+        {
+            "uuid": "de02556a-393e-4aaa-8722-5b5cbab2141d",
+            "type": "VarNode",
+            "inputNodes": {
+                "node": "dc30fee0-3acb-4428-b57f-d6fbfa477ed6"
+            }
+        },
+        {
+            "uuid": "dc30fee0-3acb-4428-b57f-d6fbfa477ed6",
+            "type": "Node",
+            "inputNodes": {
+                "shaderNode": "b75b2620-98a0-43fe-b08c-8459fe584bdb"
+            }
+        },
+        {
+            "uuid": "b75b2620-98a0-43fe-b08c-8459fe584bdb",
+            "type": "Node"
+        },
+        {
+            "uuid": "816bb1ef-2d46-4b9f-a08d-c61e2a974524",
+            "type": "VarNode",
+            "inputNodes": {
+                "node": "4d320d37-3954-45e9-aa93-94a548738857"
+            }
+        },
+        {
+            "uuid": "4d320d37-3954-45e9-aa93-94a548738857",
+            "type": "MathNode",
+            "inputNodes": {
+                "aNode": "420b8477-b702-4fe6-a0c3-feff6eddfc61"
+            },
+            "method": "normalize"
+        },
+        {
+            "uuid": "420b8477-b702-4fe6-a0c3-feff6eddfc61",
+            "type": "VarNode",
+            "inputNodes": {
+                "node": "b9b5dea2-202a-4c82-a5c4-777176318333"
+            }
+        },
+        {
+            "uuid": "b9b5dea2-202a-4c82-a5c4-777176318333",
+            "type": "MathNode",
+            "inputNodes": {
+                "aNode": "96d616c8-f4c6-4e47-aeab-41375a354fbd"
+            },
+            "method": "negate"
+        },
+        {
+            "uuid": "96d616c8-f4c6-4e47-aeab-41375a354fbd",
+            "type": "VarNode",
+            "inputNodes": {
+                "node": "6f3447f9-b917-4615-ab83-edd2753965f6"
+            }
+        },
+        {
+            "uuid": "6f3447f9-b917-4615-ab83-edd2753965f6",
+            "type": "Node",
+            "inputNodes": {
+                "shaderNode": "f1376db5-8bbe-4da9-a738-efcfcb025f00"
+            }
+        },
+        {
+            "uuid": "f1376db5-8bbe-4da9-a738-efcfcb025f00",
+            "type": "Node"
+        },
+        {
+            "uuid": "227971ae-e5e5-494f-8aa0-5cd6ddb806f8",
+            "type": "VarNode",
+            "inputNodes": {
+                "node": "1a63e40b-983c-4260-90c1-072c069f5449"
+            }
+        },
+        {
+            "uuid": "1a63e40b-983c-4260-90c1-072c069f5449",
+            "type": "ConstNode",
+            "value": 5,
+            "valueType": "float",
+            "nodeType": "float",
+            "precision": null
+        },
+        {
+            "uuid": "18a815d6-b3fa-4e89-b460-c66cd84dfecf",
+            "type": "VarNode",
+            "inputNodes": {
+                "node": "bf4944e6-936a-471f-b7cf-185d3308b426"
+            }
+        },
+        {
+            "uuid": "bf4944e6-936a-471f-b7cf-185d3308b426",
+            "type": "MathNode",
+            "inputNodes": {
+                "aNode": "ef3e5b94-0f0f-491a-ae08-269d3f07ac22",
+                "bNode": "9942931f-0bb6-4c18-abf0-bf82c2c51d89",
+                "cNode": "09ffa7b2-0fc3-497d-a8ad-ffcb9389dc04"
+            },
+            "method": "smoothstep"
+        },
+        {
+            "uuid": "ef3e5b94-0f0f-491a-ae08-269d3f07ac22",
+            "type": "VarNode",
+            "inputNodes": {
+                "node": "7fe4b3f8-2780-48c7-b277-9dc5d0a7fae1"
+            }
+        },
+        {
+            "uuid": "7fe4b3f8-2780-48c7-b277-9dc5d0a7fae1",
+            "type": "ConstNode",
+            "value": 0,
+            "valueType": "float",
+            "nodeType": "float",
+            "precision": null
+        },
+        {
+            "uuid": "9942931f-0bb6-4c18-abf0-bf82c2c51d89",
+            "type": "VarNode",
+            "inputNodes": {
+                "node": "29e7c7f1-b61e-4873-94b0-d52f2fb75f04"
+            }
+        },
+        {
+            "uuid": "29e7c7f1-b61e-4873-94b0-d52f2fb75f04",
+            "type": "ConstNode",
+            "value": 1,
+            "valueType": "float",
+            "nodeType": "float",
+            "precision": null
+        },
+        {
+            "uuid": "09ffa7b2-0fc3-497d-a8ad-ffcb9389dc04",
+            "type": "MathNode",
+            "inputNodes": {
+                "aNode": "bde2d487-e0e0-494e-82db-a6a747b69db5",
+                "bNode": "ce18ac9f-3f2c-45e2-8cd6-6e2cd520bab4",
+                "cNode": "dca3117e-5672-494e-9106-56e92417f10c"
+            },
+            "method": "clamp"
+        },
+        {
+            "uuid": "bde2d487-e0e0-494e-82db-a6a747b69db5",
+            "type": "VarNode",
+            "inputNodes": {
+                "node": "fe3e27d8-6f2b-4354-8510-15e08390fac8"
+            }
+        },
+        {
+            "uuid": "fe3e27d8-6f2b-4354-8510-15e08390fac8",
+            "type": "OperatorNode",
+            "inputNodes": {
+                "aNode": "1619560e-8246-494a-bc6a-5512c9dd0ae5",
+                "bNode": "1ac9ead0-f81e-4bf8-a516-dce35f199f3b"
+            },
+            "op": "-"
+        },
+        {
+            "uuid": "1619560e-8246-494a-bc6a-5512c9dd0ae5",
+            "type": "VarNode",
+            "inputNodes": {
+                "node": "2622b795-ea9b-49b9-b075-c1bb64d13bb8"
+            }
+        },
+        {
+            "uuid": "2622b795-ea9b-49b9-b075-c1bb64d13bb8",
+            "type": "OperatorNode",
+            "inputNodes": {
+                "aNode": "d0541d5b-dd97-4524-b85e-4726171dba6d",
+                "bNode": "42051d40-af1d-4b5d-b4e2-17c8cf706ed2"
+            },
+            "op": "/"
+        },
+        {
+            "uuid": "d0541d5b-dd97-4524-b85e-4726171dba6d",
+            "type": "VarNode",
+            "inputNodes": {
+                "node": "7e38083b-b8fa-4f7a-a644-cc12e15e9a45"
+            }
+        },
+        {
+            "uuid": "7e38083b-b8fa-4f7a-a644-cc12e15e9a45",
+            "type": "OperatorNode",
+            "inputNodes": {
+                "aNode": "19bb1ceb-d139-45f8-a8fe-9fe2cc059640",
+                "bNode": "7dc7a61c-0614-4cd8-bbeb-bf5dc35d9163"
+            },
+            "op": "*"
+        },
+        {
+            "uuid": "19bb1ceb-d139-45f8-a8fe-9fe2cc059640",
+            "type": "UniformNode",
+            "inputNodes": {
+                "groupNode": "20832546-c7af-464f-b69e-866ebf2a6fbe"
+            },
+            "value": 0.1,
+            "valueType": "float",
+            "nodeType": "float",
+            "precision": null
+        },
+        {
+            "uuid": "7dc7a61c-0614-4cd8-bbeb-bf5dc35d9163",
+            "type": "UniformNode",
+            "inputNodes": {
+                "groupNode": "20832546-c7af-464f-b69e-866ebf2a6fbe"
+            },
+            "value": 100,
+            "valueType": "float",
+            "nodeType": "float",
+            "precision": null
+        },
+        {
+            "uuid": "42051d40-af1d-4b5d-b4e2-17c8cf706ed2",
+            "type": "VarNode",
+            "inputNodes": {
+                "node": "be05a5b9-dcc0-4b72-9058-1874ad241e8b"
+            }
+        },
+        {
+            "uuid": "be05a5b9-dcc0-4b72-9058-1874ad241e8b",
+            "type": "OperatorNode",
+            "inputNodes": {
+                "aNode": "2d675cf1-7cf7-4bf5-af8f-60fc5fd5f455",
+                "bNode": "7dc7a61c-0614-4cd8-bbeb-bf5dc35d9163"
+            },
+            "op": "-"
+        },
+        {
+            "uuid": "2d675cf1-7cf7-4bf5-af8f-60fc5fd5f455",
+            "type": "VarNode",
+            "inputNodes": {
+                "node": "9fa813cb-04cd-4977-b5ce-6fc120a4e6b9"
+            }
+        },
+        {
+            "uuid": "9fa813cb-04cd-4977-b5ce-6fc120a4e6b9",
+            "type": "OperatorNode",
+            "inputNodes": {
+                "aNode": "fa36ce2d-6b13-4e62-a3af-95f67cd1d2d1",
+                "bNode": "b84ac3c0-0ada-4662-8c42-d7d9c71f811b"
+            },
+            "op": "*"
+        },
+        {
+            "uuid": "fa36ce2d-6b13-4e62-a3af-95f67cd1d2d1",
+            "type": "VarNode",
+            "inputNodes": {
+                "node": "12bdc6d4-b9d6-4dc4-ad0f-3802e66cd6b1"
+            }
+        },
+        {
+            "uuid": "12bdc6d4-b9d6-4dc4-ad0f-3802e66cd6b1",
+            "type": "OperatorNode",
+            "inputNodes": {
+                "aNode": "7dc7a61c-0614-4cd8-bbeb-bf5dc35d9163",
+                "bNode": "19bb1ceb-d139-45f8-a8fe-9fe2cc059640"
+            },
+            "op": "-"
+        },
+        {
+            "uuid": "b84ac3c0-0ada-4662-8c42-d7d9c71f811b",
+            "type": "ViewportDepthTextureNode",
+            "inputNodes": {
+                "groupNode": "8eb7f006-796e-4afd-8077-aa35afaca350",
+                "uvNode": "a2441eea-4a3d-41c6-8341-f33537e00f44"
+            },
+            "value": "22a9a131-c6c0-407a-8310-0c2f7c4bc4f3",
+            "valueType": null,
+            "nodeType": null,
+            "precision": null,
+            "sampler": true,
+            "updateMatrix": false,
+            "updateType": "object"
+        },
+        {
+            "uuid": "a2441eea-4a3d-41c6-8341-f33537e00f44",
+            "type": "ScreenNode"
+        },
+        {
+            "uuid": "1ac9ead0-f81e-4bf8-a516-dce35f199f3b",
+            "type": "VarNode",
+            "inputNodes": {
+                "node": "65854281-4d63-4bba-bbd5-2a3727158e5a"
+            }
+        },
+        {
+            "uuid": "65854281-4d63-4bba-bbd5-2a3727158e5a",
+            "type": "OperatorNode",
+            "inputNodes": {
+                "aNode": "447b1577-9775-4d66-b984-dbb084c0b085",
+                "bNode": "548358d1-dcab-40d4-9d46-e3317e7bfd1d"
+            },
+            "op": "-"
+        },
+        {
+            "uuid": "447b1577-9775-4d66-b984-dbb084c0b085",
+            "type": "VarNode",
+            "inputNodes": {
+                "node": "70b3befa-77af-45fe-b245-372a3448fb43"
+            }
+        },
+        {
+            "uuid": "70b3befa-77af-45fe-b245-372a3448fb43",
+            "type": "VarNode",
+            "inputNodes": {
+                "node": "36456e54-d138-4020-9066-ae0426ab0148"
+            }
+        },
+        {
+            "uuid": "36456e54-d138-4020-9066-ae0426ab0148",
+            "type": "OperatorNode",
+            "inputNodes": {
+                "aNode": "947d2920-5808-444f-a0f1-7f80ec89b139",
+                "bNode": "e5561c23-5d78-47bc-929c-10e7e2e6179d"
+            },
+            "op": "*"
+        },
+        {
+            "uuid": "947d2920-5808-444f-a0f1-7f80ec89b139",
+            "type": "SplitNode",
+            "inputNodes": {
+                "node": "96d616c8-f4c6-4e47-aeab-41375a354fbd"
+            },
+            "components": "z"
+        },
+        {
+            "uuid": "e5561c23-5d78-47bc-929c-10e7e2e6179d",
+            "type": "ConstNode",
+            "value": 1,
+            "valueType": "float",
+            "nodeType": null,
+            "precision": null
+        },
+        {
+            "uuid": "548358d1-dcab-40d4-9d46-e3317e7bfd1d",
+            "type": "VarNode",
+            "inputNodes": {
+                "node": "7c152913-2d9d-45e4-89ab-334eeecc01ee"
+            }
+        },
+        {
+            "uuid": "7c152913-2d9d-45e4-89ab-334eeecc01ee",
+            "type": "ConstNode",
+            "value": 0.3,
+            "valueType": "float",
+            "nodeType": "float",
+            "precision": null
+        },
+        {
+            "uuid": "ce18ac9f-3f2c-45e2-8cd6-6e2cd520bab4",
+            "type": "VarNode",
+            "inputNodes": {
+                "node": "73348c47-04db-41de-9afa-4524e4df5a5c"
+            }
+        },
+        {
+            "uuid": "73348c47-04db-41de-9afa-4524e4df5a5c",
+            "type": "ConstNode",
+            "value": 0,
+            "valueType": "float",
+            "nodeType": "float",
+            "precision": null
+        },
+        {
+            "uuid": "dca3117e-5672-494e-9106-56e92417f10c",
+            "type": "VarNode",
+            "inputNodes": {
+                "node": "06b325cc-4c6a-4fd0-8ed8-9f9b77e40c08"
+            }
+        },
+        {
+            "uuid": "06b325cc-4c6a-4fd0-8ed8-9f9b77e40c08",
+            "type": "ConstNode",
+            "value": 1,
+            "valueType": "float",
+            "nodeType": "float",
+            "precision": null
+        },
+        {
+            "uuid": "48c5fb18-75b2-446b-b77f-203ff3ce2759",
+            "type": "VarNode",
+            "inputNodes": {
+                "node": "8149ef3d-c4f8-471f-bb51-5dc339d56d80"
+            }
+        },
+        {
+            "uuid": "8149ef3d-c4f8-471f-bb51-5dc339d56d80",
+            "type": "ConstNode",
+            "value": 2,
+            "valueType": "float",
+            "nodeType": "float",
+            "precision": null
+        }
+    ],
+    "object": {
+        "uuid": "6adafc95-078a-418a-9917-03230f89e210",
+        "type": "Mesh",
+        "layers": 1,
+        "matrix": [
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            1
+        ],
+        "up": [
+            0,
+            1,
+            0
+        ],
+        "geometry": "306f2859-cd95-4142-a572-65bcbc9d0918",
+        "material": "2fe3c534-1dcb-4e0e-b8d8-215e9f4c4200"
+    }
+}

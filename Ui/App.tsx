@@ -4,6 +4,7 @@ import HierarchyImport from './components/Hierarchy';
 import InspectorImport from './components/Inspector';
 import Viewport from './components/Viewport';
 import AssetBrowserImport from './components/AssetBrowser';
+import ResourceBrowserImport from './components/RuntimeResourceBrowser';
 import ConsolePanelImport, { LogEntry } from './components/ConsolePanel';
 import ContextMenu, { MenuItem } from './components/ContextMenu';
 import TimelineEditorImport from './components/TimelineEditor';
@@ -27,6 +28,7 @@ const three = editor.api.three;
 const Hierarchy = React.memo(HierarchyImport)
 const Inspector = React.memo(InspectorImport)
 const AssetBrowser = React.memo(AssetBrowserImport)
+const ResourceBrowser = React.memo(ResourceBrowserImport)
 const ConsolePanel = React.memo(ConsolePanelImport)
 const TimelineEditor = React.memo(TimelineEditorImport)
 const SettingsModal = React.memo(SettingsModalImport)
@@ -66,22 +68,16 @@ function App() {
 
 
 
-    // useEffect(()=>{
-    //     const actve = PolyForge.api.getActiveCamera()
-    //     if (!actve) return
-    //     if (viewMode==='GAME'){
-    //         three.renderer.togglePreviewCamera(actve)
-    //         three.toggleHelpers(false)
-    //         three.toggleLights(false)
+    useEffect(()=>{
+        
+        if (viewMode==='GAME'){
+            editor.prepareForPlayMode(true)
             
-    //     }
-    //     else {
-    //         if (!three.renderer.isPreviewMode) return
-    //         three.renderer.togglePreviewCamera(null)
-    //         three.toggleHelpers(true)
-    //         three.toggleLights(true)
-    //     }
-    // },[viewMode])
+        }
+        else {
+            editor.prepareForPlayMode(false)
+        }
+    },[viewMode])
 
 
 
@@ -309,7 +305,7 @@ function App() {
             {/* 2. Toolbar & Play Controls */}
             <div className="h-10 flex items-center justify-center bg-editor-panel border-b border-editor-border relative px-4 flex-shrink-0">
                 <div className="absolute left-2 flex gap-1">
-                    <button className="p-1.5 rounded hover:bg-white/10 text-editor-textDim"><Hammer size={16} /></button>
+                    <button onClick={()=>editor.refreshRegistry()} className="p-1.5 rounded hover:bg-white/10 text-editor-textDim"><Hammer size={16} /></button>
                     <button className="p-1.5 rounded hover:bg-white/10 text-editor-textDim"><Settings size={16} /></button>
                 </div>
 
@@ -384,8 +380,6 @@ function App() {
                     {/* Center Middle: Viewport */}
                     <div className="flex-1 relative overflow-hidden">
                         <Viewport
-                            mode={viewMode}
-                            setMode={setViewMode}
                             selectedObject={selectedObject}
                         />
                     </div>
@@ -406,6 +400,12 @@ function App() {
                                     onClick={() => setActiveBottomTab('Project')}
                                 >
                                     Project
+                                </button>
+                                <button
+                                    className={`px-3 text-[10px] h-full border-b-2 font-medium ${activeBottomTab === 'Resource' ? 'border-editor-accent text-white bg-[#1e1e1e]' : 'border-transparent text-editor-textDim hover:text-white'}`}
+                                    onClick={() => setActiveBottomTab('Resource')}
+                                >
+                                    Resource
                                 </button>
                                 <button
                                     className={`px-3 text-[10px] h-full border-b-2 font-medium ${activeBottomTab === 'Console' ? 'border-editor-accent text-white bg-[#1e1e1e]' : 'border-transparent text-editor-textDim hover:text-white'}`}
@@ -431,6 +431,8 @@ function App() {
                                 <AssetBrowser />
                             ) : activeBottomTab === 'Console' ? (
                                 <ConsolePanel />
+                            ) : activeBottomTab === 'Resource' ? (
+                                <ResourceBrowser />
                             ) : activeBottomTab === 'Animation' ? (
                                 <TimelineEditor selectedObject={selectedObject} />
                             ) : 

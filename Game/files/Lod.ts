@@ -1,8 +1,14 @@
 // game/scripts/LOD.ts
-import { Behavior } from '@/PolyModule/Runtime/Behavior';
-import { getComponent, Components, syncEntityTransform } from '@/PolyModule/Runtime/Utility';
+import { Behavior } from "@/Core/Behavior";
+import { Instance } from "@/Core/PolyForge";
+import { getCamera, getRef, getComponent, syncEntityTransform } from "@/Core/Functions";
+import { Components } from "@/Core/Types/Components";
+import { THREE } from '@/Core/lib/THREE';
+import { INumber, IRef } from '@/Editor/ITypes';
+
+
 import { DLOD } from '@/PolyModule/DLOD.js'; // your class
-import * as THREE from 'three';
+
 
 export default class LOD extends Behavior {
 
@@ -12,18 +18,18 @@ export default class LOD extends Behavior {
     const lodComponent = getComponent(Components.LOD, this.object);
     if (!lodComponent) return;
 
-    const camera = this.ctx.getActiveCamera();
+    const camera = getCamera();
     if (!camera) {
       console.warn('LOD: No active camera');
       return;
     }
 
     // Build runtime DLOD (NO serialization)
-    const dlod = new DLOD();
+    const dlod = new DLOD(Instance.loaders.objectLoader);
     dlod.autoUpdate = false; // we control updates
 
     // Use runtime loader
-    dlod.loader = this.ctx.loader;
+    //dlod.loader = this.ctx.loader;
 
     // Convert component levels → DLOD levels
     const levels = lodComponent;
@@ -49,7 +55,7 @@ export default class LOD extends Behavior {
   onUpdate(dt: number) {
     if (!this.dlod) return;
 
-    const camera = this.ctx.getActiveCamera();
+    const camera = getCamera();
     if (!camera) return;
 
     this.dlod.update(camera);

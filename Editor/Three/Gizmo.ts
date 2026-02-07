@@ -3,10 +3,10 @@ import { ViewHelper } from 'three/addons/helpers/ViewHelper.js';
 
 
 export class InteractiveViewHelper {
-    private camera:THREE.PerspectiveCamera;
-    constructor(private aligner: HTMLElement) {
+    //private camera:THREE.PerspectiveCamera;
+    constructor(private aligner: HTMLElement, private camera:THREE.PerspectiveCamera) {
         // Create dedicated canvas for the view helper
-        this.camera = new THREE.PerspectiveCamera(45, width / height, 0.01, 500);
+        //this.camera = new THREE.PerspectiveCamera(45, 128 / 128, 0.01, 500);
         const canvas = document.createElement('canvas');
         canvas.width = 128;
         canvas.height = 128;
@@ -15,10 +15,12 @@ export class InteractiveViewHelper {
         
         // Create dedicated WebGL renderer with transparency
         this.renderer = new THREE.WebGPURenderer({
+            canvas,
             antialias: false,
             alpha: true,
             forceWebGL: true
         });
+        this.renderer.init();
         this.renderer.setClearColor(0x000000, 0); // Transparent background
         this.renderer.setSize(128, 128);
         

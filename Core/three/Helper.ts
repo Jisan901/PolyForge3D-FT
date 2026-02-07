@@ -1,5 +1,25 @@
 import { THREE } from '@/Core/lib/THREE'
 
+
+class DisposeQueue {
+  queue = [];
+  budget = 5; // objects per frame
+
+  add(resource: any) {
+    this.queue.push(resource);
+  }
+
+  update() {
+    for (let i = 0; i < this.budget; i++) {
+      const r = this.queue.shift();
+      if (!r) break;
+      r.dispose();
+    }
+  }
+}
+
+
+
 export class ThreeHelpers {
     /**
      * Recursively frees GPU memory for any Three.js object
@@ -11,6 +31,11 @@ export class ThreeHelpers {
      * - Texture
      */
     
+    /**
+    * name
+    */
+    public static disposeQueue = new DisposeQueue();
+    
     public static freeGPU(asset: any) {
 
         if (!asset) return
@@ -19,13 +44,13 @@ export class ThreeHelpers {
         if (asset instanceof THREE.Object3D) {
 
             asset.traverse((child: any) => {
-                this.disposeAsset(child.geometry)
+                ThreeHelpers.freeGPU(child.geometry)
                 if (child.material) {
 
                     if (Array.isArray(child.material)) {
-                        child.material.forEach(m => this.disposeAsset(m))
+                        child.material.forEach(m => ThreeHelpers.freeGPU(m))
                     } else {
-                        this.disposeAsset(child.material)
+                        ThreeHelpers.freeGPU(child.material)
                     }
                 }
             })
@@ -35,7 +60,7 @@ export class ThreeHelpers {
 
         // Geometry
         if (asset instanceof THREE.BufferGeometry) {
-            asset.dispose()
+            ThreeHelpers.disposeQueue.add(asset);
             return
         }
 
@@ -45,17 +70,17 @@ export class ThreeHelpers {
             for (const key in asset) {
                 const value = (asset as any)[key]
                 if (value instanceof THREE.Texture) {
-                    value.dispose()
+                    ThreeHelpers.disposeQueue.add(value);
                 }
             }
 
-            asset.dispose()
+            ThreeHelpers.disposeQueue.add(asset);
             return
         }
 
         // Texture
         if (asset instanceof THREE.Texture) {
-            asset.dispose()
+            ThreeHelpers.disposeQueue.add(asset);
         }
     }
 }
