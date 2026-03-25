@@ -211,6 +211,13 @@ class ObjectMapper {
                     name : value.name || value.type
                 }
             }
+            if (typeof value === 'object'&&value?.isTexture) {
+                result[key] = {
+                    isTexture : true,
+                    uuid: value.uuid,
+                    name : value.name || value.type
+                }
+            }
             
         }
         
@@ -253,5 +260,5 @@ export function isPrimitive(v: any): boolean {
 }
 
 function IsAllowed(object: any): boolean {
-    return object && (object.isMesh || object.isObject3D || object.isMaterial || object.isGeometry || object.isBufferGeometry);
+    return object && (object.isMesh || object.isObject3D || object.isMaterial || object.isGeometry || object.isBufferGeometry || object.isTexture);
 }

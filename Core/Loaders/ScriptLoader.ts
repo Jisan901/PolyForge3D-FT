@@ -29,7 +29,7 @@ export class ScriptLoader {
         // --------------------------
         // Eager scripts: plugins/systems
         // --------------------------
-        const eagerModules = import.meta.glob('@/**/*.{plugin,system}.{ts,js}', {
+        const eagerModules = import.meta.glob(['@/**/*.{plugin,system}.{ts,js}', '!@/Editor/**/*.{plugin,system}.{ts,js}'], {
             eager: true
         });
 

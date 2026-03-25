@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import * as THREE from 'three';
+import { useEditorStates } from '../Ui/contexts/EditorContext';
 
-const UVEditorPlugin = ({ selectedObject }) => {
+const UVEditorPlugin = () => {
+    const { selectedObject } = useEditorStates();
     const [selectedMesh, setSelectedMesh] = useState(null);
     const [uvData, setUvData] = useState([]);
     const [selectedVertex, setSelectedVertex] = useState(null);

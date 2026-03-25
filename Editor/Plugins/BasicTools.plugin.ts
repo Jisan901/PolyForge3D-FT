@@ -11,7 +11,7 @@
  * - Custom userData tools
  */
 
-import { addViewportToolActions, removeViewportToolActions } from './ViewportToolAPI';
+
 import { THREE } from '@/Core/lib/THREE';
 import {Plugin} from "@/Core/Plugins/Plugin"
 import {Editor} from "@/Editor/Editor";

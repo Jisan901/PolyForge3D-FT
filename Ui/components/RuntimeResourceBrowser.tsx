@@ -8,6 +8,7 @@ import {
   Box,
   Palette,
   Grid3x3,
+  Move3d,
   Image as ImageIcon,
 } from "lucide-react";
 import ContextMenu, { MenuItem } from "./ContextMenu";
@@ -113,10 +114,10 @@ const ResourceBrowser: React.FC = () => {
       return <Palette {...props} className="text-pink-400" />;
     if (asset.isTexture)
       return <ImageIcon {...props} className="text-orange-400" />;
-    if (asset.isGeometry)
+    if (asset.isGeometry||asset.isBufferGeometry)
       return <Grid3x3 {...props} className="text-green-400" />;
     if (asset.isMesh) return <Box {...props} className="text-blue-800" />;
-    if (asset.isObject3D) return <Box {...props} className="text-indigo-400" />;
+    if (asset.isObject3D) return <Move3d {...props} className="text-indigo-400" />;
 
     return <FileText {...props} className="text-gray-400" />;
   };
@@ -128,7 +129,7 @@ const ResourceBrowser: React.FC = () => {
   };
 
   const handleOpen = useCallback((resource: any) => {
-    console.log("Inspect runtime resource:", resource);
+    editor.api.buses.selectionUpdate.emit(resource)
     // Logic to select in scene or open in properties inspector
   }, []);
 
@@ -237,8 +238,8 @@ const ResourceBrowser: React.FC = () => {
                 <span className="text-[10px] text-center text-editor-text truncate w-full px-1 bg-transparent rounded group-hover:bg-editor-accent group-hover:text-white leading-tight py-0.5 pointer-events-none">
                   {resource.name || "Unnamed"}
                 </span>
-                <span className="text-[9px] text-gray-500 mt-1 pointer-events-none uppercase">
-                  {activeCategory.slice(0, -1)}
+                <span className="text-[9px] text-gray-500 mt-1 pointer-events-none">
+                  {resource.type}
                 </span>
               </div>
             </DragAndDropZone>

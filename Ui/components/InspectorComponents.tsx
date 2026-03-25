@@ -390,13 +390,15 @@ interface PropertyRendererProps {
     path: string;
     value: any;
     label?: string;
+    onChange?:(e:any)=>void
 }
 
-export const PropertyRenderer: React.FC<PropertyRendererProps> = ({ object, path, value: v1, label }) => {
+export const PropertyRenderer: React.FC<PropertyRendererProps> = ({ object, path, value: v1, label, onChange }) => {
     const displayLabel = label || path.slice(path.lastIndexOf('.') + 1);
     const value = useObserver(object, path);
     const handleChange = (val: any) => {
         editor.setProperty(object, path, val);
+        onChange?.(val)
     };
 
     // Boolean
@@ -473,6 +475,7 @@ export const PropertyRenderer: React.FC<PropertyRendererProps> = ({ object, path
                 onChange={(texture) => {
                     handleChange(texture);
                     mutationCall(object, path); // Trigger mutation
+                    object.material.needsUpdate = true
                 }}
                 onPropertyChange={(prop, val) => {
                     editor.setProperty(object, `${path}.${prop}`, val);
@@ -592,18 +595,22 @@ export const MaterialInspector: React.FC<MaterialInspectorProps> = ({
 }) => {
     const basePath = parentPath ? `${parentPath}.` : '';
     const target = parentObject || material;
-
+    
+    const updateMaterial=()=>{
+        material.needsUpdate = true;
+    }
+    
     return (
         <PropertySection title="Material" icon={Palette}>
             <div className="text-[9px] text-editor-textDim mb-2">{material.type}</div>
 
             {/* Common Material Properties */}
-            <PropertyRenderer object={target} path={`${basePath}opacity`} value={material.opacity} label="Opacity" />
-            <PropertyRenderer object={target} path={`${basePath}transparent`} value={material.transparent} label="Transparent" />
-            <PropertyRenderer object={target} path={`${basePath}visible`} value={material.visible} label="Visible" />
-            <PropertyRenderer object={target} path={`${basePath}side`} value={material.side} label="Side" />
-            <PropertyRenderer object={target} path={`${basePath}depthTest`} value={material.depthTest} label="Depth Test" />
-            <PropertyRenderer object={target} path={`${basePath}depthWrite`} value={material.depthWrite} label="Depth Write" />
+            <PropertyRenderer onChange={updateMaterial} object={target} path={`${basePath}opacity`} value={material.opacity} label="Opacity" />
+            <PropertyRenderer onChange={updateMaterial} object={target} path={`${basePath}transparent`} value={material.transparent} label="Transparent" />
+            <PropertyRenderer onChange={updateMaterial} object={target} path={`${basePath}visible`} value={material.visible} label="Visible" />
+            <PropertyRenderer onChange={updateMaterial} object={target} path={`${basePath}side`} value={material.side} label="Side" />
+            <PropertyRenderer onChange={updateMaterial} object={target} path={`${basePath}depthTest`} value={material.depthTest} label="Depth Test" />
+            <PropertyRenderer onChange={updateMaterial} object={target} path={`${basePath}depthWrite`} value={material.depthWrite} label="Depth Write" />
 
             {/* MeshStandardMaterial / MeshPhysicalMaterial */}
             {(material instanceof THREE.MeshStandardMaterial || material instanceof THREE.MeshPhysicalMaterial) && (

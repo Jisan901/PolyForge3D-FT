@@ -8,8 +8,8 @@
   },
   "graphics": {
     "antialiasing": "None",
-    "resolutionScale": 1.5,
-    "realtimeShadows": true,
+    "resolutionScale": 1,
+    "realtimeShadows": false,
     "ambientLight": "#1a1a1a",
     "textureQuality": "Low",
     "bloom": false,

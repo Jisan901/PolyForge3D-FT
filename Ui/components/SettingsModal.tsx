@@ -489,7 +489,88 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
       default: return null;
     }
   };
+  
+  return (<>
+    <div 
+        className="w-full h-full bg-editor-panel border border-editor-border shadow-2xl rounded-lg flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="h-12 flex items-center justify-between px-4 bg-editor-bg border-b border-editor-border shrink-0">
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 bg-editor-accent/20 text-editor-accent rounded">
+              <Monitor size={16} />
+            </div>
+            <h2 className="text-sm font-bold text-white">Project Settings</h2>
+            {hasChanges && (
+              <span className="text-[9px] text-yellow-400 bg-yellow-400/10 px-2 py-0.5 rounded">Unsaved</span>
+            )}
+          </div>
+          <button onClick={onClose} className="p-1 hover:bg-white/10 rounded text-editor-textDim transition-colors"><X size={18} /></button>
+        </div>
 
+        {/* Body */}
+        <div className="flex-1 flex overflow-hidden min-h-0">
+          {/* Sidebar */}
+          <div className="w-40 border-r border-editor-border bg-black/10 flex flex-col p-2 gap-1 shrink-0">
+            {categories.map(cat => {
+              const Icon = cat.icon;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => setActiveCategory(cat.id)}
+                  className={`flex items-center gap-3 px-3 py-2 rounded text-xs transition-all ${activeCategory === cat.id ? 'bg-editor-accent text-white shadow-lg' : 'text-editor-textDim hover:bg-white/5 hover:text-white'}`}
+                >
+                  <Icon size={14} />
+                  {cat.id}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Settings Area */}
+          <div className="flex-1 overflow-y-auto p-6 bg-editor-bg/20 custom-scrollbar">
+            {renderContent()}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="h-12 border-t border-editor-border bg-editor-bg px-4 flex items-center justify-between shrink-0">
+          <button 
+            onClick={handleReset}
+            className="flex items-center gap-2 px-4 py-1.5 rounded text-[11px] text-editor-textDim hover:text-white transition-colors"
+          >
+            <RefreshCcw size={12} />
+            Reset {activeCategory}
+          </button>
+          <div className="flex gap-2">
+            <button 
+              onClick={onClose}
+              className="px-4 py-1.5 rounded text-[11px] text-editor-textDim hover:text-white transition-colors"
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={handleSave}
+              className="flex items-center gap-2 px-6 py-1.5 bg-editor-accent hover:bg-editor-accentHover text-white text-[11px] font-bold rounded shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={!hasChanges}
+            >
+              <Save size={14} />
+              Apply Settings
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <style>{`
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #52525b; }
+      `}</style>
+  </>)
+  
+  
   return createPortal(
     <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={onClose}>
       <div 

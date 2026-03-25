@@ -11,7 +11,7 @@ import { Commander, commands } from "@/Editor/Commander";
 import { TransformControlHistoryHandler } from "@/Editor/Three/TransformControlHistoryHandler";
 import { toast } from "@/Editor/Mutation";
 
-
+import { ImportManager } from '@/Editor/Importer';
 
 import { refreshScriptVariables } from "@/Editor/Utils";
 
@@ -33,6 +33,7 @@ class EditorClass {
     
     constructor() {
         this.commander = new Commander();
+        this.importer = new ImportManager();
         this.gamePad = new LightGamePad();
         this.gamePad.addToGlobal();
         this.gamePad.setVisibility(false);
@@ -51,6 +52,24 @@ class EditorClass {
         );
         new TransformControlHistoryHandler(this.api.three.helpers.transformControls,this)
         await this.assetBrowser.openDirectory(DEFINITION.resourcesFolder, false)
+        
+        
+        
+         // --------------------------
+        // Eager editor scripts: plugins/systems
+        // --------------------------
+        const eagerModules = import.meta.glob(['@/Editor/**/*.{plugin,system}.{ts,js}'], {
+            eager: true
+        });
+
+        for (const path in eagerModules) {
+            const mod = eagerModules[path] as { default: new (context: any, ...args: any[]) => any } ;
+            this.core.loaders.scriptLoader.eagerScripts[path] = mod.default;
+            this.core.loaders.scriptLoader.cache[path] = mod.default;
+        }
+        
+        
+        
         
         await this.core.initScripting()
         this.core.settings.applySettings(this.core);

@@ -9,6 +9,7 @@ export interface ViewportTool {
     tooltip: string;
     action: string | ((object: THREE.Object3D) => void); // API path or function
     params?: any; // Optional parameters for string actions
+    activator?: boolean;
 }
 
 /**

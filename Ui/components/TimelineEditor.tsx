@@ -3,14 +3,12 @@ import { Play, Square, SkipBack, SkipForward, Plus, Trash2, Clock, Settings2, Di
 import { SceneObject } from '../types';
 import ContextMenu, { MenuItem } from './ContextMenu';
 import * as THREE from 'three';
+import { useEditorStates } from '../contexts/EditorContext';
 import { AnimationUtils, UITrack } from './Utils/AnimationUtils';
 
-interface TimelineEditorProps {
-    selectedObject: SceneObject | null;
-}
 
-const TimelineEditor: React.FC<TimelineEditorProps> = ({ selectedObject }) => {
-
+const TimelineEditor: React.FC = () => {
+    const { selectedObject } = useEditorStates();
     const [currentTime, setCurrentTime] = useState(0); // Only for scrubbing/static UI
     const [isPlaying, setIsPlaying] = useState(false);
     const [duration, setDuration] = useState(10);

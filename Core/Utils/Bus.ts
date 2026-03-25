@@ -1,15 +1,22 @@
-export class Bus<T = any> {
-    private listeners: Set<((e: T) => void)>
+export class Bus<T extends any[]> {
+    private listeners: Set<((...e: T) => void)>
     constructor() {
         this.listeners = new Set();
     }
 
-    subscribe(fn: ((e: T) => void)) {
+    subscribe(fn: ((...e: T) => void)) {
         this.listeners.add(fn);
         return () => this.listeners.delete(fn);
     }
 
-    emit(v: T) {
-        for (const fn of this.listeners) fn(v);
+    emit(...v: T) {
+        for (const fn of this.listeners) {
+            try{
+            fn(...v);
+            }
+            catch(e){
+                console.error(e);
+            }
+        }
     }
 }

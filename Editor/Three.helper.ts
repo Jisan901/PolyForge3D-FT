@@ -1,27 +1,14 @@
-import {
-    THREE
-} from '@/Core/lib/THREE';
-import {
-    Engine
-} from "@/Core/three/Engine";
-import {
-    ThreeHelpers
-} from '@/Core/three/Helper';
+import { THREE } from "@/Core/lib/THREE";
+import { Engine } from "@/Core/three/Engine";
+import { ThreeHelpers } from "@/Core/three/Helper";
 
-import {
-    mutationCall
-} from "@/Editor/Mutation";
+import { mutationCall } from "@/Editor/Mutation";
 
-import {
-    TransformControls
-} from 'three/examples/jsm/controls/TransformControls';
-import {
-    OrbitControls
-} from 'three/examples/jsm/controls/OrbitControls';
+import { TransformControls } from "three/examples/jsm/controls/TransformControls";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
-import {
-    InteractiveViewHelper
-} from "@/Editor/Three/Gizmo";
+import { InteractiveViewHelper } from "@/Editor/Three/Gizmo";
+
 
 export class HelperManager {
     public transformControls: TransformControls;
@@ -39,10 +26,10 @@ export class HelperManager {
     } = {};
     private _sub?: any;
 
-    private currentObject: null| THREE.Object3D = null;
+    private currentObject: null | THREE.Object3D = null;
 
-    private _helpers = new Map < string,
-    THREE.Object3D > ();
+    private _helpers = new Map<string,
+        THREE.Object3D>();
 
     constructor(
         private bus: BusHub,
@@ -72,7 +59,7 @@ export class HelperManager {
             const sel = this.transformControls.object;
             if (sel) {
                 if (['translate', 'rotate', 'scale'].includes(this.transformControls.mode)) {
-                    mutationCall(sel, this.transformControls.mode === 'translate' ? 'position': this.transformControls.mode === 'rotate' ? 'rotation': 'scale');
+                    mutationCall(sel, this.transformControls.mode === 'translate' ? 'position' : this.transformControls.mode === 'rotate' ? 'rotation' : 'scale');
                 }
                 sel.userData?.helper?.update?.();
             }
@@ -114,7 +101,7 @@ export class HelperManager {
         else if (obj.isPointLight) h = new THREE.PointLightHelper(obj as THREE.PointLight, 0.5);
         else if (obj.isSpotLight) h = new THREE.SpotLightHelper(obj as THREE.SpotLight);
         else if (obj.isHemisphereLight) h = new THREE.HemisphereLightHelper(obj as THREE.HemisphereLight, 1);
-        else if (obj.isSkinnedMesh) h = new THREE.SkeletonHelper(obj);
+        else if (obj.isSkinnedMesh || obj.isBone) h = new THREE.SkeletonHelper(obj);
 
         if (h) {
             h.userData.isSpecificHelper = true;
@@ -156,7 +143,7 @@ export class HelperManager {
         }
 
         // Gizmo
-        if (!target || target.isScene || !this.activeGizmo && target.userData.locked) this.transformControls.detach();
+        if (!target || target.isScene || !this.activeGizmo || target.userData.locked) this.transformControls.detach();
         else this.transformControls.attach(target);
     }
 
@@ -165,9 +152,10 @@ export class HelperManager {
             'rotate',
             'scale'].includes(tool);
         this.activeTool = tool;
+        this.bus.toolChange.emit(tool);
         if (this.activeGizmo) this.transformControls.setMode(tool as any);
         else {
-            this.transformControls.detach();
+            return this.transformControls.detach();
         }
         if (this.currentObject) this.attach(this.currentObject);
     }
@@ -340,8 +328,8 @@ export class ThreeAPI {
     }
 
 
-    public getHitFromMouse = (event: MouseEvent) => {
-        
+    public getHitFromMouse = (event: MouseEvent, hitGroup?: THREE.Object3D[]) => {
+
 
         const rect = this._canvas.getBoundingClientRect();
         this._mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -353,7 +341,7 @@ export class ThreeAPI {
         );
 
         const hits = this._raycaster.intersectObjects(
-            this.scene.children.filter(child => child.name !== "Editor_Helpers_Root"),
+            hitGroup?hitGroup:this.scene.children.filter(child => child.name !== "Editor_Helpers_Root"),
             true
         );
 
@@ -395,6 +383,7 @@ export class ThreeAPI {
     }
 
     selectObject(obj: THREE.Object3D | null) {
+        if(this.helpers.activeTool !== 'select') return;
         this.selectedObject = obj || undefined;
         this.helpers.attach(obj);
         this.bus.selectionUpdate.emit(obj);
@@ -408,12 +397,12 @@ export class ThreeAPI {
     }
 
     toggleHelpers(activate: boolean) {
-        this.editorHelperGroup.visible = typeof activate === 'boolean' ? activate: !this.editorHelperGroup.visible;
+        this.editorHelperGroup.visible = typeof activate === 'boolean' ? activate : !this.editorHelperGroup.visible;
         if (!activate) this.helpers.attach(null);
     }
 
     toggleLights(activate: boolean) {
-        this.editorLights.visible = typeof activate === 'boolean' ? activate: !this.editorLights.visible;
+        this.editorLights.visible = typeof activate === 'boolean' ? activate : !this.editorLights.visible;
     }
 
     resize(width: number, height: number) {
@@ -431,7 +420,7 @@ export class ThreeAPI {
 
         const center = box.getCenter(new THREE.Vector3());
         const size = box.getSize(new THREE.Vector3()).length();
-        
+
         const offset = size * 1.5;
         const direction = new THREE.Vector3(0, 0, 1).applyQuaternion(this.editorCamera.quaternion); // relative to cam
 
@@ -440,8 +429,8 @@ export class ThreeAPI {
         this.editorControls.target.copy(center);
         this.editorControls.update();
     }
-    public toggleCameraPreview = ()=> {
-        this.engine.setActiveCamera(this.selectedObject.uuid === this.engine.activeCamera.uuid?this.editorCamera: this.selectedObject)
+    public toggleCameraPreview = () => {
+        this.engine.setActiveCamera(this.selectedObject.uuid === this.engine.activeCamera.uuid ? this.editorCamera : this.selectedObject)
     }
     public toggleObjectLock = () => {
         const selected = this.selectedObject;
@@ -464,7 +453,7 @@ export class ThreeAPI {
             this.selectObject(selected)
         }
 
-        console.log(`Object ${selected.userData.locked ? 'locked': 'unlocked'}: ${selected.name || selected.uuid}`);
+        console.log(`Object ${selected.userData.locked ? 'locked' : 'unlocked'}: ${selected.name || selected.uuid}`);
     };
 
 
@@ -475,7 +464,7 @@ export class ThreeAPI {
     * @param {Object} options - Configuration options
     * @returns {Object} Result object with success status and raycast info
     */
-    public snapToGround = (object, options = {})=> {
+    public snapToGround = (object, options = {}) => {
         const {
             groundLayerMask = null,
             // Optional: specific layer for ground objects

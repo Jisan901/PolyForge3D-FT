@@ -18,7 +18,8 @@
     "react-dom": "^19.2.1",
     "tailwindcss": "^4.1.17",
     "three": "^0.182.0",
-    "vite-plugin-wasm": "^3.5.0"
+    "vite-plugin-wasm": "^3.5.0",
+    "windy-ui-react": "../Windy/"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

@@ -247,22 +247,29 @@ const Hierarchy: React.FC = () => {
     setContextMenu({ x: e.clientX, y: e.clientY, targetId: id });
   }, [selectObject]);
 
-  const getContextMenuItems = (id: string): MenuItem[] => [
-    { label: 'Copy', shortcut: 'Ctrl+C', action: () => console.log('Copy', id) },
-    { label: 'Paste', shortcut: 'Ctrl+V', action: () => console.log('Paste', id), disabled: true },
-    { label: 'Duplicate', shortcut: 'Ctrl+D', action: () => onDuplicate?.(id) },
-    { separator: true, label: '', action: () => {} },
-    { label: 'Rename', shortcut: 'F2', action: () => console.log('Rename', id) },
-    { label: 'Delete', shortcut: 'Del', danger: true, action: () => deleteObject?.(id) },
-    { separator: true, label: '', action: () => {} },
-    { label: 'Create Empty', action: () => addObject?.(ObjectType.FOLDER, id) },
-    {
-      label: '3D Object',
-      action: () => {},
-      submenu: getMenuFlat(addObject, id)
-          
-    },
-  ];
+  const getContextMenuItems = (id: string): MenuItem[] => {
+      const universalItems = [
+        { label: 'Create Empty', action: () => addObject?.(ObjectType.FOLDER, id) },
+        {
+          label: '3D Object',
+          action: () => {},
+          submenu: getMenuFlat(addObject, id)
+              
+        },
+      ];
+      const targetedItems = [
+           { label: 'Copy', shortcut: 'Ctrl+C', action: () => console.log('Copy', id) },
+           { label: 'Paste', shortcut: 'Ctrl+V', action: () => console.log('Paste', id), disabled: true },
+           { separator: true, label: '', action: () => {} },
+           { label: 'Delete', shortcut: 'Del', danger: true, action: () => deleteObject?.(id) },
+           { label: 'Duplicate', shortcut: 'Ctrl+D', action: () => onDuplicate?.(id) },
+            { separator: true, label: '', action: () => {} },
+          ]
+      const defaultItems = id?[...targetedItems,...universalItems]:universalItems;
+      
+      Editor.api.buses.hierarchyContextMenu.emit(id,defaultItems)
+      return defaultItems;
+  }
 
   const flattenNodes = (nodes): any[] => {
     let result: any[] = [];

@@ -107,13 +107,13 @@ const timer = new THREE.Timer();
         antialias: false,
         forceWebGL: true
     })
-renderer.inspector = new Inspector();
+// renderer.inspector = new Inspector();
     await renderer.init()
 
     renderer.setSize(window.innerWidth, window.innerHeight)
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     document.body.appendChild(renderer.domElement)
-    document.body.appendChild(renderer.inspector.domElement)
+    //document.body.appendChild(renderer.inspector.domElement)
 
     // -----------------------------
     // Camera
@@ -124,7 +124,7 @@ renderer.inspector = new Inspector();
         0.1,
         100
     )
-    camera.position.set(2, 2, 4)
+    camera.position.set(12, 12, 14)
 
     // -----------------------------
     // Controls
@@ -135,6 +135,7 @@ renderer.inspector = new Inspector();
     // Resize
     // -----------------------------
     window.addEventListener('resize', () => {
+        return
         const w = window.innerWidth
         const h = window.innerHeight
 

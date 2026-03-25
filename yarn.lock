@@ -1169,6 +1169,14 @@ vite@^6.2.0:
   optionalDependencies:
     fsevents "~2.3.3"
 
+windy-ui-react@../Windy/:
+  version "1.0.0"
+  dependencies:
+    lucide-react "^0.555.0"
+    react "^19.2.1"
+    react-dom "^19.2.1"
+    three "^0.182.0"
+
 yallist@^3.0.2:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/yallist/-/yallist-3.1.1.tgz#dbb7daf9bfd8bac9ab45ebf602b8cbad0d5d08fd"

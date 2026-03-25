@@ -22,8 +22,8 @@
     
     <script type="module">
         import {threeWebgl, threeWebgpu, randMesh}  from './threeBase.js';
-import { TransformControls } from 'three/addons/controls/TransformControls.js';
-		import { UVsDebug } from 'three/addons/utils/UVsDebug.js';
+        import { TransformControls } from 'three/addons/controls/TransformControls.js';
+		
 
 
 const {
@@ -38,9 +38,8 @@ const {
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x222222);
 
-
 camera.position.set(3, 3, 5);
-camera.lookAt(0, 0, 0)
+camera.lookAt(0, 0, 0);
 
 const material2 = new THREE.MeshStandardMaterial({ color: 0x00ff00, transparent:true });
 
