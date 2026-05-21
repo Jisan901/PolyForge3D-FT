@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+@layer base {
+  input[type="range"] {
+    @apply appearance-none bg-transparent cursor-pointer;
+  }
+  
+  input[type="range"]::-webkit-slider-runnable-track {
+    @apply bg-[#333] h-1.5 rounded-full;
+  }
+  
+  input[type="range"]::-webkit-slider-thumb {
+    @apply appearance-none w-4 h-4 bg-blue-500 rounded-full -mt-1.5;
+  }
+  
+  input[type="range"]:focus {
+    @apply outline-none;
+  }
+}

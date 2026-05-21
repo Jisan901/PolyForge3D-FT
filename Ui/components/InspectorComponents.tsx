@@ -451,6 +451,7 @@ export const PropertyRenderer: React.FC<PropertyRendererProps> = ({ object, path
     if (typeof value === 'object' && value?.isEuler) {
         return (
             <Vector3Input
+                key={`${path}-${value.x}-${value.y}-${value.z}`}
                 label={displayLabel}
                 value={{
                     x: THREE.MathUtils.radToDeg(value.x),

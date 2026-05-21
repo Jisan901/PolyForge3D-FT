@@ -1,7 +1,7 @@
 import {Components} from "@/Core/Types/Components";
 import { THREE } from '@/Core/lib/THREE';
 import { Instance } from "@/Core/PolyForge";
-
+import { ThreeHelpers } from '@/Core/three/Helper';
 
 export const getComponent = (componentId:Components, object:THREE.Object3D):unknown=>{
     return object?.userData?.components?.[componentId]?.data
@@ -11,6 +11,53 @@ export const getRef = (ref: {isRef: boolean, ref: string}) => {
     if (ref && ref?.isRef && ref?.ref) return Instance.threeRegistry.getObject(ref.ref);
 }
 
+export const getScript = (id: string)=>{
+    return Instance.scriptExecutor.getScript(id);
+}
+
+
+// *** object instance
+
+export async function instantiate(
+    url: string,
+    transform?: THREE.Matrix4
+): Promise<THREE.Object3D> {
+    const object = await Instance.loaders.loadObject(url, false);
+
+    if (transform) {
+        object.applyMatrix4(transform);
+        object.updateMatrixWorld(true);
+    }
+
+    Instance.sceneManager.activeScene.add(object);
+    Instance.threeRegistry.register(object);
+
+    return object;
+}
+
+export function destroy(
+    target: THREE.Object3D | string,
+    gpuCleanup = true
+): boolean {
+    const object =
+        typeof target === "string"
+            ? getRef({ isRef: true, ref: target })
+            : target;
+
+    if (!(object instanceof THREE.Object3D)) {
+        return false;
+    }
+
+    object.removeFromParent();
+
+    Instance.threeRegistry.unregisterTree(object);
+
+    if (gpuCleanup) {
+        ThreeHelpers.freeGPU(object);
+    }
+
+    return true;
+}
 
 
 
@@ -52,7 +99,9 @@ export function getCamera() {
     return queryCamera(Instance);
 }
 
-
+export function getRenderer() {
+    return Instance.engine.three.renderer;
+}
 
 /**
  * Synchronize transform data to a Three.js Object3D

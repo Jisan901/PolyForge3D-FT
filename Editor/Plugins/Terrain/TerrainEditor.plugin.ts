@@ -3,6 +3,10 @@ import { THREE } from '@/Core/lib/THREE';
 import { Editor } from "@/Editor/Editor";
 import { mutationCall, toast } from '@/Editor/Mutation';
 import material from './BrushMaterial'
+import {
+  globalInspector,
+} from '@/Plugins/Inspector/lib/inspector';
+import Ui from "./Ui";
 
 
 export default class TerrainEditorPlugin extends Plugin {
@@ -70,6 +74,10 @@ export default class TerrainEditorPlugin extends Plugin {
         
         three.editorHelperGroup.add(this.brush);
         
+        
+        globalInspector.setCustomResolverUI(
+    'Terrain',
+    (obj) => obj && obj.name=== "Terrain" , Ui )
         
     }
 }

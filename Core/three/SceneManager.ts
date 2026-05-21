@@ -3,19 +3,19 @@ import fs from '@/Core/lib/fs';
 import { type ThreeRegistry } from '@/Core/three/ThreeRegistry';
 import { ThreeHelpers } from '@/Core/three/Helper';
 import {DEFINITION} from '@/Core/DEFINITION';
+import { AdvancedLoader } from "@/Core/Loaders/AdvancedLoader"
+import { Baxporter } from '@/Core/Plugins/Binary/Baxporter';
 
 /**
  * SceneManager handles:
  *
  * - Active scene switching
  * - Scene serialization
- * - Scene streaming (sub-scenes)
+
  * - File IO
  * - Runtime registry syncing
  * - GPU resource cleanup
  *
- * Similar to:
- * Unity SceneManager / Unreal Level Streaming
  */
 export class SceneManager {
 
@@ -29,11 +29,6 @@ export class SceneManager {
   /** Path of currently active scene */
   public activeUrl?: string
 
-  /**
-   * Loaded sub-scenes (streamed scenes)
-   * Key = file path
-   */
-  public subScenes = new Map<string, THREE.Scene>()
 
   /**
    * Create SceneManager
@@ -45,28 +40,16 @@ export class SceneManager {
    * const sceneManager = new SceneManager(registry)
    */
    
+   public loader: AdvancedLoader;
+   public exporter = new Baxporter();
   // pipe -> scene Manager -> engine
   constructor(registry: ThreeRegistry, private onSceneLoad:(e:THREE.Scene)=>void) {
-
+    this.loader = new AdvancedLoader(registry);
     this.activeScene = new THREE.Scene()
     this.registry = registry
   }
 
-  // =====================================================
-  // SERIALIZATION
-  // =====================================================
 
-  /**
-   * Convert active scene to Three.js JSON format.
-   *
-   * @returns Serialized scene object
-   *
-   * @example
-   * const json = sceneManager.toJson()
-   */
-  public toJson(): any {
-    return this.activeScene.toJSON()
-  }
 
   /**
    * Create scene from JSON data.
@@ -115,7 +98,7 @@ export class SceneManager {
 
     // Remove previous scene objects from registry
     if (this.activeScene) {
-      this.registry.unregisterTree(this.activeScene)
+      this.registry.clear()
     }
 
     this.activeScene = scene
@@ -142,14 +125,9 @@ export class SceneManager {
   public async saveScene(filePath: string, scene?: THREE.Scene): Promise<void> {
 
     const target = scene || this.activeScene
-
-    const json = JSON.stringify(
-      target.toJSON(),
-      null,
-      2
-    )
-
-    await fs.writeFile(filePath, json)
+    
+    
+    await this.exporter.export(target, DEFINITION.scenesDir, '', filePath);
 
     this.activeUrl = filePath
   }
@@ -161,7 +139,7 @@ export class SceneManager {
    * await sceneManager.savePrimary()
    */
   public async savePrimary() {
-    await this.saveScene(DEFINITION.primaryScene)
+    await this.saveScene(DEFINITION.primarySceneFile)
   }
 
   /**
@@ -191,96 +169,28 @@ export class SceneManager {
    * await sceneManager.loadScene('/Scenes/Level1.json')
    */
   public async loadScene(filePath: string, setActive = true): Promise<THREE.Scene> {
+      
+    let scene = await this.loader.loadObject(filePath, false); // clone false
+    if (!scene.isScene){
+        let temp = new THREE.Scene();
+        temp.add(scene)
+        scene = temp
+    } 
+    if (setActive) {
+      this.setScene(scene)
+    }
 
-    const text = await fs.readFile(filePath, 'utf8')
-    const json = JSON.parse(text)
-
-    const scene = this.fromJson(json, setActive)
-
+    
     if (setActive) {
       this.activeUrl = filePath
     }
     
+    localStorage.setItem('lastActive', filePath)
     
     return scene
   }
 
-  // =====================================================
-  // SUB SCENE STREAMING
-  // =====================================================
 
-  /**
-   * Load a sub-scene without replacing active scene.
-   *
-   * Useful for:
-   * - Level streaming
-   * - Modular environments
-   * - Additive loading
-   *
-   * @param filePath Scene file path
-   *
-   * @example
-   * await sceneManager.loadSubScene('/Scenes/Town.json')
-   */
-  public async loadSubScene(filePath: string): Promise<THREE.Scene> {
-
-    // Already loaded
-    if (this.subScenes.has(filePath)) {
-      return this.subScenes.get(filePath)!
-    }
-
-    const text = await fs.readFile(filePath, 'utf8')
-    const json = JSON.parse(text)
-
-    const loader = new THREE.ObjectLoader()
-    const scene = loader.parse(json) as THREE.Scene
-
-    // Add to active scene
-    this.activeScene.add(scene)
-
-    // Register to runtime registry
-    this.registry.register(scene, true)
-
-    this.subScenes.set(filePath, scene)
-
-    return scene
-  }
-
-  /**
-   * Unload a previously loaded sub-scene.
-   *
-   * Automatically:
-   * - Removes from scene graph
-   * - Unregisters from registry
-   * - Disposes GPU memory
-   *
-   * @param filePath Sub-scene path
-   *
-   * @example
-   * sceneManager.unloadSubScene('/Scenes/Town.json')
-   */
-  public unloadSubScene(filePath: string): boolean {
-
-    const scene = this.subScenes.get(filePath)
-
-    if (!scene) return false
-
-    this.activeScene.remove(scene)
-
-    // Remove from registry
-    this.registry.unregisterTree(scene)
-
-    // Dispose GPU resources
-    this.disposeScene(scene)
-
-    this.subScenes.delete(filePath)
-
-    return true
-  }
-
-  // =====================================================
-  // MEMORY MANAGEMENT
-  // =====================================================
 
   /**
    * Dispose all GPU resources inside a scene.
@@ -314,13 +224,6 @@ export class SceneManager {
       this.registry.unregisterTree(this.activeScene)
     }
 
-    // Dispose sub-scenes
-    for (const [, scene] of this.subScenes) {
-      this.disposeScene(scene)
-      this.registry.unregisterTree(scene)
-    }
-
-    this.subScenes.clear()
 
     // Create new empty scene
     this.activeScene = new THREE.Scene()

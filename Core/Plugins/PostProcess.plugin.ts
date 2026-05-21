@@ -10,6 +10,7 @@ import { dotScreen } from 'three/addons/tsl/display/DotScreenNode.js';
 
 
 export default class PostProcessingPlugin extends Plugin {
+    name = 'PP plugin'
     private postProcessor!: PostProcessor; // Engine instance
 
     async init() {

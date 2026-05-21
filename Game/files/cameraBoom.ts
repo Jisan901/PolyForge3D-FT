@@ -16,10 +16,15 @@ export default class CameraBoom extends Behavior {
     @IRef()
     private renderedMesh: THREE.Object3D;
     @IRef()
+    private forwardObject: THREE.Object3D;
+    @IRef()
     private camera_holder: THREE.Object3D;
     private camera_holder_pawn: THREE.Object3D;
-    private previousArmLen = 6;
-    private springArmLength = 6;
+    @INumber(5)
+    private previousArmLen = 5;
+    @INumber(5)
+    private springArmLength = 5;
+    @INumber(12)
     private maxLengthMultiplier = 12;
     private targetOffset = new THREE.Vector3(0,0.6,0);
     private socketOffset = new THREE.Vector3(-0.5,0,0);
@@ -28,6 +33,7 @@ export default class CameraBoom extends Behavior {
     onStart() {
         this.camera = getRef(this.camera) || getCamera();
         this.renderedMesh = getRef(this.renderedMesh);
+        this.forwardObject = getRef(this.forwardObject);
         this.camera_holder = getRef(this.camera_holder);
         this.camera_holder_pawn = this.object;
         
@@ -52,10 +58,31 @@ export default class CameraBoom extends Behavior {
         const qy = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -input.theta);
         const targetQuat = qx.clone().multiply(qy);
         
+        const moveX = input.hudData.deltaX * -1 * dt;
+        const moveZ = input.hudData.deltaY * -1 * dt;
         
-        if (needTolerp) {
-            this.renderedMesh.quaternion.slerp(qx, smoothFactor);
+        
+        const parentWorldQ = this.forwardObject.getWorldQuaternion(new THREE.Quaternion());
+
+ // angle from joystick direction
+    const angle = Math.atan2(moveX, moveZ);
+
+    // quaternion rotating around Y axis
+    const qx2 = new THREE.Quaternion().setFromAxisAngle(
+        new THREE.Vector3(0, 1, 0),
+        angle
+    );
+
+const localQ = parentWorldQ.multiply(qx2);
+
+//child.quaternion.slerp(localQ, smoothFactor);
+
+
+        if (needTolerp||true) {
+            this.forwardObject.quaternion.slerp(qx, smoothFactor);
+            //this.renderedMesh.children[0].quaternion.slerp(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), 0), smoothFactor);
         }
+        if (moveX&&moveZ) this.renderedMesh.quaternion.slerp(localQ, smoothFactor);
         
         const armLength = lerp(this.previousArmLen, Math.min(this.springArmLength + speedFactor,this.maxLengthMultiplier), smoothFactor);
         this.previousArmLen = armLength;

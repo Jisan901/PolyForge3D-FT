@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, Pause, Square, Settings, Hammer, FilePlus, Cpu, Gamepad2, Clock, ListTree } from 'lucide-react';
+import { Play, Pause, Square, Settings, Settings2, Hammer, FilePlus, Cpu, Gamepad2, Clock, ListTree } from 'lucide-react';
 import { FileText, Box, BoxSelect, Image as ImageIcon } from 'lucide-react';
 
 
@@ -13,7 +13,12 @@ import ConsolePanelImport from './components/ConsolePanel';
 import TimelineEditorImport from './components/TimelineEditor';
 import TextureEditorImport from './components/TextureEditor';
 import SettingsModalImport from './components/SettingsModal';
+import PluginsPanel from './components/PluginSystems';
 import {UVEditorApp} from "@/Plugins/uv-editor/UVEditorApp";
+import TextureAtlas from "@/Plugins/TextureAtlas/App";
+import InspectorApp from "@/Plugins/InspectorV5";
+import AnimationPlayer from "@/Plugins/Anip";
+import RetargetingApp from "@/Plugins/Retargeting/App";
 import MenuBar from "./MenuBar";
 
 import { SceneObject, ViewMode } from '../types';
@@ -47,14 +52,19 @@ const Viewport = React.memo(ViewportImport);
 const WINDY_DEFS: WindyDef[] = [
   { id: 'viewport3d', title: '3D Viewport', icon: <BoxSelect size={12} />, component: Viewport },
   { id: 'inspector', title: 'Inspector', icon: <ImageIcon size={12} />, component: Inspector },
+  { id: 'inspectorapp', title: 'Inspector App', icon: <ImageIcon size={12} />, component: InspectorApp },
+  { id: 'RetargetingApp', title: 'Retargeting App', icon: <ImageIcon size={12} />, component: RetargetingApp },
   { id: 'textureEditor', title: 'Texture Editor', icon: <ImageIcon size={12} />, component: TextureEditor },
   { id: 'assetbrowser', title: 'Asset Browser', icon: <FileText size={12} />, component: AssetBrowser },
   { id: 'assetStore', title: 'Asset Store', icon: <FileText size={12} />, component: AssetStore },
   { id: 'resourcebrowser', title: 'Resource Browser', icon: <Box size={12} />, component: ResourceBrowser },
   { id: 'hierarchy', title: 'Hierarchy', icon: <ListTree size={12} />, component: Hierarchy },
+  { id: 'AnimationPlayer', title: 'AnimationPlayer', icon: <Clock size={12} />, component: AnimationPlayer },
   { id: 'timelineEditor', title: 'Timeline Editor', icon: <Clock size={12} />, component: TimelineEditor },
   { id: 'settings', title: 'Settings', icon: <Settings size={12} />, component: SettingsModal },
+  { id: 'addons', title: 'Addons', icon: <Settings2 size={12} />, component: PluginsPanel },
   { id: 'uv-editor', title: 'UV Editor', icon: <Settings size={12} />, component: UVEditorApp },
+  { id: 'texture-atlas', title: 'Texture Atlas', icon: <Settings size={12} />, component: TextureAtlas },
   { id: 'empty', title: 'Empty View', icon: <Square size={12} />, component: () => <div className="p-4 text-[#808080] text-sm font-mono"><p className="mb-2">// Empty View</p></div> }
 ];
 

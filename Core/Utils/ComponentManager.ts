@@ -27,6 +27,7 @@ export class ComponentManager {
 
     async loadTemplates() {
         const raw = await fs.readFile(this.templatePath, "utf8");
+    
         const json = JSON.parse(raw);
 
         for (const key of Object.keys(json)) {

@@ -20,7 +20,7 @@ import {Editor} from "@/Editor/Editor";
 export default class BasicToolsPlugin extends Plugin {
     name = 'Basic Tools';
     version = '1.0.0';
-    
+    description = 'this is a basic tool of there api';
     private readonly PLUGIN_ID = 'basic-tools';
 
     /**

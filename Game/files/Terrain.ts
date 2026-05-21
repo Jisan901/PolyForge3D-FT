@@ -1,7 +1,7 @@
 // game/scripts/Rotate.ts
-import { Behavior } from '@/PolyModule/Runtime/Behavior';
-import { INumber, IObject3D } from '@/PolyModule/Runtime/ITypes';
-import * as THREE from 'three';
+import { Behavior } from "@/Core/Behavior";
+import { THREE } from '@/Core/lib/THREE';
+import { INumber, IRef } from '@/Editor/ITypes';
 
 
 import { Noise,NoiseDetail } from "./Utils/perlin.js"
@@ -428,7 +428,7 @@ function scatter(
 export default class Terrain extends Behavior{
   @INumber
   speed: number = 50;
-  @IObject3D
+  @IRef
   target: THREE.Object3D = null; 
 
   onStart() {

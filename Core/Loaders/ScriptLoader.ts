@@ -11,7 +11,8 @@ export class ScriptLoader {
     private lazyScripts: Record<string, () => Promise<ScriptModule>> = {};
     private eagerScripts: Record<string, ScriptConstructor> = {};
     private cache: Record<string, ScriptConstructor> = {};
-
+    public globalInstances: ScriptConstructor[];
+    
     constructor() {
         // --------------------------
         // Lazy scripts (everything except plugins/systems)
@@ -47,8 +48,8 @@ export class ScriptLoader {
 
         const loader = this.lazyScripts[url];
         if (!loader) throw new Error(`Script not found: ${url}`);
-
-        let mod = await import(/* @vite-ignore */`${url}?${Date.now()}`);
+        //console.log(loader)
+        let mod = await import(/* @vite-ignore */`${url}?${crypto.randomUUID()}=${parseInt(performance.now())}`);//await loader();//
         const ScriptClass = mod.default;
         this.cache[url] = ScriptClass; // cache after load
         return ScriptClass;
@@ -74,6 +75,7 @@ export class ScriptLoader {
             if (instance.init) await instance.init();
             sysplugs.push(instance);
         }
+        this.globalInstances = sysplugs;
         return sysplugs;
     }
 

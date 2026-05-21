@@ -169,7 +169,7 @@ const ResourceBrowser: React.FC = () => {
     <div className="h-full flex flex-col bg-editor-panel">
       {/* Category Tabs */}
       <div className="h-10 flex items-center px-2 border-b border-editor-border bg-editor-bg shrink-0">
-        <div className="flex gap-1">
+        <div className="flex gap-1 overflow-x-auto">
           {categories.map((category) => (
             <button
               key={category.id}
@@ -223,7 +223,7 @@ const ResourceBrowser: React.FC = () => {
           {filteredItems.map((resource) => (
             <DragAndDropZone
               key={resource.uuid || resource.id}
-              payload={{ type: "RuntimeResource", data: resource }}
+              payload={{ type: "RuntimeResource", data: {uuid:resource.uuid, name:resource.name, obj:resource} }}
             >
               <div
                 className="group flex flex-col items-center p-2 rounded hover:bg-white/5 cursor-pointer border border-transparent hover:border-editor-accent/50 transition-all select-none"

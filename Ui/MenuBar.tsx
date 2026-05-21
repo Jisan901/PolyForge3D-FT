@@ -59,7 +59,7 @@ const MenuBar = () => {
 
     const getFileMenuItems = (): MenuItem[] => [
         { label: 'New Scene', shortcut: 'Ctrl+N', action: () => editor.newScene() },
-        { label: 'Open Primary', action: async () => { await editor.mountScene("/Game/files/Scenes/Primary.json"); } },
+        { label: 'Open Primary', action: async () => { await editor.mountScene("/Game/files/Scenes/Primary.bin"); } },
         { separator: true, label: '', action: () => { } },
         { label: 'Save Scene', shortcut: 'Ctrl+S', action: () => { Core.sceneManager.saveActive(); toast('Saved Active') } },
         { label: 'Save Scene Pr...', shortcut: 'Ctrl+S', action: () => { Core.sceneManager.savePrimary(); toast('Saved Primary') } },

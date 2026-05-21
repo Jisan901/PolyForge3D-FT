@@ -45,7 +45,7 @@ export default class PhysicsSystem extends System {
     
     // Query entities with both rigidbody and transform components
     const physicsEntities = this.entities.filter(entity => {
-      const rigidbody = this.getComponent(entity, Components.RIGIDBODY); // nameCode 5 for Rigidbody
+      const rigidbody = this.getComponent(entity, Components.RIGIDBODY); //  Rigidbody
       return rigidbody !== null && rigidbody !== undefined;
     });
     
@@ -53,6 +53,16 @@ export default class PhysicsSystem extends System {
     for (const entity of physicsEntities) {
       this.updatePhysicsObject(entity);
     }
+    
+    // Cleanup removed entities
+    const physicsIds = new Set(physicsEntities.map(e => e.uuid));
+    
+    
+    for (const uuid of this.physicsObjects.keys()) {
+        if(physicsIds.has(uuid)) continue;
+        else this.removePhysicsObject(uuid);
+    }
+    
     
     // Sync transforms back to entities
     this.syncTransforms();
@@ -384,6 +394,7 @@ export default class PhysicsSystem extends System {
       this.removePhysicsObject(uuid);
     }
     this.physicsObjects.clear();
+    
     console.log('PhysicsSystem destroyed');
   }
 }

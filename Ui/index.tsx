@@ -17,9 +17,12 @@ function Bootstrap() {
 
     useEffect(() => {
         (async () => {
+            try{
             await Editor.init(); // runs AFTER loading screen appears
             Editor.boot(); // runs AFTER loading screen appears
+            } finally {
             setReady(true);
+            }
         })();
     }, []);
 

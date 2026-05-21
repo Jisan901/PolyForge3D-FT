@@ -13,6 +13,7 @@ interface ScriptInstance {
 }
 
 export default class ScriptSystem extends System {
+    name = "script System"
     private activationMask = new Map<string, ScriptInstance>();
 
     async init() {
@@ -28,7 +29,6 @@ export default class ScriptSystem extends System {
             
             // Already loading or active
             if (this.activationMask.has(id)) continue;
-            
             const script = getComponent(Components.SCRIPT, entity);
             if (!script?.path?.value) continue;
             

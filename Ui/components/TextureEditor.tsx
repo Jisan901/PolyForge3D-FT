@@ -119,17 +119,41 @@ export const TextureEditor: React.FC = () => {
   
   useEffect(() => {
         return editor.api.buses.selectionUpdate.subscribe((target) => {
-            setSelectedTexture(null)
-            setImageSrc(null)
-            if(target.isTexture){
+            
+            if(target&&target?.isTexture){
                 setSelectedTexture(target)
-                setImageSrc(target.image instanceof HTMLImageElement? (target?.image.src as string): target.image.toDataURL());
+                
+                const image =  target.image;
+                
+                
                 setBrightness(100);
                 setContrast(100);
                 setSaturation(100);
                 setBlur(0);
                 setHue(0);
                 setPaths([]);
+                
+                
+                if (image instanceof HTMLImageElement || image instanceof HTMLCanvasElement) setImageSrc(target.image instanceof HTMLImageElement? (target?.image.src as string): target.image.toDataURL());
+                if (image instanceof ImageBitmap) {
+                    
+                    //imageRef.current = image
+                    const tempCanvas = document.createElement('canvas');
+                    tempCanvas.width = image.width;
+                    tempCanvas.height = image.height;
+                    const tempCtx = tempCanvas.getContext('2d');
+                    tempCtx.drawImage(image, 0, 0);
+                    
+                    const newSrc = tempCanvas.toDataURL('image/png');
+                    setImageSrc(newSrc)
+                    
+                    
+                }
+                
+            }
+            else{
+                setSelectedTexture(null)
+            setImageSrc(null)
             }
         });
     }, []);
@@ -244,10 +268,13 @@ export const TextureEditor: React.FC = () => {
       ctx.globalCompositeOperation = 'source-over';
       
       if(selectedTexture?.isTexture){
+          if(selectedTexture.image instanceof HTMLImageElement){
           selectedTexture.image.src = canvas.toDataURL();
           selectedTexture.image.height = canvas.height;
           selectedTexture.image.width = canvas.width;
-          console.log(selectedTexture)
+          }
+          else selectedTexture.image = canvas;
+          
           selectedTexture.needsUpdate = true
       }
     }

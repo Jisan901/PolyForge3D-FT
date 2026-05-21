@@ -202,13 +202,13 @@ export class AnimationUtils {
     /**
      * Create a new animation clip for an object
      */
-    static createClip(object: SceneObject): THREE.AnimationClip {
+    static createClip(object: SceneObject, duration:number): THREE.AnimationClip {
         const clipCount = object.animations?.length || 0;
         const clipName = clipCount === 0
             ? `${object.name}_Anim`
             : `${object.name}_Anim_${clipCount + 1}`;
 
-        return new THREE.AnimationClip(clipName, -1, []);
+        return new THREE.AnimationClip(clipName, duration, []);
     }
 
     /**

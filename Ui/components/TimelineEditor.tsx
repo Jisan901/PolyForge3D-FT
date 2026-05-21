@@ -178,7 +178,7 @@ const TimelineEditor: React.FC = () => {
     const addClip = useCallback(() => {
         if (!selectedObject) return;
 
-        const newClip = AnimationUtils.createClip(selectedObject);
+        const newClip = AnimationUtils.createClip(selectedObject, duration);
 
         if (!selectedObject.animations) {
             selectedObject.animations = [];

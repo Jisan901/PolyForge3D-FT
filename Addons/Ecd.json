@@ -1,0 +1,1028 @@
+[{
+    "id":"964a2a23-313b-4f22-b886-87cd5d10c305",
+    "name":"English 1",
+    "schoolInfo": {
+        "name":"Madrashatul Abrar Al-Islamia",
+        "examName":"First-term examination 2026",
+        "date":"",
+        "time":"2 Hours 30 Minutes",
+        "totalMarks":100,
+        "instructions":"Answer all questions. Write clearly and legibly.",
+        "examSet":"",
+        "language":"en",
+        "className":"One",
+        "subject":"English ",
+        "fontWeightFactor":1,
+        "fontSizeFactor":1,
+        "spacingFactor":1,
+        "address":"Bottola, Charfassion, Bhola"
+    },
+    "questions":[{
+        "id":"076ad23d-e91e-485c-9825-c96ecf104b6f",
+        "type":"short_answer",
+        "points":15,
+        "itemCount":1,
+        "text":"ইংরেজি ভাগের লেটার গুলো সুন্দর করে সাজিয়ে লেখ।",
+        "subItems":[{
+            "id":"16aceacb-d829-4af0-b75a-c68c06405d19",
+            "text":""
+        }],
+        "lines":1
+    },
+        {
+            "id":"40c9f89e-a02b-43aa-9551-3cb367d0b6cc",
+            "type":"short_answer",
+            "points":20,
+            "itemCount":1,
+            "text":"\"CAPITAL LETTERS\" ও \"small letters\" গুলো সুন্দর করে সাজিয়ে লেখ।",
+            "subItems":[{
+                "id":"46f72a40-ffa7-4db6-9a69-4591eabecd29",
+                "text":""
+            }],
+            "lines":1
+        },
+        {
+            "id":"8349d518-98f6-440d-958f-c372fa51580a",
+            "type":"short_answer",
+            "points":15,
+            "itemCount":1,
+            "text":"ইংরেজি ছোট হাতের পরিক্ষা গুলো সুন্দর করে সাজিয়ে লেখ।",
+            "subItems":[{
+                "id":"34a08b18-d850-497e-b8b2-cf9ef8a555b8",
+                "text":""
+            }],
+            "lines":1
+        },
+        {
+            "id":"17163d1f-b6b3-47df-8430-41c009c3c58a",
+            "type":"short_answer",
+            "points":15,
+            "itemCount":1,
+            "text":"ইংরেজি লেটার দিয়ে শব্দ তৈরি করঃ (যেকোনো ৬ টি)\n    \n    A — C  — E — G — I — K — M — R — S",
+            "subItems":[{
+                "id":"83d52e21-829b-486d-b3c7-97dbf5ae0828",
+                "text":""
+            }],
+            "lines":1
+        },
+        {
+            "id":"0d547103-2c91-405f-8433-c7f7b7e9231b",
+            "type":"short_answer",
+            "points":10,
+            "itemCount":1,
+            "text":"এলোমেলো লেটার গুলো সাজিয়ে শব্দ তৈরি করঃ\n     kBoo — YRC — EDFE — AMLSI",
+            "subItems":[{
+                "id":"e1ab7235-0c3a-4a69-a408-8ebb894da254",
+                "text":""
+            }],
+            "lines":1
+        },
+        {
+            "id":"c9d029c5-fae2-4272-bd39-c3283daecb44",
+            "type":"short_answer",
+            "points":10,
+            "itemCount":1,
+            "text":"Vowel গুলো সুন্দর করে সাজিয়ে লেখ।",
+            "subItems":[{
+                "id":"23ce0ffd-56a1-47e5-814b-95a6f806d358",
+                "text":""
+            }],
+            "lines":1
+        },
+        {
+            "id":"3f009594-4bc8-402b-9927-794149cbe9db",
+            "type":"short_answer",
+            "points":10,
+            "itemCount":1,
+            "text":"শব্দের অর্থ লেখ যেকোনো ৪টিঃ      \n     \n    A,  Be,  I,  He,  Me, Do",
+            "subItems":[{
+                "id":"c3bf790e-a2f7-4ddc-b020-0fd17ef85f24",
+                "text":""
+            }],
+            "lines":1
+        },
+        {
+            "id":"3b23085e-1034-4a56-a9c5-07618cc65629",
+            "type":"short_answer",
+            "points":5,
+            "itemCount":1,
+            "text":"সুন্দর লেখার জন্য ",
+            "subItems":[{
+                "id":"0ab32e76-9a94-4f9d-bc12-3b55062da26c",
+                "text":""
+            }],
+            "lines":1
+        }],
+    "updatedAt":1776855354102
+}, {
+    "id":"3b123df5-1353-43bc-91da-72b355cd09a2",
+    "name":"Math 2",
+    "schoolInfo": {
+        "name":"মাদ্রাসাতুল আবরার আল ইসলামিয়া ",
+        "examName":"প্রথম সাময়িক পরীক্ষা ২০২৬",
+        "date":"",
+        "time":"২ ঘন্টা ৩০ মিনিট ",
+        "totalMarks":100,
+        "instructions":"সব প্রশ্নের উত্তর স্পষ্ট করে লেখো।",
+        "examSet":"",
+        "language":"bn",
+        "className":"দ্বিতীয় ",
+        "subject":"গনিত",
+        "address":"বটতলা, চরফ্যাশন, ভোলা"
+    },
+    "questions":[{
+        "id":"3d81bd53-6e66-4fb7-8f95-92d84017d6a1",
+        "type":"short_answer",
+        "points":5,
+        "itemCount":2,
+        "text":"প্রশ্ন গুলোর উত্তর দাওঃ",
+        "subItems":[{
+            "id":"c68921bd-a2f5-428b-bd3d-1d5d85ac5e98",
+            "text":"কথায় লেখ (৫টি):  ৫১, ৫৫, ৭৮, ৯০, ৯৫, ৮৯, ৭৯, ৭৫, ৯৯, ১০০ ।"
+        },
+            {
+                "id":"d96867ec-d6ab-4329-b9f1-00e673044af9",
+                "text":"ইংরেজিতে কথায় লেখ (৫টি): 62, 81, 93, 70, 51, 69, 100, 85, 74, 56"
+            }],
+        "lines":1
+    },
+        {
+            "id":"bd6486c1-8e39-4d38-80e0-c74a630a3d54",
+            "type":"short_answer",
+            "points":5,
+            "itemCount":1,
+            "text":"অঙ্কে লেখঃ পঁচাশি, আটানব্বই, বাহান্ন, ঊনসত্তর, ঊনষাট।",
+            "subItems":[{
+                "id":"5dbbf5c4-bd59-4334-a65c-3a60d211e347",
+                "text":""
+            }],
+            "lines":1
+        },
+        {
+            "id":"124f76ad-0267-4de3-b1c6-5b4d86fbfc16",
+            "type":"short_answer",
+            "points":10,
+            "itemCount":1,
+            "text":"ছোট থেকে বড় সাজিয়ে লেখঃ \n\n  ক. ৯৯, ৫৬, ৬৫, ৩৩, ৭৮, ৫১, ৩৪, ৫৯, ৩০, ৭৬ ।",
+            "subItems":[{
+                "id":"032159dc-2f9a-4312-98cc-549747a3b3d7",
+                "text":""
+            }],
+            "lines":1
+        },
+        {
+            "id":"79b34e7e-10ca-40a7-877e-f1898bad1f32",
+            "type":"subjective",
+            "points":15,
+            "itemCount":1,
+            "text":"যেকোনো ৫টি প্রশ্নের উত্তর দাওঃ\n\nক.   ১৫৭০                খ.     ১০০                গ।    ২৪৫\n।।  +  ২১০                ।।   +   ৫৬                        ৮৭৯\n   __________               __________          ।।  + ১৬৫\n                                                                   __________      \n\nঙ.   ১০০                 চ.     ৩৪৫                 ছ.     ১০০০\n।।  -  ৭৭                 ।।  -   ১২৪                           -    ১\n  _________                __________                 __________",
+            "subItems":[{
+                "id":"24794d76-eea6-40d0-804a-53916239f805",
+                "text":""
+            }],
+            "lines":1
+        },
+        {
+            "id":"663a773e-128c-402d-8701-e8bc5486b261",
+            "type":"page_break",
+            "points":0,
+            "itemCount":1,
+            "text":"",
+            "subItems":[{
+                "id":"ac388728-9398-449b-a5cb-4c0acca0cb1e",
+                "text":""
+            }]},
+        {
+            "id":"b6b53743-ae79-4e8d-98de-3af09dddfb09",
+            "type":"short_answer",
+            "points":5,
+            "itemCount":2,
+            "text":"যে কোনো একটি প্রশ্নের উত্তর দাওঃ",
+            "subItems":[{
+                "id":"3e32867c-3d5b-4cb5-b9d7-89065b2473e5",
+                "text":"৩ , ৬ , ___ , ___ , ১৫ , ___ , ২১ , ___ , ___ , ৩০ ।"
+            },
+                {
+                    "id":"10b717f5-11f5-4a3c-9fb8-bb9e80a597ef",
+                    "text":"২, ৪, ৬ এভাবে ৪০ পর্যন্ত সাজিয়ে লেখ।"
+                }],
+            "lines":1
+        },
+        {
+            "id":"9931eb3f-f23a-472d-9fc3-17a71e69f1d6",
+            "type":"short_answer",
+            "points":20,
+            "itemCount":1,
+            "text":"৬ ও ৮ ঘরের গুনের নামতা লেখ।",
+            "subItems":[{
+                "id":"58481a81-7970-4cb5-931f-6103c10ff0ac",
+                "text":""
+            }],
+            "lines":1
+        },
+        {
+            "id":"5716e2dc-23f9-4a3a-b4cf-457fb14db8cd",
+            "type":"subjective",
+            "points":10,
+            "itemCount":4,
+            "text":"যেকোনো ২টি প্রশ্নের উত্তর দাওঃ",
+            "subItems":[{
+                "id":"fca8ed43-c23b-4b2d-ab37-a6234e06c004",
+                "text":"রাফি’র কাছে ২৩টি আম ছিল। তার বন্ধু তাকে আরও ১৫টি আম দিল। এখন রাফি’র\n   কাছে মোট কয়টি আম আছে?"
+            },
+                {
+                    "id":"d27734f6-8947-4c2e-a9d0-a21737ed2496",
+                    "text":"সুমাইয়ার কাছে ৪৭টি ফুল ছিল। সে বাগান থেকে আরও ১২টি ফুল তুলল। \n   এখন তার কাছে মোট কয়টি ফুল আছে?"
+                },
+                {
+                    "id":"63e4b757-609e-4e18-af95-d970f80cb002",
+                    "text":"একটি ঝুড়িতে ৫৬টি আপেল ছিল। সেখান থেকে ২১টি আপেল খাওয়া হলো। এখন \n   ঝুড়িতে কয়টি আপেল আছে?"
+                },
+                {
+                    "id":"6fd1f1da-56af-4284-9c84-e94f5e0515be",
+                    "text":"রিমার কাছে ৮০ টাকা ছিল। সে ৩৪ টাকা খরচ করল। এখন তার কাছে কত টাকা বাকি আছে?"
+                }],
+            "lines":1
+        }],
+    "updatedAt":1776857267362
+}, {
+    "id":"6fc735de-0cc9-42d3-b1b5-d455c7c26d8b",
+    "name":"Math 3",
+    "schoolInfo": {
+        "name":"মাদ্রাসাতুল আবরার আল ইসলামিয়া ",
+        "examName":"প্রথম সাময়িক পরীক্ষা ২০২৬",
+        "date":"",
+        "time":"২ ঘন্টা",
+        "totalMarks":100,
+        "instructions":"সব প্রশ্নের উত্তর স্পষ্ট করে লেখো।",
+        "examSet":"",
+        "language":"bn",
+        "className":"তৃতীয়",
+        "subject":"গনিত",
+        "address":"বটতলা, চরফ্যাশন, ভোলা"
+    },
+    "questions":[{
+        "id":"52e6aa51-6c31-4915-a4d2-59f7dce7138c",
+        "type":"short_answer",
+        "points":10,
+        "itemCount":1,
+        "text":"কথায় লেখ (যেকোনো ১০টি) :\n\n    ১২৬৫, ৩৯৭০, ২০০৬, ১৯৯৮, ২০৫২২৮৯৮, ১৮২৫২৭, ১২৬৫৮২, ১২৩০০, ৯০০০১, ১২৮৭৭৯, ১২৯০০",
+        "subItems":[{
+            "id":"85ff6f2c-18dd-4182-b697-7f186b892037",
+            "text":""
+        }],
+        "lines":1
+    },
+        {
+            "id":"866b72f9-6fb3-4f91-929f-3b8ce7bd3c7a",
+            "type":"short_answer",
+            "points":10,
+            "itemCount":1,
+            "text":"অঙ্কে লেখ (যেকোনো ১০টি) :\n\n    এক হাজার এক, পাঁচশত নব্বই, তিন হাজার দুইশ পাঁচ, নয় হাজার এগারো, \n    সতের লক্ষ পঁচিশ হাজার দুইশ পনেরো, আট কোটি পঞ্চান্ন লক্ষ বাইশ হাজার তিনশ এক,\n    বাইশ হাজার, নব্বই লক্ষ পাঁচ, পঞ্চান্ন, আটাত্তর , তেত্রিশ কোটি, দুই হাজার ছয়",
+            "subItems":[{
+                "id":"833e2899-6e90-4377-99f7-9f15c8c79aaf",
+                "text":""
+            }],
+            "lines":1
+        },
+        {
+            "id":"b3223553-5323-40bb-b7f3-2060699cfeba",
+            "type":"subjective",
+            "points":10,
+            "itemCount":1,
+            "text":"ক্রমবাচক সংখ্যা একাদশ থেকে বিংশ পর্যন্ত লেখ",
+            "subItems":[{
+                "id":"f6f9d29e-72ea-4a0b-b7bc-2da62f4e7bca",
+                "text":""
+            }],
+            "lines":1
+        },
+        {
+            "id":"8b0bdcf9-a491-4b14-86f2-7d9c5da03310",
+            "type":"short_answer",
+            "points":1,
+            "itemCount":5,
+            "text":"ছোট বড় চিহ্নিতকর ( > ও < চিহ্ন ব্যবহার করো):",
+            "subItems":[{
+                "id":"ed16728a-08b5-4d87-bafd-82a3c447a074",
+                "text":"৩২৫ [     ] ৫২৩"
+            },
+                {
+                    "id":"75a3f8b4-6297-40b4-803b-276491060f56",
+                    "text":"৯০৯ [      ]  ৯৯০"
+                },
+                {
+                    "id":"fa713c54-9708-4820-b5c0-7fda48ad52a1",
+                    "text":"৮১০  [      ]  ৬৭৮"
+                },
+                {
+                    "id":"bcda5eec-9dd5-47ed-a43b-43308af5603f",
+                    "text":"৮৭৮  [      ]  ০০৯৯০০"
+                },
+                {
+                    "id":"be0a0a26-3c89-45dc-b55e-8862f20108ba",
+                    "text":"০০৯৯০০  [      ]  ৯০০৯০০"
+                }],
+            "lines":1
+        },
+        {
+            "id":"39ff68f0-4a08-4b8f-a8ea-fa52a26c712b",
+            "type":"subjective",
+            "points":10,
+            "itemCount":1,
+            "text":"যেকোনো ৫টি প্রশ্নের উত্তর দাওঃ\n\n  ক.   ১৫৭০                খ.     ১০৮০                গ.     ৯৪৫\n  ।।  + ১২১০               ।।   +     ৮৬                         ৮৭৯\n   __________               __________                 +    ৬৬৫\n                                                                         __________      \n\nঙ.   ২১৭৮                 চ.     ৩৪৫৭                 ছ.     ১০০০\n।  - ১১৭৯                 ।।   -    ১২৪                       -        ১\n  __________               __________                    __________      ",
+            "subItems":[{
+                "id":"d3465f4d-c3ea-4918-9d6d-36861c1fc2d4",
+                "text":""
+            }],
+            "lines":1
+        },
+        {
+            "id":"1684aba4-d103-4392-b93a-72fd39dd4594",
+            "type":"short_answer",
+            "points":20,
+            "itemCount":1,
+            "text":"    ৭ ও ৯ ঘরের গুনের নামতা লেখ ।",
+            "subItems":[{
+                "id":"1e8a2a5a-26f5-44df-830b-cfc60560de80",
+                "text":""
+            }],
+            "lines":1
+        },
+        {
+            "id":"2854a7a2-b07e-4a96-a04e-cd510f210a00",
+            "type":"subjective",
+            "points":7,
+            "itemCount":4,
+            "text":"যেকোনো (যোগ ও বিয়োগ থেকে ১ টি করে মোট ) ২টি প্রশ্নের উত্তর দাওঃ",
+            "subItems":[{
+                "id":"43c8fe56-0ce8-4585-bb23-49bb99417eaa",
+                "text":"একটি স্কুলে প্রথম দিনে ১২৫ জন ছাত্র এসেছিল। পরের দিন আরও ৭৮ জন ছাত্র এল। মোট কতজন ছাত্র হলো?"
+            },
+                {
+                    "id":"6e06910b-69be-408e-b880-edf1121e9f8b",
+                    "text":"একটি লাইব্রেরিতে ২৪০টি বই ছিল। নতুন করে আরও ১৬৫টি বই আনা হলো। এখন মোট কতটি বই আছে?"
+                },
+                {
+                    "id":"72ed4764-f78d-465e-97ec-2d874d417346",
+                    "text":"একটি দোকানে ৫০০টি চকলেট ছিল। সেখান থেকে ১৮৭টি বিক্রি হয়ে গেল। এখন কতটি চকলেট বাকি আছে?"
+                },
+                {
+                    "id":"b3f197c5-2067-4415-a6f6-b62fdb19481d",
+                    "text":"একটি বাসে ৩২০ জন যাত্রী ছিল। এর মধ্যে ১৪৫ জন নেমে গেল। এখন বাসে কতজন যাত্রী আছে?"
+                }],
+            "lines":1
+        },
+        {
+            "id":"caa2f429-8a98-4163-ae1a-3a67b569b415",
+            "type":"short_answer",
+            "points":5,
+            "itemCount":1,
+            "text":"জ্যামিতি কাকে বলে ?",
+            "subItems":[{
+                "id":"f186452d-7eaa-4a9b-8f50-fdd655d3b0be",
+                "text":""
+            }],
+            "lines":1
+        }],
+    "updatedAt":1776856556583
+}, {
+    "id":"7d2b12d6-12db-4569-935f-3031988627ff",
+    "name":"Bangla 2",
+    "schoolInfo": {
+        "name":"মাদ্রাসাতুল আবরার আল ইসলামিয়া ",
+        "examName":"প্রথম সাময়িক পরীক্ষা ২০২৬",
+        "date":"",
+        "time":"২ ঘন্টা ৩০ মিনিট ",
+        "totalMarks":100,
+        "instructions":"সব প্রশ্নের উত্তর স্পষ্ট করে লেখো।",
+        "examSet":"",
+        "language":"bn",
+        "className":"দ্বিতীয়",
+        "subject":"বাংলা ",
+        "address":"বটতলা, চরফ্যাশন, ভোলা"
+    },
+    "questions":[{
+        "id":"f7add32e-1f6f-4981-8f33-3183120f43dd",
+        "type":"short_answer",
+        "points":15,
+        "itemCount":1,
+        "text":"\"সবার সুখে\" অথবা \"দেশের তরে\"  কবিতার নাম ও কবির নাম সহ লেখ । (প্রথম ১০ লাইন)",
+        "subItems":[{
+            "id":"4ada8336-970a-4972-8c4f-365d46e68511",
+            "text":""
+        }],
+        "lines":1
+    },
+        {
+            "id":"5956ca3f-21fa-4499-817b-52524a18cb0f",
+            "type":"short_answer",
+            "points":20,
+            "itemCount":1,
+            "text":"শব্দের অর্থ লেখ যেকোনো ১০টিঃ \n  অনাহারী, ধ্বনি, প্রদীপ, তৃষ্ণা, অপরাহ্ন, প্রসন্ন, মধ্যাহ্ন, কৃতঘ্ন, সালাত, নোয়াই, বীর, ন্যায় ",
+            "subItems":[{
+                "id":"56bcd547-c673-4eed-843e-5f5737111f4c",
+                "text":""
+            }],
+            "lines":1
+        },
+        {
+            "id":"f49d3a00-4052-40df-aa1c-0deb33eb486f",
+            "type":"short_answer",
+            "points":4,
+            "itemCount":8,
+            "text":"নিচের প্রশ্নগুলোর উত্তর দাওঃ (যেকোনো ৬টি)",
+            "subItems":[{
+                "id":"4a37d2f2-ddac-4528-9613-d46c310730e0",
+                "text":"ঈদের দিনে সালাত কীভাবে আদায় করতে হয়?"
+            },
+                {
+                    "id":"67a0fccc-cc0e-4ce9-9dfe-34191bcd814a",
+                    "text":"ঈদের দিনে আমরা কিসের শপথ করবো?"
+                },
+                {
+                    "id":"95d38a18-e119-45c3-b100-b424b7a9fecb",
+                    "text":"সদা কার উপর ভরসা রাখতে হবে?"
+                },
+                {
+                    "id":"3423caaf-39e8-4211-acc1-6bff141debb0",
+                    "text":"কেমন খাবার গ্রহণ করতে হবে?"
+                },
+                {
+                    "id":"5d2eb03a-0578-4fa2-bfa9-fb79ee3aaed4",
+                    "text":"মহৎ লোকেরা কিসের জন্য মানুষের হৃদয়ে চিরদিন বেঁচে থাকেন?"
+                },
+                {
+                    "id":"c758f70b-4759-4f4c-b367-41fd1884fae4",
+                    "text":"কী করলে সফলতা আসবে?"
+                },
+                {
+                    "id":"873f728c-d7ed-4132-bac2-53b1b4bd00ec",
+                    "text":"সাহাবীগন কিসের মাপকাঠি ছিলেন?"
+                },
+                {
+                    "id":"0bd03348-7399-455e-a4ab-aab6693cbecc",
+                    "text":"আমাদের সমাজে কেমন লোকের অভাব?"
+                }],
+            "lines":1
+        },
+        {
+            "id":"018ec6d3-4978-4064-a0cd-ea0bbba42e9b",
+            "type":"gap_filling",
+            "points":3,
+            "itemCount":5,
+            "text":"নিচের শূন্যস্থান গুলো পূরণ করঃ",
+            "subItems":[{
+                "id":"3f3bf841-2fa5-4606-8e40-1d47bd59e1a9",
+                "text":"সাঁঝের বেলায় ________ যাবে না।"
+            },
+                {
+                    "id":"f779b7ca-2ac9-4c4b-b645-850b096d02d6",
+                    "text":"_______ ছাড়া আর কোন মাবুদ নেই।"
+                },
+                {
+                    "id":"d164503c-649a-4a7c-b670-b307ecaed5a1",
+                    "text":"শিশুকে প্রথমে ______।  ______ বলা শিখাও।"
+                },
+                {
+                    "id":"b84bed4c-a7dc-45bf-b148-63efcce9f7b9",
+                    "text":"ভালো _______ ছেলেরা সকলের প্রিয়।"
+                },
+                {
+                    "id":"20091cb3-79b9-4347-b24b-be88d9b796e6",
+                    "text":"সৎ কাজে কখনো ________ করবে না।"
+                }]},
+        {
+            "id":"666e9785-367e-4183-b0a0-7198c3fe111d",
+            "type":"short_answer",
+            "points":15,
+            "itemCount":1,
+            "text":"বাক্য রচনা করোঃ \n\n     প্রদীপ,    বাগিচা,    বিলম্ব,    স্বভাব,    আহ্বান।",
+            "subItems":[{
+                "id":"ba65de28-5438-472b-9cd3-bcfe1729efc8",
+                "text":""
+            }],
+            "lines":1
+        },
+        {
+            "id":"2c880bb6-acea-4300-9e7a-3a448f12d74e",
+            "type":"short_answer",
+            "points":5,
+            "itemCount":1,
+            "text":"সুন্দর লেখার জন্য ",
+            "subItems":[{
+                "id":"7a2803f7-e299-4a14-aafe-c84758bee9cb",
+                "text":""
+            }],
+            "lines":1
+        }],
+    "updatedAt":1776857006933
+}, {
+    "id":"b1462e63-ff09-4350-9dca-340bcdfa370b",
+    "name":"Bangla 3",
+    "schoolInfo": {
+        "name":"মাদ্রাসাতুল আবরার আল ইসলামিয়া ",
+        "examName":"প্রথম সাময়িক পরীক্ষা ২০২৬",
+        "date":"",
+        "time":"২ ঘন্টা ৩০ মিনিট ",
+        "totalMarks":100,
+        "instructions":"সব প্রশ্নের উত্তর স্পষ্ট করে লেখো।",
+        "examSet":"",
+        "language":"bn",
+        "className":"তৃতীয়",
+        "subject":"বাংলা ",
+        "address":"বটতলা, চরফ্যাশন, ভোলা"
+    },
+    "questions":[{
+        "id":"f7add32e-1f6f-4981-8f33-3183120f43dd",
+        "type":"short_answer",
+        "points":15,
+        "itemCount":1,
+        "text":"\"উত্তম ও অধম\" অথবা \"প্রার্থনা\"  কবিতার নাম ও কবির নাম সহ লেখ । (প্রথম ৮ লাইন)",
+        "subItems":[{
+            "id":"4ada8336-970a-4972-8c4f-365d46e68511",
+            "text":""
+        }],
+        "lines":1
+    },
+        {
+            "id":"5956ca3f-21fa-4499-817b-52524a18cb0f",
+            "type":"short_answer",
+            "points":20,
+            "itemCount":1,
+            "text":"শব্দের অর্থ লেখ যেকোনো ১০টিঃ \n     তাওফীক, দ্যুলোকে, দুঃখ, অদ্বিতীয়, সৃষ্টি করা, নিমন্ত্রণ, সাইয়্যেদুল মুরসালিন, ওহী, উৎকৃষ্ট,\n     শিয়রে, আযান, ব্যাপ, জলকে, বীন",
+            "subItems":[{
+                "id":"56bcd547-c673-4eed-843e-5f5737111f4c",
+                "text":""
+            }],
+            "lines":1
+        },
+        {
+            "id":"f49d3a00-4052-40df-aa1c-0deb33eb486f",
+            "type":"short_answer",
+            "points":4,
+            "itemCount":7,
+            "text":"নিচের প্রশ্নগুলোর উত্তর দাওঃ (যেকোনো ৬টি)",
+            "subItems":[{
+                "id":"4a37d2f2-ddac-4528-9613-d46c310730e0",
+                "text":"গ্রীষ্মকালের বর্ননা দাও ।"
+            },
+                {
+                    "id":"67a0fccc-cc0e-4ce9-9dfe-34191bcd814a",
+                    "text":"কোন্ কোন্ মাস নিয়ে কোন্ কোন্ ঋতু?"
+                },
+                {
+                    "id":"95d38a18-e119-45c3-b100-b424b7a9fecb",
+                    "text":"আমাদের দেশে মোট কতটি ঋতু ও কী কী?"
+                },
+                {
+                    "id":"3423caaf-39e8-4211-acc1-6bff141debb0",
+                    "text":"ঈমানের রুকুন কয়টি ও কী কী?"
+                },
+                {
+                    "id":"5d2eb03a-0578-4fa2-bfa9-fb79ee3aaed4",
+                    "text":"প্রধান আসমানী কিতাব কয়টি ও কী কী?"
+                },
+                {
+                    "id":"c758f70b-4759-4f4c-b367-41fd1884fae4",
+                    "text":"কবি তার গ্রামের বাড়ির আকর্ষণীয় কোন্ কোন্ বিষয় উল্লেখ করেছেন?"
+                },
+                {
+                    "id":"873f728c-d7ed-4132-bac2-53b1b4bd00ec",
+                    "text":"নবী-রাসুলগণ আমাদের কী কী শিক্ষা দিয়েছেন?"
+                }],
+            "lines":1
+        },
+        {
+            "id":"018ec6d3-4978-4064-a0cd-ea0bbba42e9b",
+            "type":"gap_filling",
+            "points":3,
+            "itemCount":5,
+            "text":"নিচের শূন্যস্থান গুলো পূরণ করঃ",
+            "subItems":[{
+                "id":"3f3bf841-2fa5-4606-8e40-1d47bd59e1a9",
+                "text":"দ্বীন আল্লাহর দেওয়া ________  ব্যবস্থা।"
+            },
+                {
+                    "id":"f779b7ca-2ac9-4c4b-b645-850b096d02d6",
+                    "text":"_______ ছাড়া আর কোন মাবুদ নেই।"
+                },
+                {
+                    "id":"d164503c-649a-4a7c-b670-b307ecaed5a1",
+                    "text":"বই আবার ______  নদী।"
+                },
+                {
+                    "id":"b84bed4c-a7dc-45bf-b148-63efcce9f7b9",
+                    "text":" এই ________ গুলশানে ফের জাগরে _________ সারা ।"
+                },
+                {
+                    "id":"20091cb3-79b9-4347-b24b-be88d9b796e6",
+                    "text":"সৎ কাজে কখনো ________ করবে না।"
+                }]},
+        {
+            "id":"666e9785-367e-4183-b0a0-7198c3fe111d",
+            "type":"short_answer",
+            "points":15,
+            "itemCount":1,
+            "text":"বাক্য রচনা করো ৫টিঃ \n\n     প্রেমময়,    গুণগান,    সর্বশ্রেষ্ঠ,    গাঁয়,    ভোর।",
+            "subItems":[{
+                "id":"ba65de28-5438-472b-9cd3-bcfe1729efc8",
+                "text":""
+            }],
+            "lines":1
+        },
+        {
+            "id":"2c880bb6-acea-4300-9e7a-3a448f12d74e",
+            "type":"short_answer",
+            "points":5,
+            "itemCount":1,
+            "text":"সুন্দর লেখার জন্য ",
+            "subItems":[{
+                "id":"7a2803f7-e299-4a14-aafe-c84758bee9cb",
+                "text":""
+            }],
+            "lines":1
+        }],
+    "updatedAt":1776856319084
+}, {
+    "id":"b33d02d6-de11-4cd8-8069-bb823f1d80de",
+    "name":"English 2",
+    "schoolInfo": {
+        "name":"Madrashatul Abrar Al-Islamia",
+        "examName":"First-term examination 2026",
+        "date":"",
+        "time":"2 Hours 30 Minutes",
+        "totalMarks":100,
+        "instructions":"Answer all questions. Write clearly and legibly.",
+        "examSet":"",
+        "language":"en",
+        "className":"Two",
+        "subject":"English ",
+        "fontWeightFactor":1,
+        "fontSizeFactor":1,
+        "spacingFactor":1,
+        "address":"Bottola, Charfassion, Bhola"
+    },
+    "questions":[{
+        "id":"2fcc9634-94aa-4b8a-9cd8-53d4ed5730c0",
+        "type":"short_answer",
+        "points":10,
+        "itemCount":1,
+        "text":"Write the poem \"About Allah\".",
+        "subItems":[{
+            "id":"460d8df4-a364-418b-ab5f-38f600702db5",
+            "text":""
+        }],
+        "lines":1
+    },
+        {
+            "id":"dfe02333-65a1-4684-a9e8-3e1902ef4141",
+            "type":"short_answer",
+            "points":10,
+            "itemCount":1,
+            "text":"Write the meaning of the following words:\n   \n     Owl, Door, Sky, Horse, Axe, Tall, Beautiful, Going, Spoon, Those,\n     Weak, Kind, Cruel, Field, Were",
+            "subItems":[{
+                "id":"188f3633-4774-4790-885f-9bb54bae2828",
+                "text":""
+            }],
+            "lines":1
+        },
+        {
+            "id":"0e5d7aea-53b9-46a8-80ce-ab7d530d0bc3",
+            "type":"short_answer",
+            "points":10,
+            "itemCount":1,
+            "text":"Make sentences with those following words:\n   \n      Beautiful, King, Boat, Now, Kind, Field, Sky, Pen ",
+            "subItems":[{
+                "id":"dda29e70-e315-4ec1-a6ce-6ee669bcf0f2",
+                "text":""
+            }],
+            "lines":1
+        },
+        {
+            "id":"3e93d6c9-e0c2-4ad8-a289-a6dc593008ca",
+            "type":"gap_filling",
+            "points":3,
+            "itemCount":5,
+            "text":"Fill in the blanks with \"am, is , are, was, were\":",
+            "subItems":[{
+                "id":"8b4cf0a5-ea3c-409d-a9d2-b5f6fb3c2549",
+                "text":"The horse _____ strong."
+            },
+                {
+                    "id":"4f078c95-d2cd-49a0-aa25-f60f71be5025",
+                    "text":"I _____ Mahia."
+                },
+                {
+                    "id":"586c64ee-2e53-48d0-bffb-d1deae233f1a",
+                    "text":"He ______ a farmer."
+                },
+                {
+                    "id":"1a4c2ab5-730f-43ba-a3ec-98faa4c411e5",
+                    "text":"He _______ kind."
+                },
+                {
+                    "id":"8ffa8c0d-2eee-41db-8186-d7e35ea1d02d",
+                    "text":"You ______ a boy."
+                }]},
+        {
+            "id":"fcadc7a6-56dc-435d-9878-54bd0bccefb7",
+            "type":"gap_filling",
+            "points":3,
+            "itemCount":5,
+            "text":"Translate into English.",
+            "subItems":[{
+                "id":"36f1bd45-2960-4576-9eb3-b8247f040610",
+                "text":"এখন সে (হয়) নিষ্ঠুর ।"
+            },
+                {
+                    "id":"f3d29ccb-3046-4408-8950-f802f08288ee",
+                    "text":"চাঁদ দেখতে সুন্দর।"
+                },
+                {
+                    "id":"19a08ecc-f547-4d4f-9365-e64c4dbfb19a",
+                    "text":"তারা (হয়) ছাত্র ।"
+                },
+                {
+                    "id":"5ad0e430-ed2f-4c63-aaba-18b8894f314b",
+                    "text":"ওগুলো (হয়) কলম।"
+                },
+                {
+                    "id":"b5c8b013-6f2d-40c1-8271-54a58709cda6",
+                    "text":"সে মাঠের দিকে যাচ্ছে।"
+                }]},
+        {
+            "id":"276cc76e-7d33-4558-8f5c-f3595548b62f",
+            "type":"gap_filling",
+            "points":3,
+            "itemCount":5,
+            "text":"Translate into Bangla:",
+            "subItems":[{
+                "id":"2f01cbd5-01cd-40f9-9fd9-30acec52fc20",
+                "text":"The sun gives us light."
+            },
+                {
+                    "id":"a8a3d65f-c1db-4860-b55b-6ba3a3ebde64",
+                    "text":"Those are glasses."
+                },
+                {
+                    "id":"7b24fd93-9c2a-469f-8dcd-6b3041f30cdb",
+                    "text":"I am a girl."
+                },
+                {
+                    "id":"c70a98b1-d600-4af4-91e5-7e23c50f2a22",
+                    "text":"That is the Holy Quran "
+                },
+                {
+                    "id":"466793cc-6661-405f-b885-f8e6bae4f0f6",
+                    "text":"You are Farhad."
+                }]}],
+    "updatedAt":1776859794651
+}, {
+    "id":"a56245fa-6f26-4b50-91e1-f2ead6dfe0d7",
+    "name":"English 3",
+    "schoolInfo": {
+        "name":"Madrashatul Abrar Al-Islamia",
+        "examName":"First-term examination 2026",
+        "date":"",
+        "time":"2 Hours 30 Minutes",
+        "totalMarks":100,
+        "instructions":"Answer all questions. Write clearly and legibly.",
+        "examSet":"",
+        "language":"en",
+        "className":"Three",
+        "subject":"English ",
+        "fontWeightFactor":1,
+        "fontSizeFactor":1,
+        "spacingFactor":1,
+        "address":"Bottola, Charfassion, Bhola"
+    },
+    "questions":[{
+        "id":"2fcc9634-94aa-4b8a-9cd8-53d4ed5730c0",
+        "type":"short_answer",
+        "points":10,
+        "itemCount":1,
+        "text":"Write the poem \"About Allah\".",
+        "subItems":[{
+            "id":"460d8df4-a364-418b-ab5f-38f600702db5",
+            "text":""
+        }],
+        "lines":1
+    },
+        {
+            "id":"dfe02333-65a1-4684-a9e8-3e1902ef4141",
+            "type":"short_answer",
+            "points":10,
+            "itemCount":1,
+            "text":"Write the meaning of the following words:\n   \n     Owl, Door, Sky, Horse, Axe, Tall, Beautiful, Going, Spoon, Those,\n     Weak, Kind, Cruel, Field, Were",
+            "subItems":[{
+                "id":"188f3633-4774-4790-885f-9bb54bae2828",
+                "text":""
+            }],
+            "lines":1
+        },
+        {
+            "id":"0e5d7aea-53b9-46a8-80ce-ab7d530d0bc3",
+            "type":"short_answer",
+            "points":10,
+            "itemCount":1,
+            "text":"Make sentences with those following words:\n   \n      Beautiful, King, Boat, Now, Kind, Field, Sky, Pen ",
+            "subItems":[{
+                "id":"dda29e70-e315-4ec1-a6ce-6ee669bcf0f2",
+                "text":""
+            }],
+            "lines":1
+        },
+        {
+            "id":"3e93d6c9-e0c2-4ad8-a289-a6dc593008ca",
+            "type":"gap_filling",
+            "points":3,
+            "itemCount":5,
+            "text":"Fill in the blanks with \"am, is , are, was, were\":",
+            "subItems":[{
+                "id":"8b4cf0a5-ea3c-409d-a9d2-b5f6fb3c2549",
+                "text":"The horse _____ strong."
+            },
+                {
+                    "id":"4f078c95-d2cd-49a0-aa25-f60f71be5025",
+                    "text":"I _____ Mahia."
+                },
+                {
+                    "id":"586c64ee-2e53-48d0-bffb-d1deae233f1a",
+                    "text":"He ______ a farmer."
+                },
+                {
+                    "id":"1a4c2ab5-730f-43ba-a3ec-98faa4c411e5",
+                    "text":"He _______ kind."
+                },
+                {
+                    "id":"8ffa8c0d-2eee-41db-8186-d7e35ea1d02d",
+                    "text":"You ______ a boy."
+                }]},
+        {
+            "id":"fcadc7a6-56dc-435d-9878-54bd0bccefb7",
+            "type":"gap_filling",
+            "points":3,
+            "itemCount":5,
+            "text":"Translate into English.",
+            "subItems":[{
+                "id":"36f1bd45-2960-4576-9eb3-b8247f040610",
+                "text":"এখন সে (হয়) নিষ্ঠুর ।"
+            },
+                {
+                    "id":"f3d29ccb-3046-4408-8950-f802f08288ee",
+                    "text":"চাঁদ দেখতে সুন্দর।"
+                },
+                {
+                    "id":"19a08ecc-f547-4d4f-9365-e64c4dbfb19a",
+                    "text":"তারা (হয়) ছাত্র ।"
+                },
+                {
+                    "id":"5ad0e430-ed2f-4c63-aaba-18b8894f314b",
+                    "text":"ওগুলো (হয়) কলম।"
+                },
+                {
+                    "id":"b5c8b013-6f2d-40c1-8271-54a58709cda6",
+                    "text":"সে মাঠের দিকে যাচ্ছে।"
+                }]},
+        {
+            "id":"276cc76e-7d33-4558-8f5c-f3595548b62f",
+            "type":"gap_filling",
+            "points":3,
+            "itemCount":5,
+            "text":"Translate into Bangla:",
+            "subItems":[{
+                "id":"2f01cbd5-01cd-40f9-9fd9-30acec52fc20",
+                "text":"The sun gives us light."
+            },
+                {
+                    "id":"a8a3d65f-c1db-4860-b55b-6ba3a3ebde64",
+                    "text":"Those are glasses."
+                },
+                {
+                    "id":"7b24fd93-9c2a-469f-8dcd-6b3041f30cdb",
+                    "text":"I am a girl."
+                },
+                {
+                    "id":"c70a98b1-d600-4af4-91e5-7e23c50f2a22",
+                    "text":"That is the Holy Quran "
+                },
+                {
+                    "id":"466793cc-6661-405f-b885-f8e6bae4f0f6",
+                    "text":"You are Farhad."
+                }]}],
+    "updatedAt":1776859826051
+}, {
+    "id":"7401427f-de21-4248-9cad-3d52ab751d7c",
+    "name":"Math 1",
+    "schoolInfo": {
+        "name":"মাদ্রাসাতুল আবরার আল ইসলামিয়া ",
+        "examName":"প্রথম সাময়িক পরীক্ষা ২০২৬",
+        "date":"",
+        "time":"২ ঘন্টা ৩০ মিনিট ",
+        "totalMarks":100,
+        "instructions":"সব প্রশ্নের উত্তর স্পষ্ট করে লেখো।",
+        "examSet":"",
+        "language":"bn",
+        "className":"প্রথম",
+        "subject":"গনিত",
+        "address":"বটতলা, চরফ্যাশন, ভোলা"
+    },
+    "questions":[{
+        "id":"5ae94128-66ef-4b7b-89b5-2d03777c6efc",
+        "type":"short_answer",
+        "points":20,
+        "itemCount":1,
+        "text":"২ থেকে ১০০ পর্যন্ত জোড় সংখ্যা গুলো সুন্দর করে সাজিয়ে লেখ ।",
+        "subItems":[{
+            "id":"1ac219ed-bc5d-439a-8f09-97831be473b8",
+            "text":""
+        }],
+        "lines":1
+    },
+        {
+            "id":"6e407431-3663-4757-9460-a423f82cca71",
+            "type":"short_answer",
+            "points":15,
+            "itemCount":1,
+            "text":"১ থেকে ৯৯ পর্যন্ত বিজোড় সংখ্যা গুলো সুন্দর করে সাজিয়ে লেখ ।",
+            "subItems":[{
+                "id":"6b3b64c9-a101-42a1-864f-48c098eb928e",
+                "text":""
+            }],
+            "lines":1
+        },
+        {
+            "id":"9989d768-19bd-4564-b6a0-541ec6555cc5",
+            "type":"short_answer",
+            "points":15,
+            "itemCount":1,
+            "text":"কথায় লেখঃ ১ থেকে ৩০ পর্যন্ত।",
+            "subItems":[{
+                "id":"a8ac4554-4fbd-4995-a4a7-216b31a81142",
+                "text":""
+            }],
+            "lines":1
+        },
+        {
+            "id":"fb398f9d-4ba1-4173-8cb8-4bf3baa22060",
+            "type":"short_answer",
+            "points":15,
+            "itemCount":1,
+            "text":"অঙ্কে লেখঃ ১ থেকে ৯৯ পর্যন্ত।",
+            "subItems":[{
+                "id":"59dd0175-259b-46ca-9e3b-f868d0f5f157",
+                "text":""
+            }],
+            "lines":1
+        },
+        {
+            "id":"8e92e3a0-3e5e-4e80-a238-4838bbff24fb",
+            "type":"short_answer",
+            "points":10,
+            "itemCount":1,
+            "text":"ইংরেজিতে লেখঃ 1 থেকে 20 পর্যন্ত ।",
+            "subItems":[{
+                "id":"baf76823-2095-483f-ba82-6eb9cf47fda2",
+                "text":""
+            }],
+            "lines":1
+        },
+        {
+            "id":"1ad7ca46-d6a5-4812-891c-d0ea63362771",
+            "type":"short_answer",
+            "points":10,
+            "itemCount":1,
+            "text":"",
+            "subItems":[{
+                "id":"3d019878-e66c-4301-a645-31da59c55c52",
+                "text":""
+            }],
+            "lines":1
+        },
+        {
+            "id":"08e236c0-3dc4-4aa1-a72d-784c40eaed59",
+            "type":"short_answer",
+            "points":10,
+            "itemCount":1,
+            "text":"",
+            "subItems":[{
+                "id":"fa41ac0a-37f9-455b-9fa0-d5157228a6d1",
+                "text":""
+            }],
+            "lines":1
+        },
+        {
+            "id":"434eafd8-6450-4f42-aa6f-e8a1700f6c36",
+            "type":"short_answer",
+            "points":5,
+            "itemCount":1,
+            "text":"সুন্দর করে লেখার জন্য।",
+            "subItems":[{
+                "id":"e3fff0c0-d3d8-4027-b36f-07cc27561f65",
+                "text":""
+            }],
+            "lines":1
+        }],
+    "updatedAt":1776925345453
+}]

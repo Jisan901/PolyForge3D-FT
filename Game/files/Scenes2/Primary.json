@@ -1,0 +1,174 @@
+{
+  "metadata": {
+    "version": 4.7,
+    "type": "Object",
+    "generator": "Object3D.toJSON"
+  },
+  "geometries": [
+    {
+      "uuid": "b168308f-5004-49dd-a8ab-0aa63299a3e2",
+      "type": "BufferGeometry",
+      "data": {
+        "attributes": {
+          "position": {
+            "itemSize": 3,
+            "type": "Float32Array",
+            "array": {},
+            "normalized": false
+          },
+          "normal": {
+            "itemSize": 3,
+            "type": "Float32Array",
+            "array": {},
+            "normalized": false
+          },
+          "uv": {
+            "itemSize": 2,
+            "type": "Float32Array",
+            "array": {},
+            "normalized": false
+          }
+        },
+        "boundingSphere": {
+          "radius": 13.130841145970077,
+          "center": [
+            0,
+            9.362051248550415,
+            0
+          ]
+        },
+        "index": {
+          "type": "Uint16Array",
+          "array": {}
+        }
+      }
+    }
+  ],
+  "materials": [
+    {
+      "uuid": "6a18cdd4-76be-4e10-a202-d0d5ca3693a0",
+      "type": "MeshStandardMaterial",
+      "color": 16777215,
+      "roughness": 1,
+      "metalness": 0,
+      "emissive": 0,
+      "envMapRotation": [
+        0,
+        0,
+        0,
+        "XYZ"
+      ],
+      "envMapIntensity": 1,
+      "blendColor": 0
+    }
+  ],
+  "object": {
+    "uuid": "a53c54d7-cd59-43e3-8262-94ea59e5ac73",
+    "type": "Scene",
+    "userData": {
+      "helperSceneId": "Editor_Helpers_Root",
+      "expanded": false
+    },
+    "layers": 1,
+    "matrix": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    "up": [
+      0,
+      1,
+      0
+    ],
+    "children": [
+      {
+        "uuid": "6d1bd28b-c675-4724-96cb-dd5398120feb",
+        "type": "Mesh",
+        "userData": {
+          "templateFile": "/Game/files/Meshpack.bin",
+          "helper": null
+        },
+        "layers": 1,
+        "matrix": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          2.220446049250313e-16,
+          0,
+          0,
+          -2.220446049250313e-16,
+          1,
+          0,
+          -0.7011402063949239,
+          -1.0779135382729594e-15,
+          4.854491009303713,
+          1
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "geometry": "b168308f-5004-49dd-a8ab-0aa63299a3e2",
+        "material": "6a18cdd4-76be-4e10-a202-d0d5ca3693a0"
+      },
+      {
+        "uuid": "f34823cd-2c0d-4db3-af0b-7e6e62fabc6a",
+        "type": "Object3D",
+        "name": "Editor_Helpers_Root",
+        "layers": 1,
+        "matrix": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ]
+      }
+    ],
+    "backgroundRotation": [
+      0,
+      0,
+      0,
+      "XYZ"
+    ],
+    "environmentRotation": [
+      0,
+      0,
+      0,
+      "XYZ"
+    ]
+  }
+}

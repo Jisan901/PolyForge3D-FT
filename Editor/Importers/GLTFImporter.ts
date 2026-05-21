@@ -1,7 +1,7 @@
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import type {AssetImporter,ImportContext,ImportResult} from './types'
 import fs from '@/Core/lib/fs';
-
+import {BinarySerializer} from "@/Core/Plugins/Three.patch.plugin";
 
 export class GLTFImporter implements AssetImporter {
   extensions = ['gltf', 'glb'];
@@ -23,11 +23,8 @@ export class GLTFImporter implements AssetImporter {
     const uuid = polyObject.uuid;
     const assetDir = `${ctx.assetRoot}`;
 
-
-    await fs.writeFile(
-      `${assetDir}/${name}.object`,
-      JSON.stringify(polyObject.toJSON(), null, 2)
-    );
+    const bins = new BinarySerializer();
+    await bins.save(polyObject,`${assetDir}/${name}.object.bin`,true)
 
     return {
       uuid,

@@ -1,7 +1,7 @@
 import React, { Suspense, useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import { Instance, boot } from "@/Core/PolyForge";
-import LoadingFallback from './components/Utils/Loading';
+import LoadingFallback from './Ui/components/Utils/Loading';
 
 
 globalThis.i = Instance;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Search, Folder, FileCode, FileImage, Box, FileText, RefreshCw, ArrowLeft, ArrowRight, Globe } from 'lucide-react';
+import { Search, Folder, FileCode, FileImage, Box, FileText, RefreshCw, ArrowLeft, ArrowRight, Globe, Film } from 'lucide-react';
 import { AssetFile } from '../types';
 import ContextMenu, { MenuItem } from './ContextMenu';
 import {DragAndDropZone} from "./Utils/DragNDrop";
@@ -7,6 +7,8 @@ import {DragAndDropZone} from "./Utils/DragNDrop";
 import {toast} from "@/Editor/Mutation"
 
 import { Editor } from "@/Editor/Editor";
+import ACTIONS from "@/Editor/Actions";
+
 
 
 const editor = Editor;
@@ -39,6 +41,7 @@ const AssetBrowser: React.FC = () => {
             case 'material': return <Box size={32} className="text-pink-400" />;
             case 'model': return <Box size={32} className="text-cyan-400" />;
             case 'geometry': return <Globe size={32} className="text-green-400" />;
+            case 'animation': return <Film size={32} className="text-green-400" />;
             default: return <FileText size={32} className="text-gray-400" />;
         }
     };
@@ -68,7 +71,7 @@ const AssetBrowser: React.FC = () => {
         { label: 'Rename', shortcut: 'F2', action: () => console.log('Rename', id) },
         { label: 'Delete', shortcut: 'Del', danger: true, action: () => onDelete && onDelete(id) },
         { separator: true, label: '', action: () => { } },
-        { label: 'Reimport', action: () => console.log('Reimport', id) },
+        { label: 'Reimport', action: () => ACTIONS.execute('reimport',id) },
     ];
 
     const getBackgroundMenuItems = (): MenuItem[] => [
@@ -101,22 +104,9 @@ const AssetBrowser: React.FC = () => {
             </div>
 
             {/* Asset Grid */}
-            <DragAndDropZone onDrop={async (e)=>{
-            console.log(e)
-                    if (e.type==='Object'){
-                        const scene = editor.core.sceneManager.activeScene;
-                        const draggedNode = scene.getObjectByProperty('uuid', e.data.uuid);
-                        
-                              if (!draggedNode) {
-                                toast('Invalid drag operation');
-                                return;
-                              }
-                        let temp = draggedNode.userData.helper
-                        draggedNode.userData.helper = null
-                        await editor.api.saveObjectFile(draggedNode, browser.activeDirName)
-                        draggedNode.userData.helper = temp
-                        await browser.reload()
-                    }
+            <DragAndDropZone onDrop={async (e,m)=>{
+                    editor.api.buses.assetPanelDrop.emit(e,m)
+            
                     if (e.type === 'GeoMat'&&(e.data.isMaterial||e.data.isBufferGeometry)){
                         await editor.api.saveMatGeoFile(e.data, browser.activeDirName)
                         await browser.reload()

@@ -19,7 +19,8 @@
     "tailwindcss": "^4.1.17",
     "three": "^0.182.0",
     "vite-plugin-wasm": "^3.5.0",
-    "windy-ui-react": "../Windy/"
+    "windy-ui-react": "../Windy/",
+    "jolt-physics": "^1.0.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

@@ -1,0 +1,14 @@
+export * from './Inspector';
+export { InspectorPanel, InspectorCategory } from './components/InspectorPanel';
+export * from './components/AutoInspector';
+export * from './components/GUIInspector';
+export * from './components/NumberInput';
+export * from './components/TextInput';
+export * from './components/BooleanInput';
+export * from './components/SliderInput';
+export * from './components/SelectInput';
+export * from './components/Vector2Input';
+export * from './components/Vector3Input';
+export * from './components/ButtonInput';
+export * from './hooks/useInspector';
+export * from './threejsInspection/DefinedInspector';

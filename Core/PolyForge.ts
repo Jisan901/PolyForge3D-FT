@@ -69,7 +69,7 @@ export class PolyForge {
         await this.componentManager.loadTemplates();
         await this.engine.init();
         try{
-            await this.sceneManager.loadScene(DEFINITION.primaryScene);
+            await this.sceneManager.loadScene(localStorage.getItem('lastActive')||DEFINITION.primaryScene);
         }catch(e){
             console.warn(e);
         }

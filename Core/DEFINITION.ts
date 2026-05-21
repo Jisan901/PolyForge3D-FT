@@ -4,7 +4,7 @@ export class DEFINITION {
 
   // Settings file path
   static settingsFile = '/Game/plfg_settings.json';
-  static componentTemplateFile = '/components.cti';
+  static componentTemplateFile = '/components.cti.json';
 
   // Ignore patterns for eager scripts (plugins/systems)
   static ignoreEager: string[] = [
@@ -24,5 +24,7 @@ export class DEFINITION {
   // Example: default resources folder
   static resourcesFolder = '/Game/files/';
   
-  static primaryScene = "/Game/files/Scenes/Primary.json";
+  static primaryScene = "/Game/files/Scenes/Primary.object.bin";
+  static primarySceneFile = "Primary.object.bin";
+  static scenesDir = "/Game/files/Scenes/";
 }

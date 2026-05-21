@@ -29,7 +29,7 @@ export class ScriptExecutor {
    */
   addScript(instance: BaseScript, instanceId?: string): string {
     const id = instanceId ?? crypto.randomUUID();
-    
+    instance.id = id;
     if (this.scripts.has(id)) {
       console.warn(`Script with ID "${id}" already exists. Replacing...`);
       this.removeScript(id);

@@ -160,7 +160,7 @@ const HierarchyNode = ({ node, depth, isFlat, handleContextMenu, sceneVersion })
   return (
     <DragAndDropZone
       onDrop={handleDrop}
-      payload={{ type: 'Object', data: { uuid: node.uuid, name: node.name||node.type } }}
+      payload={{ type: 'Object', data: { uuid: node.uuid, name: node.name||node.type, obj:node } }}
     >
       <div>
         <div

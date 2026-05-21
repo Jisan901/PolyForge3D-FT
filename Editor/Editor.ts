@@ -7,6 +7,7 @@ import { LightGamePad } from "@/Core/Utils/GamePad";
 
 import { Api } from "@/Editor/Api";
 import { AssetBrowserManager } from "@/Editor/AssetBrowser"
+import { ActionRegistry } from "@/Editor/ActionRegistry";
 import { Commander, commands } from "@/Editor/Commander";
 import { TransformControlHistoryHandler } from "@/Editor/Three/TransformControlHistoryHandler";
 import { toast } from "@/Editor/Mutation";
@@ -32,6 +33,7 @@ class EditorClass {
     private lastTime = 0;
     
     constructor() {
+        this.actionRegistry = new ActionRegistry();
         this.commander = new Commander();
         this.importer = new ImportManager();
         this.gamePad = new LightGamePad();
@@ -203,6 +205,7 @@ class EditorClass {
 
 
         // // minimal update
+        this.core.scriptExecutor.invokeLifecycleAll('onEditorUpdate', this.deltaTime);
         this.core.alwaysUpdate(this.deltaTime)
     };
 
@@ -213,10 +216,13 @@ class EditorClass {
         if (this.mode === 'play') return;
 
         // await this.refreshRegistry();
-
+        try{
         await this.core.sceneManager.saveActive();
         toast('Saved Editor')
-
+        }
+        catch(e){
+            console.warn(e)
+        }
         this.api.three.selectObject(null);
         this.api.three.helpers.setTool('select');
         
@@ -321,6 +327,10 @@ class EditorClass {
     
     private refreshRegistry(){
         refreshScriptVariables();
+        this.core.threeRegistry.clear()
+        this.core.threeRegistry.register(this.core.sceneManager.activeScene,true)
+        this.core.threeRegistry.unregisterTree(this.api.three.editorGroup);
+        
     }
     
 }

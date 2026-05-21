@@ -8,7 +8,7 @@ import { TransformControls } from "three/examples/jsm/controls/TransformControls
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 import { InteractiveViewHelper } from "@/Editor/Three/Gizmo";
-
+import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils'
 
 export class HelperManager {
     public transformControls: TransformControls;
@@ -61,7 +61,8 @@ export class HelperManager {
                 if (['translate', 'rotate', 'scale'].includes(this.transformControls.mode)) {
                     mutationCall(sel, this.transformControls.mode === 'translate' ? 'position' : this.transformControls.mode === 'rotate' ? 'rotation' : 'scale');
                 }
-                sel.userData?.helper?.update?.();
+                this._helpers.get(sel.userData?.helper)?.update()
+                
             }
         };
 
@@ -101,7 +102,7 @@ export class HelperManager {
         else if (obj.isPointLight) h = new THREE.PointLightHelper(obj as THREE.PointLight, 0.5);
         else if (obj.isSpotLight) h = new THREE.SpotLightHelper(obj as THREE.SpotLight);
         else if (obj.isHemisphereLight) h = new THREE.HemisphereLightHelper(obj as THREE.HemisphereLight, 1);
-        else if (obj.isSkinnedMesh || obj.isBone) h = new THREE.SkeletonHelper(obj);
+        else if (obj.isSkinnedMesh) h = new THREE.SkeletonHelper(obj);
 
         if (h) {
             h.userData.isSpecificHelper = true;
@@ -119,8 +120,8 @@ export class HelperManager {
 
         this.editorGroup.remove(helper);
         ThreeHelpers.freeGPU(helper);
-        delete object3d.userData.helper;
         this._helpers.delete(object3d.userData.helper)
+        delete object3d.userData.helper;
 
         object3d.traverse(obj => {
             if (obj !== object3d) this.removeHelper(obj)
@@ -318,11 +319,13 @@ export class ThreeAPI {
             for (let hit of intersects) {
                 // Skip Editor Tools
                 if (this.isEditorObject(hit.object)) continue;
-
+                if(!['translate','rotate','scale','select'].includes(this.helpers.activeTool)) return;
                 // Select first valid mesh
                 this.selectObject(hit.object);
                 return;
             }
+            
+            if(!['translate','rotate','scale','select'].includes(this.helpers.activeTool)) return;
             this.selectObject(null);
         });
     }
@@ -383,7 +386,6 @@ export class ThreeAPI {
     }
 
     selectObject(obj: THREE.Object3D | null) {
-        if(this.helpers.activeTool !== 'select') return;
         this.selectedObject = obj || undefined;
         this.helpers.attach(obj);
         this.bus.selectionUpdate.emit(obj);
@@ -556,7 +558,41 @@ export class ThreeAPI {
         }
     }
 
-
+    /**
+     * joinGroup
+     * join group
+     */
+    
+    public joinGroup(group){
+        const meshes = [];
+        const geometries  = [];
+        group.traverse((e)=>{
+            if (e.isMesh){
+                this.applyTransform(e);
+                meshes.push(e);
+                geometries.push(e.geometry);
+            }
+        })
+        
+        const new_geometry = BufferGeometryUtils.mergeGeometries(geometries);
+        const target = meshes[0];
+        group.clear();
+        target.geometry = new_geometry;
+        group.add(target);
+    }
+    
+    /**
+     * applyTransform
+     * apply transform
+     */
+    
+    public applyTransform(mesh){
+        mesh.geometry.applyMatrix4(mesh.matrix);
+        mesh.position.set(0,0,0);
+        mesh.rotation.set(0,0,0);
+        mesh.scale.set(1,1,1);
+    }
+    
 
     dispose() {
         this.helpers.dispose();

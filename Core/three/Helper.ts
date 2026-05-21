@@ -3,7 +3,7 @@ import { THREE } from '@/Core/lib/THREE'
 
 class DisposeQueue {
   queue = [];
-  budget = 5; // objects per frame
+  budget = Infinity; // objects per frame
 
   add(resource: any) {
     this.queue.push(resource);
@@ -12,6 +12,8 @@ class DisposeQueue {
   update() {
     for (let i = 0; i < this.budget; i++) {
       const r = this.queue.shift();
+      //console.log(r,'disposal ')
+      //console.trace('disposal')
       if (!r) break;
       r.dispose();
     }
@@ -36,51 +38,58 @@ export class ThreeHelpers {
     */
     public static disposeQueue = new DisposeQueue();
     
-    public static freeGPU(asset: any) {
+    public static freeGPU(asset: any, force = false) {
+    if (!asset) return
 
-        if (!asset) return
-
-        // Object tree
-        if (asset instanceof THREE.Object3D) {
-
-            asset.traverse((child: any) => {
-                ThreeHelpers.freeGPU(child.geometry)
-                if (child.material) {
-
-                    if (Array.isArray(child.material)) {
-                        child.material.forEach(m => ThreeHelpers.freeGPU(m))
-                    } else {
-                        ThreeHelpers.freeGPU(child.material)
-                    }
-                }
-            })
-
-            return
-        }
-
-        // Geometry
-        if (asset instanceof THREE.BufferGeometry) {
-            ThreeHelpers.disposeQueue.add(asset);
-            return
-        }
-
-        // Material (+ embedded textures)
-        if (asset instanceof THREE.Material) {
-
-            for (const key in asset) {
-                const value = (asset as any)[key]
-                if (value instanceof THREE.Texture) {
-                    ThreeHelpers.disposeQueue.add(value);
+    // -----------------
+    // Object3D tree
+    // -----------------
+    if (asset instanceof THREE.Object3D) {
+        asset.traverse((child: any) => {
+            if (child.geometry) {
+                ThreeHelpers.freeGPU(child.geometry, force)
+            }
+            if (child.material) {
+                if (Array.isArray(child.material)) {
+                    child.material.forEach((m: THREE.Material) => ThreeHelpers.freeGPU(m, force))
+                } else {
+                    ThreeHelpers.freeGPU(child.material, force)
                 }
             }
-
-            ThreeHelpers.disposeQueue.add(asset);
-            return
-        }
-
-        // Texture
-        if (asset instanceof THREE.Texture) {
-            ThreeHelpers.disposeQueue.add(asset);
-        }
+        })
+        return
     }
+
+    // -----------------
+    // Geometry
+    // -----------------
+    if (asset instanceof THREE.BufferGeometry) {
+        if (!force && asset.userData.uses > 0) return
+        ThreeHelpers.disposeQueue.add(asset)
+        return
+    }
+
+    // -----------------
+    // Material (+ embedded textures)
+    // -----------------
+    if (asset instanceof THREE.Material) {
+        if (!force && asset.userData.uses > 0) return
+        for (const key in asset) {
+            const value = (asset as any)[key]
+            if (value instanceof THREE.Texture) {
+                ThreeHelpers.freeGPU(value, force)
+            }
+        }
+        ThreeHelpers.disposeQueue.add(asset)
+        return
+    }
+
+    // -----------------
+    // Texture
+    // -----------------
+    if (asset instanceof THREE.Texture) {
+        if (!force && asset.userData.uses > 0) return
+        ThreeHelpers.disposeQueue.add(asset)
+    }
+}
 }

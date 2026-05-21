@@ -5,6 +5,7 @@ import { Components } from "@/Core/Types/Components";
 
 
 export default class GlobalSystem extends System {
+    name = 'Global system'
   onStart(): void {
     console.log('Global system started');
     

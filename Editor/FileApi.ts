@@ -25,17 +25,18 @@ export function getFileType(ext: string): FileType {
   const e = ext.replace('.', '').toLowerCase();
 
   const registry: Record<FileType, string[]> = {
-    image:    ['png', 'jpg', 'jpeg', 'webp', 'hdr', 'exr'],
-    model:    ['object'],
+    image:    ['png', 'jpg', 'jpeg', 'webp', 'hdr', 'exr', 'tex.bin'],
+    model:    ['object.bin'],
     script:   ['js', 'ts', 'lua', 'py'],
-    material: ['mat', 'material'],
-    geometry: ['geo'],
+    material: ['mat.bin', 'material'],
+    animation: ['anim.bin'],
+    geometry: ['geo.bin'],
     shader:   ['glsl', 'vert', 'frag', 'wgsl'],
     unknown:  [], // fallback
   };
 
   for (const [type, exts] of Object.entries(registry) as [FileType, string[]][]) {
-    if (exts.includes(e)) return type;
+    if (exts.find(e=>ext.endsWith(e))) return type;
   }
 
   return 'unknown';
@@ -70,7 +71,7 @@ export class FileAPI {
         name: file,
         fullPath: full,
         id: full,
-        type: stats.isDirectory ? "folder" : getFileType(getExt(file)),
+        type: stats.isDirectory ? "folder" : getFileType(file),
         size: (stats.size / (1024 * 1024)).toFixed(1) // bytes -> MB
       });
     }
