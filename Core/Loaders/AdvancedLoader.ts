@@ -428,7 +428,7 @@ export class AdvancedLoaderv3 extends AbstractLoader {
  *   pipeline is used — registry check, inflight dedup, fresh load, register,
  *   cache — ensuring sub-assets are always tracked and never double-loaded.
  */
-export class AdvancedLoader extends AbstractLoader {
+export class AdvancedLoaderv4 extends AbstractLoader {
     /** Registry-backed asset cache: "type:url" → { uuid, type } */
     private cache = new Map<string, CacheEntry>();
 
@@ -483,7 +483,9 @@ export class AdvancedLoader extends AbstractLoader {
         type: ResolvableType,
         url: string
     ): Promise<ResolvableAsset> {
-        console.log(type,url,[...this.cache.keys()],[...this.cache.values()])
+        console.table([...this.cache]);
+        //console.log(type,url,[...this.cache.keys()],[...this.cache.values()])
+        console.log(this)
         return this.load(type as AssetType, url) as Promise<ResolvableAsset>;
     }
 
@@ -500,6 +502,7 @@ export class AdvancedLoader extends AbstractLoader {
             const live = this.resolveFromRegistry(entry);
             if (live) return live as T;
             // Registry evicted — drop stale entry, fall through to reload
+            console.log('cache delete', key)
             this.cache.delete(key);
         }
 
@@ -523,6 +526,127 @@ export class AdvancedLoader extends AbstractLoader {
 
         this.inflight.set(key, promise as Promise<AnyThree>);
         return promise;
+    }
+
+    // =========================================================================
+    // Helpers
+    // =========================================================================
+
+    private resolveFromRegistry(entry: CacheEntry): AnyThree | undefined {
+        switch (entry.type) {
+            case "object":   return this.registry.getObject(entry.uuid);
+            case "geometry": return this.registry.getGeometry(entry.uuid);
+            case "material": return this.registry.getMaterial(entry.uuid);
+            case "texture":  return this.registry.getTexture(entry.uuid);
+            default:         return undefined;
+        }
+    }
+
+    private loadFresh<T extends AnyThree>(type: AssetType, url: string): Promise<T> {
+        switch (type) {
+            case "object":   return super.loadObject(url, false) as Promise<T>;
+            case "geometry": return super.loadGeometry(url) as Promise<T>;
+            case "material": return super.loadMaterial(url) as Promise<T>;
+            case "texture":  return super.loadTexture(url) as Promise<T>;
+            default:
+                throw new Error(`Unknown asset type: ${type satisfies never}`);
+        }
+    }
+
+    // =========================================================================
+    // Cache management
+    // =========================================================================
+
+    evict(type: AssetType, url: string): void {
+        this.cache.delete(`${type}:${url}`);
+    }
+
+    clearCache(): void {
+        this.cache.clear();
+    }
+}
+
+
+export class AdvancedLoader extends AbstractLoader {
+    /** Registry-backed asset cache: "type:url" → { uuid, type } */
+    private cache = new Map<string, CacheEntry>();
+
+    constructor(private registry: ThreeRegistry) {
+        super();
+    }
+
+    // =========================================================================
+    // Public API
+    // =========================================================================
+
+    loadObject(url: string): Promise<THREE.Object3D> {
+        return this.load<THREE.Object3D>("object", url);
+    }
+
+    loadGeometry(url: string): Promise<THREE.BufferGeometry> {
+        return this.load<THREE.BufferGeometry>("geometry", url);
+    }
+
+    loadMaterial(url: string): Promise<THREE.Material> {
+        return this.load<THREE.Material>("material", url);
+    }
+
+    loadTexture(url: string): Promise<THREE.Texture> {
+        return this.load<THREE.Texture>("texture", url);
+    }
+
+    /** Animations are not cached or registered — always loaded fresh. */
+    loadAnimation(url: string): Promise<THREE.AnimationClip[]> {
+        return super.loadAnimation(url);
+    }
+
+    // =========================================================================
+    // Registry hook — called by AbstractLoader.resolveExternalStubs()
+    // =========================================================================
+
+    /**
+     * Delegates to the full load() pipeline (registry check → fresh load → register → cache).
+     *
+     * Because this always returns a live asset (never null), AbstractLoader's
+     * inline-into-JSON fallback is never triggered for sub-assets — they are
+     * always injected into StubContext by uuid, which is the cleaner parse path.
+     *
+     * ResolvableType excludes "object" and "animation", so the cast to AssetType
+     * is safe — load() will never hit those branches from here.
+     */
+    protected override async resolveStub(
+        type: ResolvableType,
+        url: string
+    ): Promise<ResolvableAsset> {
+        return this.load(type as AssetType, url) as Promise<ResolvableAsset>;
+    }
+
+    // =========================================================================
+    // Core
+    // =========================================================================
+
+    private async load<T extends AnyThree>(type: AssetType, url: string): Promise<T> {
+        const key = `${type}:${url}`;
+        
+        // 1. Registry-backed cache check
+        const entry = this.cache.get(key);
+        if (entry) {
+            const live = this.resolveFromRegistry(entry);
+            if (live) return live as T;
+            // Registry evicted — drop stale entry, fall through to reload
+            this.cache.delete(key);
+        }
+
+        // 2. Fresh load
+        
+        
+        const asset = await this.loadFresh<T>(type, url)
+        
+        this.registry.register(asset, type === "object");
+        this.cache.set(key, { uuid: (asset as any).uuid, type });
+        
+        
+        return asset;
     }
 
     // =========================================================================

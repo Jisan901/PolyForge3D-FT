@@ -10,7 +10,7 @@ export class ImportManager {
         ];
     public ctx: ImportContext = {
         projectPath: '/Game/files',
-        assetRoot: '/Game/files/Assets',
+        assetRoot: '/Game/files/Imports',
     }
     register(importer: AssetImporter) {
         this.importers.push(importer);

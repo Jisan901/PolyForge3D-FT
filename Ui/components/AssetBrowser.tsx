@@ -38,6 +38,7 @@ const AssetBrowser: React.FC = () => {
             case 'folder': return <Folder size={32} className="text-blue-400 fill-blue-400/20" />;
             case 'script': return <FileCode size={32} className="text-yellow-500" />;
             case 'image': return <FileImage size={32} className="text-purple-400" />;
+            case 'texture': return <FileImage size={32} className="text-red-400" />;
             case 'material': return <Box size={32} className="text-pink-400" />;
             case 'model': return <Box size={32} className="text-cyan-400" />;
             case 'geometry': return <Globe size={32} className="text-green-400" />;
@@ -75,9 +76,9 @@ const AssetBrowser: React.FC = () => {
     ];
 
     const getBackgroundMenuItems = (): MenuItem[] => [
-        { label: 'Create Folder', action: () => console.log('New Folder') },
+        { label: 'Create Folder', action: () => ACTIONS.execute('new_folder') },
         { separator: true, label: '', action: () => { } },
-        { label: 'Create Material', action: () => console.log('New Material') },
+        { label: 'Create Material', action: () => ACTIONS.execute('new_material') },
         { label: 'Create Script', action: () => console.log('New Script') },
         { separator: true, label: '', action: () => { } },
         { label: 'Import New Asset...', action: () => console.log('Import') },

@@ -43,8 +43,8 @@ export class SceneManager {
    public loader: AdvancedLoader;
    public exporter = new Baxporter();
   // pipe -> scene Manager -> engine
-  constructor(registry: ThreeRegistry, private onSceneLoad:(e:THREE.Scene)=>void) {
-    this.loader = new AdvancedLoader(registry);
+  constructor(registry: ThreeRegistry, loader: AdvancedLoader, private onSceneLoad:(e:THREE.Scene)=>void) {
+    this.loader = loader;
     this.activeScene = new THREE.Scene()
     this.registry = registry
   }

@@ -12,6 +12,7 @@ export interface DirInfo {
 
 export type FileType =
   | 'image'
+  | 'texture'
   | 'model'
   | 'script'
   | 'material'
@@ -25,7 +26,8 @@ export function getFileType(ext: string): FileType {
   const e = ext.replace('.', '').toLowerCase();
 
   const registry: Record<FileType, string[]> = {
-    image:    ['png', 'jpg', 'jpeg', 'webp', 'hdr', 'exr', 'tex.bin'],
+    image:    ['png', 'jpg', 'jpeg', 'webp', 'hdr', 'exr'],
+    texture:    ['tex.bin'],
     model:    ['object.bin'],
     script:   ['js', 'ts', 'lua', 'py'],
     material: ['mat.bin', 'material'],

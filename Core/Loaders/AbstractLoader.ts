@@ -138,6 +138,7 @@ export class AbstractLoader {
         const raw = await this.loadGeometryRaw(assetId);
         const geo = this.parseGeometry(raw);
         geo.userData.bytes = raw.bytes;
+        geo.userData.url = assetId;
         return geo;
     }
 
@@ -347,10 +348,12 @@ export class AbstractLoader {
             if (!stub?.url) return;
 
             const live = await this.resolveStub(type, stub.url);
+            
 
             if (live) {
                 // Registry hit — inject by uuid, strip stub from JSON
-                (stubs[`${type}s`] as Record<string, ResolvableAsset>)[stub.uuid] = live;
+                let key = type==='geometry'?'geometries':`${type}s`;
+                (stubs[key] as Record<string, ResolvableAsset>)[stub.uuid] = live;
                 array[index] = null;
                 return;
             }

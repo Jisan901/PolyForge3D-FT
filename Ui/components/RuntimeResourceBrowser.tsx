@@ -239,7 +239,7 @@ const ResourceBrowser: React.FC = () => {
                   {resource.name || "Unnamed"}
                 </span>
                 <span className="text-[9px] text-gray-500 mt-1 pointer-events-none">
-                  {resource.type}
+                  {resource.type} {resource.userData.uses??''}
                 </span>
               </div>
             </DragAndDropZone>

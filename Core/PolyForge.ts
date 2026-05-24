@@ -2,6 +2,7 @@ import { DEFINITION } from '@/Core/DEFINITION';
 
 import { Time } from "@/Core/Utils/Time";
 import { Settings } from "@/Core/Utils/Settings";
+import { ConfigS } from "@/Core/Utils/ConfigS";
 import { ComponentManager } from "@/Core/Utils/ComponentManager";
 
 import { ThreadPool } from "@/Core/Parallelism/ThreadPool";
@@ -44,6 +45,8 @@ export class PolyForge {
 
         this.time = new Time();
         this.JobSystem = new ThreadPool(3);
+        this.cfg = new ConfigS({ path: DEFINITION.configFile, autoSave: true });
+        this.cfg.load();
         this.settings = new Settings(DEFINITION.settingsFile);
         this.componentManager = new ComponentManager(DEFINITION.componentTemplateFile) 
 
@@ -52,10 +55,10 @@ export class PolyForge {
 
         this.threeRegistry = new ThreeRegistry(() => true, () => true); // on register , unregister 
         this.engine = new Engine();
-        this.sceneManager = new SceneManager(this.threeRegistry, scene => this.engine.setScene(scene));
+        this.loaders = new Loaders(this.threeRegistry);
+        this.sceneManager = new SceneManager(this.threeRegistry, this.loaders.objectLoader , scene => this.engine.setScene(scene));
         this.builder = new MeshBuilder(this.threeRegistry);
 
-        this.loaders = new Loaders(this.threeRegistry);
 
 
     }

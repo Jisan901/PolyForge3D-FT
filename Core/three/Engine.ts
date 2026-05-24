@@ -9,7 +9,7 @@ type Rendering = {
     camera: THREE.PerspectiveCamera;
     render: (scene: THREE.Scene) => void;
     config: RenderingConfig;
-    postProcessing?: THREE.PostProcessing;
+    postProcessing?: THREE.RenderPipeline;
     scenePass: any
 };
 
@@ -107,7 +107,7 @@ export class Engine {
 
         if (!this.scene || !this.activeCamera) return;
 
-        // PostProcessing path
+        // RenderPipeline path
         if (this.three.postProcessing) {
 
             // WebGPU render trigger
@@ -449,7 +449,7 @@ export class PostProcessor {
         const camera = this.engine.getActiveCamera();
 
         if (!this.engine.three.postProcessing) {
-            this.engine.three.postProcessing = new THREE.PostProcessing(renderer);
+            this.engine.three.postProcessing = new THREE.RenderPipeline(renderer);
         }
 
         const activePasses = this.orderList

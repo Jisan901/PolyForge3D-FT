@@ -1,12 +1,14 @@
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import type { AssetImporter, ImportContext, ImportResult } from './types';
 import fs from '@/Core/lib/fs';
-import {BinarySerializer} from "@/Core/Plugins/Three.patch.plugin";
+import { Baxporter } from '@/Core/Plugins/Binary/Baxporter';
 
 
 export class FBXImporter implements AssetImporter {
   extensions = ['fbx'];
-
+  exporter = new Baxporter();
+  
+  
   async import(file: File, ctx: ImportContext): Promise<ImportResult> {
     const url = URL.createObjectURL(file);
     const loader = new FBXLoader();
@@ -22,9 +24,9 @@ export class FBXImporter implements AssetImporter {
     const uuid = polyObject.uuid;
     const assetDir = `${ctx.assetRoot}`;
     
-    const bins = new BinarySerializer();
-    await bins.save(polyObject,`${assetDir}/${name}.object.bin`,true);
-
+    //const bins = new BinarySerializer();
+    //await bins.save(polyObject,`${assetDir}/${name}.object.bin`,true);
+    await this.exporter.export(polyObject, assetDir, name || polyObject.name||polyObject.uuid );
     return {
       uuid,
       name: root.name,

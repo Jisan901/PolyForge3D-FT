@@ -6,7 +6,9 @@ import { Baxporter } from '@/Core/Plugins/Binary/Baxporter';
 
 export class JSONImporter implements AssetImporter {
   extensions = ['json', 'object'];
-
+  exporter = new Baxporter();
+  
+  
   async import(file: File, ctx: ImportContext): Promise<ImportResult> {
       console.log(file)
       const text = await file.text();
@@ -18,10 +20,11 @@ export class JSONImporter implements AssetImporter {
     
     const assetDir = `${ctx.assetRoot}`;
 
-    const bins = new Baxporter();
-    let polyObject = await (new THREE.ObjectLoader()).parseAsync(JSON.parse(text));
-    bins.exportObjectv3(polyObject,{path: `${assetDir}/${name}.object.bin`});
     
+    let polyObject = await (new THREE.ObjectLoader()).parseAsync(JSON.parse(text));
+    //bins.exportObjectv3(polyObject,{path: `${assetDir}/${name}.object.bin`});
+    
+    await this.exporter.export(polyObject, assetDir, name || polyObject.name||polyObject.uuid );
 
     return {
       uuid:null,

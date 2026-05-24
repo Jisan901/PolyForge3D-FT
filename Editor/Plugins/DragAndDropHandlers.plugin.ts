@@ -29,7 +29,7 @@ export default class DragAndDropHandlersPlugin extends Plugin {
             const hit = three.getHitFromMouse(mouseEvent);
             const target_object = hit?.object;
             const scene = editor.core.sceneManager.activeScene;
-            const target = three.selectedObject||scene;
+            const target = three.selectedObject;
             
             if(e.data.type === 'model'){
             const object = await editor.api.loadObjectFile(e.data.fullPath,false);
@@ -43,14 +43,17 @@ export default class DragAndDropHandlersPlugin extends Plugin {
             // Add to scene or selected object
             
             
-            editor.addObject(target, object);
+            editor.addObject(target??scene, object);
             mutationCall(scene);
             toast('Loaded and placed');
             }
             if(e.data.type === 'material'){
             const material = await core.loaders.objectLoader.loadMaterial(e.data.fullPath);
             
-            if (hit) {
+            if(target){
+                target.material = material
+            }
+            else if (hit) {
                 hit.object.material = material
             }
             
@@ -61,7 +64,10 @@ export default class DragAndDropHandlersPlugin extends Plugin {
             if(e.data.type === 'geometry'){
             const geometry = await core.loaders.objectLoader.loadGeometry(e.data.fullPath);
             
-            if (hit) {
+            if(target){
+                target.geometry = geometry
+            }
+            else if (hit) {
                 hit.object.geometry = geometry
             }
             
@@ -72,7 +78,12 @@ export default class DragAndDropHandlersPlugin extends Plugin {
             if(e.data.type === 'texture'){
             const map = await core.loaders.objectLoader.loadTexture(e.data.fullPath);
             
-            if (hit) {
+            
+            
+            if(target){
+                target.material.map = map
+            }
+            else if (hit) {
                 hit.object.material.map = map
             }
             
@@ -82,10 +93,10 @@ export default class DragAndDropHandlersPlugin extends Plugin {
             }
             if(e.data.type === 'animation'){
             const anims = await core.loaders.objectLoader.loadAnimation(e.data.fullPath);
-            console.log(anims)
+            //console.log(anims)
             if (hit) {
-                target.animations.push(...Object.values(anims))
             }
+                target.animations.push(...Object.values(anims))
             
             
             mutationCall(target_object.animations);
