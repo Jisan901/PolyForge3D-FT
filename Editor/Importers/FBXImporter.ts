@@ -1,4 +1,4 @@
-import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
+import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
 import type { AssetImporter, ImportContext, ImportResult } from './types';
 import fs from '@/Core/lib/fs';
 import { Baxporter } from '@/Core/Plugins/Binary/Baxporter';

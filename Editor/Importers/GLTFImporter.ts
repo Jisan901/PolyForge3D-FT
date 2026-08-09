@@ -1,4 +1,4 @@
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import type {AssetImporter,ImportContext,ImportResult} from './types'
 import fs from '@/Core/lib/fs';
 import { Baxporter } from '@/Core/Plugins/Binary/Baxporter';

@@ -170,14 +170,14 @@ export class SceneManager {
    */
   public async loadScene(filePath: string, setActive = true): Promise<THREE.Scene> {
       
-    let scene = await this.loader.loadObject(filePath, false); // clone false
+    let scene: any = await this.loader.loadObject(filePath);
     if (!scene.isScene){
         let temp = new THREE.Scene();
         temp.add(scene)
         scene = temp
     } 
     if (setActive) {
-      this.setScene(scene)
+      this.setScene(scene as THREE.Scene)
     }
 
     
@@ -187,7 +187,7 @@ export class SceneManager {
     
     localStorage.setItem('lastActive', filePath)
     
-    return scene
+    return scene as THREE.Scene
   }
 
 

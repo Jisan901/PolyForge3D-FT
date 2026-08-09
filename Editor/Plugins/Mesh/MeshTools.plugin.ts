@@ -12,7 +12,7 @@ export default class MeshToolsPlugin extends Plugin {
     name = 'Mesh tools plugin';
     version = '1.0.0';
     private readonly PLUGIN_ID = 'mesh-tools';
-    init() {
+    async init() {
         const editor = Editor;
         const three = editor.api.three;
         const core = editor.core;

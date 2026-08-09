@@ -1,14 +1,18 @@
 import fs from '@/Core/lib/fs';
 
 
-interface ComponentRecord {
+export interface ComponentRecord {
     id: number;
     nameCode: number;
+    key?: string;
     data: any;
 }
 
-interface TemplateRecord {
+export interface TemplateRecord {
     nameCode: number;
+    key?: string;
+    name?: string;
+    description?: string;
     default: any;
 }
 

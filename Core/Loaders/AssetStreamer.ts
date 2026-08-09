@@ -1,5 +1,6 @@
 import { AdvancedLoader } from "@/Core/Loaders/AdvancedLoader";
 import { type ThreeRegistry, type AnyThree } from "@/Core/three/ThreeRegistry";
+import { THREE } from "@/Core/lib/THREE";
 
 type AssetType = "object" | "geometry" | "material" | "texture" | "animation";
 
@@ -131,7 +132,7 @@ export class AssetStreamer {
         const existing = this.pool.get(key);
         if (existing) {
             existing.lastUsed = Date.now();
-            return this.loader[this.loaderMethod(type)](url) as Promise<T>;
+            return (this.loader[this.loaderMethod(type)] as (url: string) => Promise<any>)(url) as Promise<T>;
         }
 
         return new Promise<T>((resolve, reject) => {
@@ -162,7 +163,7 @@ export class AssetStreamer {
         try {
             await this.makeRoom(item);
 
-            const asset = (await this.loader[this.loaderMethod(item.type)](
+            const asset = (await (this.loader[this.loaderMethod(item.type)] as (url: string) => Promise<any>)(
                 item.url
             )) as AnyThree;
 

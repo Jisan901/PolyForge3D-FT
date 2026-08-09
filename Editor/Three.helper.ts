@@ -4,11 +4,12 @@ import { ThreeHelpers } from "@/Core/three/Helper";
 
 import { mutationCall } from "@/Editor/Mutation";
 
-import { TransformControls } from "three/examples/jsm/controls/TransformControls";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { TransformControls } from "three/addons/controls/TransformControls.js";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 import { InteractiveViewHelper } from "@/Editor/Three/Gizmo";
-import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils'
+import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
+import { BusHub } from "@/Editor/Api";
 
 export class HelperManager {
     public transformControls: TransformControls;
@@ -32,7 +33,7 @@ export class HelperManager {
         THREE.Object3D>();
 
     constructor(
-        private bus: BusHub,
+        private bus: typeof BusHub,
         private domElement: HTMLElement,
         private camera: THREE.Camera,
         private editorGroup: THREE.Group // Attach helpers here
@@ -61,7 +62,7 @@ export class HelperManager {
                 if (['translate', 'rotate', 'scale'].includes(this.transformControls.mode)) {
                     mutationCall(sel, this.transformControls.mode === 'translate' ? 'position' : this.transformControls.mode === 'rotate' ? 'rotation' : 'scale');
                 }
-                this._helpers.get(sel.userData?.helper)?.update()
+                (this._helpers.get(sel.userData?.helper) as any)?.update()
                 
             }
         };
@@ -96,13 +97,13 @@ export class HelperManager {
             this.removeHelper(obj);
         }
 
-        let h;
-        if (obj.isCamera) h = new THREE.CameraHelper(obj as THREE.Camera);
-        else if (obj.isDirectionalLight) h = new THREE.DirectionalLightHelper(obj as THREE.DirectionalLight, 1);
-        else if (obj.isPointLight) h = new THREE.PointLightHelper(obj as THREE.PointLight, 0.5);
-        else if (obj.isSpotLight) h = new THREE.SpotLightHelper(obj as THREE.SpotLight);
-        else if (obj.isHemisphereLight) h = new THREE.HemisphereLightHelper(obj as THREE.HemisphereLight, 1);
-        else if (obj.isSkinnedMesh) h = new THREE.SkeletonHelper(obj);
+        let h: any;
+        if ((obj as any).isCamera) h = new THREE.CameraHelper(obj as THREE.Camera);
+        else if ((obj as any).isDirectionalLight) h = new THREE.DirectionalLightHelper(obj as THREE.DirectionalLight, 1);
+        else if ((obj as any).isPointLight) h = new THREE.PointLightHelper(obj as THREE.PointLight, 0.5);
+        else if ((obj as any).isSpotLight) h = new THREE.SpotLightHelper(obj as THREE.SpotLight);
+        else if ((obj as any).isHemisphereLight) h = new THREE.HemisphereLightHelper(obj as THREE.HemisphereLight, 1);
+        else if ((obj as any).isSkinnedMesh) h = new THREE.SkeletonHelper(obj);
 
         if (h) {
             h.userData.isSpecificHelper = true;
@@ -133,7 +134,7 @@ export class HelperManager {
         if (!this.editorGroup.visible) return;
 
         // Box
-        if (target && !target.isScene) {
+        if (target && !(target as any).isScene) {
             this._box.setFromObject(target);
             if (!this._box.isEmpty()) {
                 this.boxHelper.setFromObject(target);
@@ -144,7 +145,7 @@ export class HelperManager {
         }
 
         // Gizmo
-        if (!target || target.isScene || !this.activeGizmo || target.userData.locked) this.transformControls.detach();
+        if (!target || (target as any).isScene || !this.activeGizmo || target.userData.locked) this.transformControls.detach();
         else this.transformControls.attach(target);
     }
 
@@ -161,7 +162,7 @@ export class HelperManager {
         if (this.currentObject) this.attach(this.currentObject);
     }
     setSpace(space: string) {
-        this.transformControls.setSpace(space);
+        this.transformControls.setSpace(space as "local" | "world");
     }
 
     dispose() {
@@ -195,7 +196,7 @@ export class ThreeAPI {
     public scene: THREE.Scene;
 
     constructor(
-        private bus: BusHub,
+        private bus: typeof BusHub,
         private engine: Engine, // direct core
     ) {
         this._canvas = this.engine.getCanvas.bind(this.engine)();
@@ -398,12 +399,12 @@ export class ThreeAPI {
         this.gizmo.update(dt);
     }
 
-    toggleHelpers(activate: boolean) {
+    toggleHelpers(activate?: boolean) {
         this.editorHelperGroup.visible = typeof activate === 'boolean' ? activate : !this.editorHelperGroup.visible;
         if (!activate) this.helpers.attach(null);
     }
 
-    toggleLights(activate: boolean) {
+    toggleLights(activate?: boolean) {
         this.editorLights.visible = typeof activate === 'boolean' ? activate : !this.editorLights.visible;
     }
 
@@ -432,7 +433,8 @@ export class ThreeAPI {
         this.editorControls.update();
     }
     public toggleCameraPreview = () => {
-        this.engine.setActiveCamera(this.selectedObject.uuid === this.engine.activeCamera.uuid ? this.editorCamera : this.selectedObject)
+        if (!this.selectedObject) return;
+        this.engine.setActiveCamera((this.selectedObject.uuid === (this.engine.getActiveCamera() as any).uuid) ? this.editorCamera : (this.selectedObject as THREE.Camera))
     }
     public toggleObjectLock = () => {
         const selected = this.selectedObject;
@@ -466,7 +468,7 @@ export class ThreeAPI {
     * @param {Object} options - Configuration options
     * @returns {Object} Result object with success status and raycast info
     */
-    public snapToGround = (object, options = {}) => {
+    public snapToGround = (object: THREE.Object3D, options: any = {}) => {
         const {
             groundLayerMask = null,
             // Optional: specific layer for ground objects

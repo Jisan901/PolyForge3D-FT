@@ -15,7 +15,7 @@ ACTIONS.registerGlobal("reimport",async (path)=>{
 
     if (last === -1) path="import.object";
     const file = new File([data],path.slice(last + 1));
-    Editor.importer.importFile(file,Editor.importer.ctx)
+    Editor.importer.importFile(file, Editor.importer.ctx as any)
 });
 
 

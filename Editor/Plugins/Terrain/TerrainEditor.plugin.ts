@@ -13,7 +13,9 @@ export default class TerrainEditorPlugin extends Plugin {
     name = 'Terrain Painter';
     version = '1.0.0';
     private readonly PLUGIN_ID = 'terrain-tools';
-    init() {
+    public brush: any;
+
+    async init() {
         const editor = Editor;
         const three = editor.api.three;
         const core = editor.core;
@@ -29,10 +31,10 @@ export default class TerrainEditorPlugin extends Plugin {
             })
         );
         
-        let pointermoveHandler;
+        let pointermoveHandler: (e: any) => void;
         
         
-        pointermoveHandler = (e)=>{
+        pointermoveHandler = (e: any)=>{
             const hit = three.getHitFromMouse(e,[three.selectedObject])
             if (hit&&hit.point){
                 this.brush.position.copy(hit.point);
@@ -40,7 +42,7 @@ export default class TerrainEditorPlugin extends Plugin {
         }
         
         
-        editor.api.buses.toolChange.subscribe(tool=>{
+        editor.api.buses.toolChange.subscribe((tool: any)=>{
             if(three.helpers.activeTool==="paint") {three.editorControls.enabled = false;this.brush.visible = true;canvas.addEventListener("pointermove", pointermoveHandler); }
             else {three.editorControls.enabled = true;this.brush.visible = false;canvas.removeEventListener("pointermove", pointermoveHandler);}
         })

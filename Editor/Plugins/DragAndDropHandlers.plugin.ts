@@ -7,7 +7,7 @@ import { mutationCall, toast } from '@/Editor/Mutation';
 export default class DragAndDropHandlersPlugin extends Plugin {
     name = "DragAndDropHandlersPlugin"
     exporter = new Baxporter()
-    init() {
+    async init() {
         const editor = Editor;
         const core = Editor.core;
         const three = editor.api.three;
@@ -27,9 +27,9 @@ export default class DragAndDropHandlersPlugin extends Plugin {
             if (e.type === 'Asset'){
 
             const hit = three.getHitFromMouse(mouseEvent);
-            const target_object = hit?.object;
+            const target_object: any = hit?.object;
             const scene = editor.core.sceneManager.activeScene;
-            const target = three.selectedObject;
+            const target: any = three.selectedObject;
             
             if(e.data.type === 'model'){
             const object = await editor.api.loadObjectFile(e.data.fullPath,false);
@@ -44,7 +44,7 @@ export default class DragAndDropHandlersPlugin extends Plugin {
             
             
             editor.addObject(target??scene, object);
-            mutationCall(scene);
+            mutationCall(scene, 'children');
             toast('Loaded and placed');
             }
             if(e.data.type === 'material'){
@@ -54,11 +54,11 @@ export default class DragAndDropHandlersPlugin extends Plugin {
                 target.material = material
             }
             else if (hit) {
-                hit.object.material = material
+                (hit.object as any).material = material
             }
             
             
-            mutationCall(target_object.material);
+            if (target_object?.material) mutationCall(target_object.material, 'material');
             toast('Material placed');
             }
             if(e.data.type === 'geometry'){
@@ -68,11 +68,11 @@ export default class DragAndDropHandlersPlugin extends Plugin {
                 target.geometry = geometry
             }
             else if (hit) {
-                hit.object.geometry = geometry
+                (hit.object as any).geometry = geometry
             }
             
             
-            mutationCall(target_object?.geometry);
+            if (target_object?.geometry) mutationCall(target_object.geometry, 'geometry');
             toast('geometry placed');
             }
             if(e.data.type === 'texture'){
@@ -80,15 +80,15 @@ export default class DragAndDropHandlersPlugin extends Plugin {
             
             
             
-            if(target){
+            if(target?.material){
                 target.material.map = map
             }
-            else if (hit) {
-                hit.object.material.map = map
+            else if (hit?.object) {
+                (hit.object as any).material.map = map
             }
             
             
-            mutationCall(target_object.material.map);
+            if (target_object?.material?.map) mutationCall(target_object.material.map, 'material.map');
             toast('texture placed');
             }
             if(e.data.type === 'animation'){
@@ -96,10 +96,12 @@ export default class DragAndDropHandlersPlugin extends Plugin {
             //console.log(anims)
             if (hit) {
             }
+            if (target?.animations) {
                 target.animations.push(...Object.values(anims))
+            }
             
             
-            mutationCall(target_object.animations);
+            if (target_object?.animations) mutationCall(target_object.animations, 'animations');
             toast('animations added');
             }
             }

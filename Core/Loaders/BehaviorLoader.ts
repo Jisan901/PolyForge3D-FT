@@ -5,7 +5,7 @@ export class BehaviorLoader {
     /**
      * behavior is a spacial type of hybrid script
     */
-    private behaviors = new Map<string, typeof Behavior>();
+    private behaviors = new Map<string, any>();
     
     constructor(private scriptLoader: ScriptLoader) {}
     

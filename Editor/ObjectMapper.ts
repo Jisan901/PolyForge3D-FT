@@ -247,7 +247,8 @@ class ObjectMapper {
 }
 
 export class MappedObject {
-    constructor(private target: any, private map?: object) {
+    public components: any;
+    constructor(private target: any, public map?: object) {
         const [result,components ] = ObjectMapper.mapObject(this.target);
         this.map = result;
         this.components = components;

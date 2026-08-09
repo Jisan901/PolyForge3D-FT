@@ -1,0 +1,61 @@
+Ui/components/AssetBrowser.tsx(3,27): error TS2307: Cannot find module '../types' or its corresponding type declarations.
+Ui/components/AssetBrowser.tsx(24,23): error TS2341: Property 'file' is private and only accessible within class 'AssetBrowserManager'.
+Ui/components/AssetBrowser.tsx(139,46): error TS2322: Type '{ children: any; key: any; payload: { type: string; data: any; }; }' is not assignable to type 'DragAndDropZoneProps'.
+Ui/components/Hierarchy.tsx(26,17): error TS2339: Property 'LIGHT' does not exist on type 'typeof ObjectType'.
+Ui/components/Hierarchy.tsx(130,7): error TS2554: Expected 2 arguments, but got 1.
+Ui/components/Hierarchy.tsx(131,7): error TS2554: Expected 2 arguments, but got 1.
+Ui/components/Hierarchy.tsx(132,7): error TS2554: Expected 2 arguments, but got 1.
+Ui/components/Hierarchy.tsx(138,7): error TS2554: Expected 2 arguments, but got 1.
+Ui/components/Hierarchy.tsx(190,13): error TS2322: Type '{ key: any; name: any; onRename: (newName: any) => void; }' is not assignable to type '{ name: any; onRename: any; }'.
+Ui/components/Hierarchy.tsx(270,53): error TS2554: Expected 1 arguments, but got 2.
+Ui/components/Inspector.tsx(51,7): error TS2322: Type '{ id: number; name: string; category: string; description: string; icon: any; }[]' is not assignable to type 'SelectorItem[]'.
+Ui/components/Inspector.tsx(131,75): error TS2554: Expected 1 arguments, but got 2.
+Ui/components/Inspector.tsx(132,7): error TS2739: Type '{ separator: true; }' is missing the following properties from type 'MenuItem': label, action
+Ui/components/Inspector.tsx(135,7): error TS2739: Type '{ separator: true; }' is missing the following properties from type 'MenuItem': label, action
+Ui/components/Inspector.tsx(138,7): error TS2739: Type '{ separator: true; }' is missing the following properties from type 'MenuItem': label, action
+Ui/components/Inspector.tsx(195,27): error TS2339: Property 'key' does not exist on type 'unknown'.
+Ui/components/ObjectSelector.tsx(129,31): error TS2339: Property 'map' does not exist on type 'unknown'.
+Ui/components/ObjectSelector.tsx(150,26): error TS2339: Property 'map' does not exist on type 'unknown'.
+Ui/components/PluginSystems.tsx(154,96): error TS2339: Property 'label' does not exist on type 'unknown'.
+Ui/components/PluginSystems.tsx(154,112): error TS2339: Property 'label' does not exist on type 'unknown'.
+Ui/components/PluginSystems.tsx(157,34): error TS2339: Property 'type' does not exist on type 'unknown'.
+Ui/components/PluginSystems.tsx(160,46): error TS2339: Property 'value' does not exist on type 'unknown'.
+Ui/components/PluginSystems.tsx(166,34): error TS2339: Property 'type' does not exist on type 'unknown'.
+Ui/components/PluginSystems.tsx(169,44): error TS2339: Property 'value' does not exist on type 'unknown'.
+Ui/components/PluginSystems.tsx(175,34): error TS2339: Property 'type' does not exist on type 'unknown'.
+Ui/components/PluginSystems.tsx(178,44): error TS2339: Property 'value' does not exist on type 'unknown'.
+Ui/components/PluginSystems.tsx(184,34): error TS2339: Property 'type' does not exist on type 'unknown'.
+Ui/components/PluginSystems.tsx(184,63): error TS2339: Property 'options' does not exist on type 'unknown'.
+Ui/components/PluginSystems.tsx(186,44): error TS2339: Property 'value' does not exist on type 'unknown'.
+Ui/components/PluginSystems.tsx(190,38): error TS2339: Property 'options' does not exist on type 'unknown'.
+Ui/components/PropertyInputs.tsx(334,25): error TS2339: Property 'parseShapes' does not exist on type 'ObjectLoader'.
+Ui/components/PropertyInputs.tsx(337,53): error TS2554: Expected 1 arguments, but got 2.
+Ui/components/PropertyInputs.tsx(357,43): error TS2872: This kind of expression is always truthy.
+Ui/components/PropertyInputs.tsx(394,40): error TS2345: Argument of type 'Material<MaterialEventMap>' is not assignable to parameter of type 'string'.
+Ui/components/PropertyInputs.tsx(405,40): error TS2345: Argument of type 'BufferGeometry<NormalBufferAttributes, BufferGeometryEventMap> | InstancedBufferGeometry' is not assignable to parameter of type 'string'.
+Ui/components/RuntimeResourceBrowser.tsx(77,38): error TS2341: Property 'objects' is private and only accessible within class 'ThreeRegistry'.
+Ui/components/RuntimeResourceBrowser.tsx(80,38): error TS2341: Property 'materials' is private and only accessible within class 'ThreeRegistry'.
+Ui/components/RuntimeResourceBrowser.tsx(83,38): error TS2341: Property 'geometries' is private and only accessible within class 'ThreeRegistry'.
+Ui/components/RuntimeResourceBrowser.tsx(86,38): error TS2341: Property 'textures' is private and only accessible within class 'ThreeRegistry'.
+Ui/components/RuntimeResourceBrowser.tsx(225,15): error TS2322: Type '{ children: any; key: any; payload: { type: string; data: { uuid: any; name: any; obj: any; }; }; }' is not assignable to type 'DragAndDropZoneProps'.
+Ui/components/TimelineEditor.tsx(3,29): error TS2307: Cannot find module '../types' or its corresponding type declarations.
+Ui/components/Utils/AnimationUtils.ts(2,29): error TS2307: Cannot find module '../../types' or its corresponding type declarations.
+Ui/components/Utils/getMenu.ts(15,5): error TS2741: Property 'action' is missing in type '{ label: string; type: "submenu"; children: MenuItem[]; }' but required in type 'MenuItem'.
+Ui/components/Utils/getMenu.ts(42,5): error TS2741: Property 'action' is missing in type '{ label: string; type: "submenu"; children: { label: string; action: () => void; }[]; }' but required in type 'MenuItem'.
+Ui/components/Utils/getMenu.ts(56,5): error TS2741: Property 'action' is missing in type '{ label: string; type: "submenu"; children: { label: string; action: () => void; }[]; }' but required in type 'MenuItem'.
+Ui/components/Utils/getMenu.ts(66,5): error TS2741: Property 'action' is missing in type '{ label: string; type: "submenu"; children: { label: string; action: () => void; }[]; }' but required in type 'MenuItem'.
+Ui/components/Utils/getMenu.ts(78,5): error TS2741: Property 'action' is missing in type '{ label: string; type: "submenu"; children: { label: string; action: () => void; }[]; }' but required in type 'MenuItem'.
+Ui/components/Viewport.tsx(282,34): error TS2554: Expected 1 arguments, but got 0.
+Ui/components/Viewport.tsx(289,34): error TS2554: Expected 1 arguments, but got 0.
+Ui/contexts/EditorContext.tsx(120,40): error TS2345: Argument of type 'string' is not assignable to parameter of type 'ObjectType'.
+Ui/MenuBar.tsx(19,46): error TS2304: Cannot find name 'ViewMode'.
+Ui/MenuBar.tsx(81,65): error TS2304: Cannot find name 'selectedId'.
+Ui/MenuBar.tsx(81,79): error TS2304: Cannot find name 'handleDuplicateObject'.
+Ui/MenuBar.tsx(81,101): error TS2304: Cannot find name 'selectedId'.
+Ui/MenuBar.tsx(82,73): error TS2304: Cannot find name 'selectedId'.
+Ui/MenuBar.tsx(82,87): error TS2304: Cannot find name 'handleDeleteObject'.
+Ui/MenuBar.tsx(82,106): error TS2304: Cannot find name 'selectedId'.
+Ui/MenuBar.tsx(87,64): error TS2304: Cannot find name 'setIsSettingsOpen'.
+Ui/MenuBar.tsx(99,79): error TS2339: Property 'LIGHT' does not exist on type 'typeof ObjectType'.
+Ui/MenuBar.tsx(157,47): error TS2341: Property 'refreshRegistry' is private and only accessible within class 'EditorClass'.
+Ui/MenuBar.tsx(163,40): error TS2304: Cannot find name 'ViewMode'.

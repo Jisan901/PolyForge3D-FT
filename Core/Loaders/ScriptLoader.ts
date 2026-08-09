@@ -11,7 +11,7 @@ export class ScriptLoader {
     private lazyScripts: Record<string, () => Promise<ScriptModule>> = {};
     private eagerScripts: Record<string, ScriptConstructor> = {};
     private cache: Record<string, ScriptConstructor> = {};
-    public globalInstances: ScriptConstructor[];
+    public globalInstances: any[] = [];
     
     constructor() {
         // --------------------------
@@ -19,7 +19,7 @@ export class ScriptLoader {
         // --------------------------
 
 
-        this.lazyScripts = import.meta.glob([
+        this.lazyScripts = (import.meta as any).glob([
             "@/Game/**/*.{ts,js}",
             "!@/Game/**/*.system.{ts,js}",
             "!@/Game/**/*.plugin.{ts,js}"
@@ -30,7 +30,7 @@ export class ScriptLoader {
         // --------------------------
         // Eager scripts: plugins/systems
         // --------------------------
-        const eagerModules = import.meta.glob(['@/**/*.{plugin,system}.{ts,js}', '!@/Editor/**/*.{plugin,system}.{ts,js}'], {
+        const eagerModules = (import.meta as any).glob(['@/**/*.{plugin,system}.{ts,js}', '!@/Editor/**/*.{plugin,system}.{ts,js}'], {
             eager: true
         });
 
@@ -49,7 +49,7 @@ export class ScriptLoader {
         const loader = this.lazyScripts[url];
         if (!loader) throw new Error(`Script not found: ${url}`);
         //console.log(loader)
-        let mod = await import(/* @vite-ignore */`${url}?${crypto.randomUUID()}=${parseInt(performance.now())}`);//await loader();//
+        let mod = await import(/* @vite-ignore */`${url}?${crypto.randomUUID()}=${Math.floor(performance.now())}`);
         const ScriptClass = mod.default;
         this.cache[url] = ScriptClass; // cache after load
         return ScriptClass;

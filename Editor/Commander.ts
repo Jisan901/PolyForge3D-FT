@@ -4,6 +4,7 @@ import {mutate, mutationCall} from "@/Editor/Mutation"
 // Base Command
 // -----------------------------------------
 export abstract class Command {
+    name?: string;
     abstract execute(): void;
     abstract undo(): void;
 
@@ -104,6 +105,7 @@ function disposeObject(obj: any) {
 }
 
 export class AddObjectCommand extends Command {
+    public previousParent: any;
     constructor(private api :any, private scene: any, private object: any) {
         super();
         this.previousParent = object?.parent

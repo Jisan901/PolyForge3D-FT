@@ -6,7 +6,7 @@ type RAPIER = typeof import("@dimforge/rapier3d/exports");
 export default class RapierPhysicsPlugin extends Plugin {
     name = 'Rapier plugin'
     description = ''
-    world: World;
+    world!: World;
     gravity = { x: 0, y: -9.81, z: 0 };
 
     async init() {

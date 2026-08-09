@@ -1,13 +1,7 @@
-import { ObjectType } from '../../../types';
+import { ObjectType } from '@/Core/Types/Objects';
+import { MenuItem } from '../ContextMenu';
 
-interface MenuItem {
-  label: string;
-  action: () => void;
-  type?: 'separator' | 'submenu';
-  children?: MenuItem[];
-}
-
-type AddObjectFunction = (type: ObjectType, id: string) => void;
+type AddObjectFunction = (type: any, id: string) => void;
 
 export function getMenu(addObject: AddObjectFunction, id: string): MenuItem[] {
   return [

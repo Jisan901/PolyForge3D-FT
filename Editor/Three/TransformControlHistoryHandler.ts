@@ -1,15 +1,15 @@
 import { THREE } from '@/Core/lib/THREE';
-import { TransformControls } from 'three/examples/jsm/Addons.js';
-import {type Editor} from "@/Editor/Editor";
+import { TransformControls } from 'three/addons/controls/TransformControls.js';
+import { type EditorClass } from "@/Editor/Editor";
 
 export class TransformControlHistoryHandler {
-    private startPosition: THREE.Vector3;
-    private startRotation: THREE.Euler;
-    private startScale: THREE.Vector3;
+    private startPosition!: THREE.Vector3;
+    private startRotation!: THREE.Euler;
+    private startScale!: THREE.Vector3;
 
     constructor(
         private controls: TransformControls,
-        private commanderAPI: Editor
+        private commanderAPI: EditorClass | any
     ) {
         this.controls.addEventListener("mouseDown", this.onMouseDown.bind(this));
         this.controls.addEventListener("mouseUp", this.onMouseUp.bind(this));

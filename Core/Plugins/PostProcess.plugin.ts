@@ -82,7 +82,7 @@ export default class PostProcessingPlugin extends Plugin {
                 const scenePassDepth = scenePass.getTextureNode('depth');
                 
                 // SSAO implementation
-                const ssaoPass = scenePassColor.ao(
+                const ssaoPass = (scenePassColor as any).ao(
                     scenePassDepth,
                     camera,
                     uniform(intensity),
@@ -111,7 +111,7 @@ export default class PostProcessingPlugin extends Plugin {
                 const scenePassColor = scenePass.getTextureNode();
                 const scenePassDepth = scenePass.getTextureNode('depth');
                 
-                const dofPass = scenePassColor.dof(
+                const dofPass = (scenePassColor as any).dof(
                     scenePassDepth,
                     camera,
                     uniform(focus),
@@ -141,7 +141,7 @@ export default class PostProcessingPlugin extends Plugin {
                 const scenePassColor = scenePass.getTextureNode();
                 
                 // Apply color adjustments
-                let colorPass = scenePassColor;
+                let colorPass: any = scenePassColor;
                 
                 // Exposure
                 if (exposure !== 1.0) {
@@ -160,7 +160,7 @@ export default class PostProcessingPlugin extends Plugin {
                 
                 // Saturation
                 if (saturation !== 1.0) {
-                    const gray = colorPass.dot(THREE.vec3(0.299, 0.587, 0.114));
+                    const gray = colorPass.dot((TSL as any).vec3(0.299, 0.587, 0.114));
                     colorPass = gray.mix(colorPass, uniform(saturation));
                 }
                 
@@ -184,7 +184,7 @@ export default class PostProcessingPlugin extends Plugin {
                 const scenePassColor = scenePass.getTextureNode();
                 
                 // Simple vignette effect
-                const vignettePass = scenePassColor.vignette(
+                const vignettePass = (scenePassColor as any).vignette(
                     uniform(intensity),
                     uniform(smoothness)
                 );
@@ -205,7 +205,7 @@ export default class PostProcessingPlugin extends Plugin {
                 const scenePass = pass(scene, camera);
                 const scenePassColor = scenePass.getTextureNode();
                 
-                const aberrationPass = scenePassColor.chromaticAberration(
+                const aberrationPass = (scenePassColor as any).chromaticAberration(
                     uniform(offset)
                 );
                 
@@ -225,7 +225,7 @@ export default class PostProcessingPlugin extends Plugin {
                 const scenePass = pass(scene, camera);
                 const scenePassColor = scenePass.getTextureNode();
                 
-                const grainPass = scenePassColor.noise(
+                const grainPass = (scenePassColor as any).noise(
                     uniform(intensity),
                     uniform(time)
                 );

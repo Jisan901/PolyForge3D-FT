@@ -20,11 +20,14 @@ import { refreshScriptVariables } from "@/Editor/Utils";
 
 
 type EditorMode = 'edit' | 'play' | 'paused';
-class EditorClass {
+export class EditorClass {
     public core: typeof Instance = Instance;
-    public api: Api;
-    public assetBrowser: AssetBrowserManager;
+    public api!: Api;
+    public assetBrowser!: AssetBrowserManager;
     public commander: Commander;
+    public actionRegistry: ActionRegistry;
+    public importer: ImportManager;
+    public gamePad: LightGamePad;
     
     // animation
     private rafId: number | null = null;
@@ -47,7 +50,7 @@ class EditorClass {
         
         await this.core.init(false);
         
-        this.api = new Api(this.core.engine, this.core.loaders.objectLoader);
+        this.api = new Api(this.core.engine, this.core.loaders.objectLoader as any);
         this.assetBrowser = new AssetBrowserManager(
             this.api.file,
             this.api.buses
@@ -60,14 +63,14 @@ class EditorClass {
          // --------------------------
         // Eager editor scripts: plugins/systems
         // --------------------------
-        const eagerModules = import.meta.glob(['@/Editor/**/*.{plugin,system}.{ts,js}'], {
+        const eagerModules = (import.meta as any).glob(['@/Editor/**/*.{plugin,system}.{ts,js}'], {
             eager: true
         });
 
         for (const path in eagerModules) {
             const mod = eagerModules[path] as { default: new (context: any, ...args: any[]) => any } ;
-            this.core.loaders.scriptLoader.eagerScripts[path] = mod.default;
-            this.core.loaders.scriptLoader.cache[path] = mod.default;
+            (this.core.loaders.scriptLoader as any).eagerScripts[path] = mod.default;
+            (this.core.loaders.scriptLoader as any).cache[path] = mod.default;
         }
         
         
@@ -205,7 +208,7 @@ class EditorClass {
 
 
         // // minimal update
-        this.core.scriptExecutor.invokeLifecycleAll('onEditorUpdate', this.deltaTime);
+        (this.core.scriptExecutor as any).invokeLifecycleAll('onEditorUpdate', this.deltaTime);
         this.core.alwaysUpdate(this.deltaTime)
     };
 
@@ -315,7 +318,7 @@ class EditorClass {
     */
     public prepareForPlayMode(value: boolean) {
         console.log('switching' )
-        const cam = value ? this.core.sceneManager.activeScene.getObjectByProperty('isCamera', true)||this.core.engine.activeCamera as THREE.Camera: this.api.three.editorCamera;
+        const cam = value ? ((this.core.sceneManager.activeScene.getObjectByProperty('isCamera', true) || this.core.engine.getActiveCamera()) as THREE.Camera) : this.api.three.editorCamera;
         Instance.engine.setActiveCamera(cam);
         
         this.api.three.toggleHelpers(!value)
@@ -337,4 +340,4 @@ class EditorClass {
 
 
 export const Editor = new EditorClass();
-window.editor = Editor;
+(window as any).editor = Editor;

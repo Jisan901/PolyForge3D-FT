@@ -1,0 +1,128 @@
+Editor/ActionRegistry.ts(2,36): error TS2304: Cannot find name 'ActionHandler'.
+Editor/ActionRegistry.ts(3,35): error TS2304: Cannot find name 'ActionHandler'.
+Editor/ActionRegistry.ts(5,39): error TS2304: Cannot find name 'ActionHandler'.
+Editor/ActionRegistry.ts(10,38): error TS2304: Cannot find name 'ActionHandler'.
+Editor/Actions.ts(8,24): error TS2339: Property 'actionRegistry' does not exist on type 'EditorClass'.
+Editor/Actions.ts(18,12): error TS2339: Property 'importer' does not exist on type 'EditorClass'.
+Editor/Actions.ts(18,44): error TS2339: Property 'importer' does not exist on type 'EditorClass'.
+Editor/Api.ts(41,5): error TS2554: Expected 2 arguments, but got 1.
+Editor/Api.ts(56,5): error TS2554: Expected 2 arguments, but got 1.
+Editor/Api.ts(77,20): error TS2339: Property 'isMaterial' does not exist on type 'AnyThree'.
+Editor/Api.ts(80,25): error TS2339: Property 'isBufferGeometry' does not exist on type 'AnyThree'.
+Editor/Api.ts(93,23): error TS2344: Type 'void' does not satisfy the constraint 'any[]'.
+Editor/Api.ts(96,26): error TS2344: Type '{ target: any; path: string; }' does not satisfy the constraint 'any[]'.
+Editor/Api.ts(102,25): error TS2344: Type 'string' does not satisfy the constraint 'any[]'.
+Editor/AssetBrowser.ts(10,55): error TS2749: 'BusHub' refers to a value, but is being used as a type here. Did you mean 'typeof BusHub'?
+Editor/Commander.ts(81,45): error TS2339: Property 'name' does not exist on type 'Command'.
+Editor/Commander.ts(82,45): error TS2339: Property 'name' does not exist on type 'Command'.
+Editor/Commander.ts(109,14): error TS2339: Property 'previousParent' does not exist on type 'AddObjectCommand'.
+Editor/Commander.ts(120,18): error TS2339: Property 'previousParent' does not exist on type 'AddObjectCommand'.
+Editor/Commander.ts(120,39): error TS2339: Property 'previousParent' does not exist on type 'AddObjectCommand'.
+Editor/Commander.ts(128,14): error TS2339: Property 'previousParent' does not exist on type 'AddObjectCommand'.
+Editor/Editor.ts(36,14): error TS2339: Property 'actionRegistry' does not exist on type 'EditorClass'.
+Editor/Editor.ts(38,14): error TS2339: Property 'importer' does not exist on type 'EditorClass'.
+Editor/Editor.ts(39,14): error TS2339: Property 'gamePad' does not exist on type 'EditorClass'.
+Editor/Editor.ts(40,14): error TS2339: Property 'gamePad' does not exist on type 'EditorClass'.
+Editor/Editor.ts(41,14): error TS2339: Property 'gamePad' does not exist on type 'EditorClass'.
+Editor/Editor.ts(50,46): error TS2345: Argument of type 'AdvancedLoader' is not assignable to parameter of type 'MemoLoader'.
+Editor/Editor.ts(63,42): error TS2339: Property 'glob' does not exist on type 'ImportMeta'.
+Editor/Editor.ts(69,44): error TS2341: Property 'eagerScripts' is private and only accessible within class 'ScriptLoader'.
+Editor/Editor.ts(70,44): error TS2341: Property 'cache' is private and only accessible within class 'ScriptLoader'.
+Editor/Editor.ts(208,34): error TS2341: Property 'invokeLifecycleAll' is private and only accessible within class 'ScriptExecutor'.
+Editor/Editor.ts(208,53): error TS2345: Argument of type '"onEditorUpdate"' is not assignable to parameter of type 'keyof BaseScript'.
+Editor/Editor.ts(310,14): error TS2339: Property 'gamePad' does not exist on type 'EditorClass'.
+Editor/Editor.ts(318,120): error TS2341: Property 'activeCamera' is private and only accessible within class 'Engine'.
+Editor/Editor.ts(319,41): error TS2345: Argument of type 'Object3D<Object3DEventMap>' is not assignable to parameter of type 'Camera'.
+Editor/Editor.ts(324,14): error TS2339: Property 'gamePad' does not exist on type 'EditorClass'.
+Editor/Editor.ts(340,8): error TS2339: Property 'editor' does not exist on type 'Window & typeof globalThis'.
+Editor/FileApi.ts(34,5): error TS2353: Object literal may only specify known properties, and 'animation' does not exist in type 'Record<FileType, string[]>'.
+Editor/Importers/FBXImporter.ts(1,27): error TS2307: Cannot find module 'three/examples/jsm/loaders/FBXLoader' or its corresponding type declarations.
+Editor/Importers/GLTFImporter.ts(1,28): error TS2307: Cannot find module 'three/examples/jsm/loaders/GLTFLoader' or its corresponding type declarations.
+Editor/Mutation.ts(20,29): error TS2345: Argument of type '[{ target: T; path: string; }]' is not assignable to parameter of type '{ target: any; path: string; }'.
+Editor/Mutation.ts(26,29): error TS2345: Argument of type '[{ target: T; path: string; }]' is not assignable to parameter of type '{ target: any; path: string; }'.
+Editor/ObjectMapper.ts(253,14): error TS2339: Property 'components' does not exist on type 'MappedObject'.
+Editor/Plugins/BasicTools.plugin.ts(29,5): error TS2416: Property 'init' in type 'BasicToolsPlugin' is not assignable to the same property in base type 'Plugin'.
+Editor/Plugins/BasicTools.plugin.ts(38,13): error TS2345: Argument of type '(object: THREE.Object3D) => any[]' is not assignable to parameter of type 'ToolValidationFn'.
+Editor/Plugins/ContextMenuHandlers.plugin.ts(8,5): error TS2416: Property 'init' in type 'ContextMenuHandlersPlugin' is not assignable to the same property in base type 'Plugin'.
+Editor/Plugins/ContextMenuHandlers.plugin.ts(17,21): error TS2339: Property 'isScene' does not exist on type 'Object3D<Object3DEventMap>'.
+Editor/Plugins/ContextMenuHandlers.plugin.ts(18,60): error TS2554: Expected 2 arguments, but got 1.
+Editor/Plugins/ContextMenuHandlers.plugin.ts(18,93): error TS2345: Argument of type 'Object3D<Object3DEventMap>' is not assignable to parameter of type 'Scene<Object3DEventMap>'.
+Editor/Plugins/ContextMenuHandlers.plugin.ts(20,21): error TS2339: Property 'isMesh' does not exist on type 'Object3D<Object3DEventMap>'.
+Editor/Plugins/ContextMenuHandlers.plugin.ts(23,21): error TS2339: Property 'isGroup' does not exist on type 'Object3D<Object3DEventMap>'.
+Editor/Plugins/ContextMenuHandlers.plugin.ts(24,68): error TS2554: Expected 2 arguments, but got 1.
+Editor/Plugins/DragAndDropHandlers.plugin.ts(10,5): error TS2416: Property 'init' in type 'DragAndDropHandlersPlugin' is not assignable to the same property in base type 'Plugin'.
+Editor/Plugins/DragAndDropHandlers.plugin.ts(47,13): error TS2554: Expected 2 arguments, but got 1.
+Editor/Plugins/DragAndDropHandlers.plugin.ts(54,24): error TS2339: Property 'material' does not exist on type 'Object3D<Object3DEventMap>'.
+Editor/Plugins/DragAndDropHandlers.plugin.ts(57,28): error TS2339: Property 'material' does not exist on type 'Object3D<Object3DEventMap>'.
+Editor/Plugins/DragAndDropHandlers.plugin.ts(61,13): error TS2554: Expected 2 arguments, but got 1.
+Editor/Plugins/DragAndDropHandlers.plugin.ts(61,40): error TS2339: Property 'material' does not exist on type 'Object3D<Object3DEventMap>'.
+Editor/Plugins/DragAndDropHandlers.plugin.ts(68,24): error TS2339: Property 'geometry' does not exist on type 'Object3D<Object3DEventMap>'.
+Editor/Plugins/DragAndDropHandlers.plugin.ts(71,28): error TS2339: Property 'geometry' does not exist on type 'Object3D<Object3DEventMap>'.
+Editor/Plugins/DragAndDropHandlers.plugin.ts(75,13): error TS2554: Expected 2 arguments, but got 1.
+Editor/Plugins/DragAndDropHandlers.plugin.ts(75,41): error TS2339: Property 'geometry' does not exist on type 'Object3D<Object3DEventMap>'.
+Editor/Plugins/DragAndDropHandlers.plugin.ts(84,24): error TS2339: Property 'material' does not exist on type 'Object3D<Object3DEventMap>'.
+Editor/Plugins/DragAndDropHandlers.plugin.ts(87,28): error TS2339: Property 'material' does not exist on type 'Object3D<Object3DEventMap>'.
+Editor/Plugins/DragAndDropHandlers.plugin.ts(91,13): error TS2554: Expected 2 arguments, but got 1.
+Editor/Plugins/DragAndDropHandlers.plugin.ts(91,40): error TS2339: Property 'material' does not exist on type 'Object3D<Object3DEventMap>'.
+Editor/Plugins/DragAndDropHandlers.plugin.ts(102,13): error TS2554: Expected 2 arguments, but got 1.
+Editor/Plugins/Export.plugin.ts(15,5): error TS2416: Property 'init' in type 'ExportPlugin' is not assignable to the same property in base type 'Plugin'.
+Editor/Plugins/Mesh/MeshTools.plugin.ts(15,5): error TS2416: Property 'init' in type 'MeshToolsPlugin' is not assignable to the same property in base type 'Plugin'.
+Editor/Plugins/Terrain/TerrainEditor.plugin.ts(16,5): error TS2416: Property 'init' in type 'TerrainEditorPlugin' is not assignable to the same property in base type 'Plugin'.
+Editor/Plugins/Terrain/TerrainEditor.plugin.ts(22,14): error TS2339: Property 'brush' does not exist on type 'TerrainEditorPlugin'.
+Editor/Plugins/Terrain/TerrainEditor.plugin.ts(38,22): error TS2339: Property 'brush' does not exist on type 'TerrainEditorPlugin'.
+Editor/Plugins/Terrain/TerrainEditor.plugin.ts(43,47): error TS2345: Argument of type '(tool: string) => void' is not assignable to parameter of type '(...e: string) => void'.
+Editor/Plugins/Terrain/TerrainEditor.plugin.ts(44,95): error TS2339: Property 'brush' does not exist on type 'TerrainEditorPlugin'.
+Editor/Plugins/Terrain/TerrainEditor.plugin.ts(45,60): error TS2339: Property 'brush' does not exist on type 'TerrainEditorPlugin'.
+Editor/Plugins/Terrain/TerrainEditor.plugin.ts(54,13): error TS2345: Argument of type '(object: THREE.Object3D) => any[]' is not assignable to parameter of type 'ToolValidationFn'.
+Editor/Plugins/Terrain/TerrainEditor.plugin.ts(75,42): error TS2339: Property 'brush' does not exist on type 'TerrainEditorPlugin'.
+Editor/Three.helper.ts(7,35): error TS2307: Cannot find module 'three/examples/jsm/controls/TransformControls' or its corresponding type declarations.
+Editor/Three.helper.ts(8,31): error TS2307: Cannot find module 'three/examples/jsm/controls/OrbitControls' or its corresponding type declarations.
+Editor/Three.helper.ts(11,38): error TS2307: Cannot find module 'three/examples/jsm/utils/BufferGeometryUtils' or its corresponding type declarations.
+Editor/Three.helper.ts(35,22): error TS2304: Cannot find name 'BusHub'.
+Editor/Three.helper.ts(64,58): error TS2339: Property 'update' does not exist on type 'Object3D<Object3DEventMap>'.
+Editor/Three.helper.ts(100,17): error TS2339: Property 'isCamera' does not exist on type 'Object3D<Object3DEventMap>'.
+Editor/Three.helper.ts(101,22): error TS2339: Property 'isDirectionalLight' does not exist on type 'Object3D<Object3DEventMap>'.
+Editor/Three.helper.ts(102,22): error TS2339: Property 'isPointLight' does not exist on type 'Object3D<Object3DEventMap>'.
+Editor/Three.helper.ts(103,22): error TS2339: Property 'isSpotLight' does not exist on type 'Object3D<Object3DEventMap>'.
+Editor/Three.helper.ts(104,22): error TS2339: Property 'isHemisphereLight' does not exist on type 'Object3D<Object3DEventMap>'.
+Editor/Three.helper.ts(105,22): error TS2339: Property 'isSkinnedMesh' does not exist on type 'Object3D<Object3DEventMap>'.
+Editor/Three.helper.ts(136,31): error TS2339: Property 'isScene' does not exist on type 'Object3D<Object3DEventMap>'.
+Editor/Three.helper.ts(147,31): error TS2339: Property 'isScene' does not exist on type 'Object3D<Object3DEventMap>'.
+Editor/Three.helper.ts(198,22): error TS2304: Cannot find name 'BusHub'.
+Editor/Three.helper.ts(435,37): error TS2345: Argument of type 'Object3D<Object3DEventMap>' is not assignable to parameter of type 'Camera'.
+Editor/Three.helper.ts(435,78): error TS2341: Property 'activeCamera' is private and only accessible within class 'Engine'.
+Editor/Three.helper.ts(471,13): error TS2339: Property 'groundLayerMask' does not exist on type '{}'.
+Editor/Three.helper.ts(473,13): error TS2339: Property 'offset' does not exist on type '{}'.
+Editor/Three.helper.ts(475,13): error TS2339: Property 'useObjectCenter' does not exist on type '{}'.
+Editor/Three.helper.ts(477,13): error TS2339: Property 'maxDistance' does not exist on type '{}'.
+Editor/Three.helper.ts(479,13): error TS2339: Property 'raycastDirection' does not exist on type '{}'.
+Editor/Three/Gizmo.ts(17,14): error TS2339: Property 'renderer' does not exist on type 'InteractiveViewHelper'.
+Editor/Three/Gizmo.ts(23,14): error TS2339: Property 'renderer' does not exist on type 'InteractiveViewHelper'.
+Editor/Three/Gizmo.ts(24,14): error TS2339: Property 'renderer' does not exist on type 'InteractiveViewHelper'.
+Editor/Three/Gizmo.ts(25,14): error TS2339: Property 'renderer' does not exist on type 'InteractiveViewHelper'.
+Editor/Three/Gizmo.ts(28,14): error TS2339: Property 'helper' does not exist on type 'InteractiveViewHelper'.
+Editor/Three/Gizmo.ts(32,14): error TS2339: Property 'div' does not exist on type 'InteractiveViewHelper'.
+Editor/Three/Gizmo.ts(46,18): error TS2339: Property 'helper' does not exist on type 'InteractiveViewHelper'.
+Editor/Three/Gizmo.ts(51,14): error TS2339: Property 'helper' does not exist on type 'InteractiveViewHelper'.
+Editor/Three/Gizmo.ts(52,14): error TS2339: Property 'helper' does not exist on type 'InteractiveViewHelper'.
+Editor/Three/Gizmo.ts(56,18): error TS2339: Property 'helper' does not exist on type 'InteractiveViewHelper'.
+Editor/Three/Gizmo.ts(57,18): error TS2339: Property 'helper' does not exist on type 'InteractiveViewHelper'.
+Editor/Three/Gizmo.ts(60,14): error TS2339: Property 'helper' does not exist on type 'InteractiveViewHelper'.
+Editor/Three/Gizmo.ts(60,33): error TS2339: Property 'renderer' does not exist on type 'InteractiveViewHelper'.
+Editor/Three/Gizmo.ts(69,14): error TS2339: Property 'div' does not exist on type 'InteractiveViewHelper'.
+Editor/Three/Gizmo.ts(70,14): error TS2339: Property 'div' does not exist on type 'InteractiveViewHelper'.
+Editor/Three/Gizmo.ts(75,18): error TS2339: Property 'renderer' does not exist on type 'InteractiveViewHelper'.
+Editor/Three/Gizmo.ts(76,18): error TS2339: Property 'renderer' does not exist on type 'InteractiveViewHelper'.
+Editor/Three/Gizmo.ts(78,18): error TS2339: Property 'div' does not exist on type 'InteractiveViewHelper'.
+Editor/Three/Gizmo.ts(78,30): error TS2339: Property 'div' does not exist on type 'InteractiveViewHelper'.
+Editor/Three/Gizmo.ts(79,18): error TS2339: Property 'div' does not exist on type 'InteractiveViewHelper'.
+Editor/Three/Gizmo.ts(79,50): error TS2339: Property 'div' does not exist on type 'InteractiveViewHelper'.
+Editor/Three/TransformControlHistoryHandler.ts(12,31): error TS2749: 'Editor' refers to a value, but is being used as a type here. Did you mean 'typeof Editor'?
+Editor/ToolApi.ts(70,13): error TS2322: Type 'ToolValidationFn' is not assignable to type '(object: Object3D<Object3DEventMap>) => ViewportTool[]'.
+Editor/Utils.ts(11,29): error TS2339: Property 'path' does not exist on type 'unknown'.
+Editor/Utils.ts(15,43): error TS2339: Property 'propMap' does not exist on type 'ScriptConstructor'.
+Editor/Utils.ts(20,38): error TS2339: Property 'propMap' does not exist on type 'ScriptConstructor'.
+Editor/Utils.ts(22,33): error TS2339: Property 'propMap' does not exist on type 'ScriptConstructor'.
+Editor/Utils.ts(23,25): error TS2339: Property 'variables' does not exist on type 'unknown'.
+Editor/Utils.ts(30,16): error TS2339: Property 'variables' does not exist on type 'unknown'.
+Editor/Utils.ts(30,40): error TS2339: Property 'variables' does not exist on type 'unknown'.

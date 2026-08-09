@@ -16,6 +16,7 @@ export type FileType =
   | 'model'
   | 'script'
   | 'material'
+  | 'animation'
   | 'geometry'
   | 'shader'
   | 'unknown';

@@ -18,14 +18,15 @@ import { ScriptExecutor } from "@/Core/Script/ScriptExecutor";
 
 export class PolyForge {
     static instance: PolyForge;
-    public pluginData = {};
+    public pluginData: Record<string, any> = {};
 
 
     readonly time: Time;
     readonly settings: Settings;
     readonly componentManager: ComponentManager;
+    readonly cfg: ConfigS;
     
-    readonly JobSystem: ThradePool;
+    readonly JobSystem: ThreadPool;
 
     readonly scriptExecutor: ScriptExecutor;
 
@@ -47,7 +48,7 @@ export class PolyForge {
         this.JobSystem = new ThreadPool(3);
         this.cfg = new ConfigS({ path: DEFINITION.configFile, autoSave: true });
         this.cfg.load();
-        this.settings = new Settings(DEFINITION.settingsFile);
+        this.settings = Settings.getInstance(DEFINITION.settingsFile);
         this.componentManager = new ComponentManager(DEFINITION.componentTemplateFile) 
 
 

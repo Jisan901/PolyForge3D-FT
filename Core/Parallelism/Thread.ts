@@ -1,3 +1,5 @@
+import type { ThreadPool } from "./ThreadPool";
+
 /**
  * Represents a single Web Worker thread.
  */

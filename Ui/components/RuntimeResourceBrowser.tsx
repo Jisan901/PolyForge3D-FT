@@ -74,16 +74,16 @@ const ResourceBrowser: React.FC = () => {
 
         switch (category) {
           case "objects":
-            resources = [...registry.objects.values()];
+            resources = [...((registry as any).objects.values())];
             break;
           case "materials":
-            resources = [...registry.materials.values()];
+            resources = [...((registry as any).materials.values())];
             break;
           case "geometries":
-            resources = [...registry.geometries.values()];
+            resources = [...((registry as any).geometries.values())];
             break;
           case "textures":
-            resources = [...registry.textures.values()];
+            resources = [...((registry as any).textures.values())];
             break;
         }
         setRuntimeResources(resources || []);
@@ -129,7 +129,7 @@ const ResourceBrowser: React.FC = () => {
   };
 
   const handleOpen = useCallback((resource: any) => {
-    editor.api.buses.selectionUpdate.emit(resource)
+    (editor.api.buses.selectionUpdate.emit as any)(resource);
     // Logic to select in scene or open in properties inspector
   }, []);
 

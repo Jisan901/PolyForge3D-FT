@@ -3,7 +3,10 @@ import { ViewHelper } from 'three/addons/helpers/ViewHelper.js';
 
 
 export class InteractiveViewHelper {
-    //private camera:THREE.PerspectiveCamera;
+    public renderer: THREE.WebGPURenderer;
+    public helper: any;
+    public div: HTMLDivElement;
+
     constructor(private aligner: HTMLElement, private camera:THREE.PerspectiveCamera) {
         // Create dedicated canvas for the view helper
         //this.camera = new THREE.PerspectiveCamera(45, 128 / 128, 0.01, 500);

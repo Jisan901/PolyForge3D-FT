@@ -62,7 +62,7 @@ const INITIAL_PLUGINS: PluginConfig[] = [
 ];
 
 const PluginsPanel: React.FC = () => {
-  const [plugins, setPlugins] = useState<PluginConfig[]>(editor.core.loaders.scriptLoader.globalInstances);
+  const [plugins, setPlugins] = useState<PluginConfig[]>((editor.core.loaders.scriptLoader as any).globalInstances || INITIAL_PLUGINS);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set(['post-processing']));
 
   const toggleExpand = (id: string) => {
@@ -149,7 +149,9 @@ const PluginsPanel: React.FC = () => {
                     <div className="absolute inset-0 bg-black/40 z-10 pointer-events-none" />
                   )}
                   
-                  {plugin.settings && Object.entries(plugin.settings).map(([key, setting]) => (
+                  {plugin.settings && Object.entries(plugin.settings).map(([key, settingRaw]) => {
+                    const setting = settingRaw as any;
+                    return (
                     <div key={key} className="flex items-center justify-between text-[10px]">
                       <span className="text-editor-textDim w-1/2 pr-2 truncate" title={setting.label}>{setting.label}</span>
                       
@@ -187,14 +189,15 @@ const PluginsPanel: React.FC = () => {
                             onChange={(e) => updateSetting(plugin.id, key, e.target.value)}
                             className="w-full bg-editor-input border border-editor-border rounded px-1 flex-1 py-0.5 focus:outline-none focus:border-editor-accent text-white"
                           >
-                            {setting.options.map(opt => (
+                            {(setting.options as string[]).map(opt => (
                               <option key={opt} value={opt}>{opt}</option>
                             ))}
                           </select>
                         )}
                       </div>
                     </div>
-                  ))}
+                  );
+                  })}
                 </div>
               )}
             </div>

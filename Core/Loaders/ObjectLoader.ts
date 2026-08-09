@@ -235,11 +235,10 @@ export class MemoLoader {
         // Restore typed arrays from blobs
         BinarySerializer.unpackGeometries(json.geometries, blobs);
 
-        const shapes = this.objectLoader.parseShapes?.(json.shapes || []);
+        const shapes = (this.objectLoader as any).parseShapes?.(json.shapes || []);
 
         const geometries = this.objectLoader.parseGeometries(
-            json.geometries ?? [json],
-            shapes
+            json.geometries ?? [json]
         );
 
         return Object.values(geometries)[0] as THREE.BufferGeometry;
@@ -293,7 +292,8 @@ export class MemoLoader {
         // Restore Float32 typed arrays for times/values
         BinarySerializer.unpackAnimations(json.animations ?? [], blobs);
 
-        return this.objectLoader.parseAnimations(json.animations ?? []);
+        const anims = this.objectLoader.parseAnimations(json.animations ?? []);
+        return Array.isArray(anims) ? anims : (Object.values(anims) as THREE.AnimationClip[]);
     }
 
     /**
@@ -325,7 +325,7 @@ export class MemoLoader {
     private _makeLoaderWithImages(images: any[]) {
         return {
             parseImagesAsync: async (ig: any[]) => {
-                const map: Record<string, THREE.Source> = {};
+                const map: Record<string, any> = {};
                 ig?.forEach(e => {
                     if (e.source) map[e.uuid] = e.source;
                 });

@@ -5,7 +5,7 @@ export class AnimationSerializer{
     static serialize(clip: THREE.AnimationClip){
         
     }
-    static deserialize(buffer: ArrayBuffer|Uint8Array):THREE.AnimationClip {
-        
+    static deserialize(buffer: ArrayBuffer|Uint8Array): THREE.AnimationClip | null {
+        return null;
     }
 }

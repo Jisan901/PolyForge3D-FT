@@ -43,7 +43,7 @@ export interface ObjectParseContext {
     animations?: THREE.AnimationClip[];
     shapes?:     Record<string, THREE.Shape>;
     geometries?: Record<string, THREE.BufferGeometry>;
-    images?:     Record<string, THREE.Source>;
+    images?:     Record<string, any>;
     textures?:   Record<string, THREE.Texture>;
     materials?:  Record<string, THREE.Material>;
 }
@@ -231,11 +231,11 @@ export class AbstractLoader {
             ?? this.objectLoader.parseAnimations(json.animations ?? []);
 
         const shapes = ctx.shapes
-            ?? this.objectLoader.parseShapes?.(json.shapes ?? [])
+            ?? (this.objectLoader as any).parseShapes?.(json.shapes ?? [])
             ?? {};
 
         // Merge: JSON-parsed geometries as base, pre-built stubs override
-        const jsonGeometries = this.objectLoader.parseGeometries(json.geometries ?? [], shapes);
+        const jsonGeometries = this.objectLoader.parseGeometries(json.geometries ?? []);
         const geometries = ctx.geometries
             ? { ...jsonGeometries, ...ctx.geometries }
             : jsonGeometries;
@@ -255,7 +255,7 @@ export class AbstractLoader {
             ? { ...jsonMaterials, ...ctx.materials }
             : jsonMaterials;
 
-        const object = this.objectLoader.parseObject(
+        const object = (this.objectLoader as any).parseObject(
             json.object,
             geometries,
             materials,
@@ -263,19 +263,18 @@ export class AbstractLoader {
             animations
         );
 
-        const skeletons = this.objectLoader.parseSkeletons(json.skeletons ?? [], object);
-        this.objectLoader.bindSkeletons(object, skeletons);
-        this.objectLoader.bindLightTargets?.(object);
+        const skeletons = (this.objectLoader as any).parseSkeletons?.(json.skeletons ?? [], object);
+        if (skeletons) (this.objectLoader as any).bindSkeletons?.(object, skeletons);
+        (this.objectLoader as any).bindLightTargets?.(object);
 
         return object;
     }
 
     /** Parse a standalone BufferGeometry from unpacked data. */
     public parseGeometry(raw: UnpackedData): THREE.BufferGeometry {
-        const shapes = this.objectLoader.parseShapes?.(raw.json.shapes ?? []) ?? {};
+        const shapes = (this.objectLoader as any).parseShapes?.(raw.json.shapes ?? []) ?? {};
         const geometries = this.objectLoader.parseGeometries(
-            raw.json.geometries ?? [raw.json],
-            shapes
+            raw.json.geometries ?? [raw.json]
         );
         return Object.values(geometries)[0] as THREE.BufferGeometry;
     }
@@ -297,7 +296,8 @@ export class AbstractLoader {
 
     /** Parse AnimationClips from unpacked data (typed arrays must be restored). */
     public parseAnimation(raw: UnpackedData): THREE.AnimationClip[] {
-        return this.objectLoader.parseAnimations(raw.json.animations ?? []);
+        const anims = this.objectLoader.parseAnimations(raw.json.animations ?? []);
+        return Array.isArray(anims) ? anims : (Object.values(anims) as THREE.AnimationClip[]);
     }
 
     // =========================================================================
@@ -420,8 +420,8 @@ export class AbstractLoader {
      * Build a { [uuid]: THREE.Source } map from pre-decoded image entries.
      * BinarySerializer.unpackImages stores a THREE.Source on each entry as `entry.source`.
      */
-    private async _buildImageMap(images: any[]): Promise<Record<string, THREE.Source>> {
-        const map: Record<string, THREE.Source> = {};
+    private async _buildImageMap(images: any[]): Promise<Record<string, any>> {
+        const map: Record<string, any> = {};
         images.forEach(e => { if (e.source) map[e.uuid] = e.source; });
         return map;
     }

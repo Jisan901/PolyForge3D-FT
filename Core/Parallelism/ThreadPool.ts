@@ -1,3 +1,5 @@
+import type { Thread } from "./Thread";
+
 /**
  * Manages a pool of Web Worker threads.
  */

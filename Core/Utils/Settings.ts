@@ -73,12 +73,12 @@ type SettingsType = typeof defaultSettings;
 
 export class Settings {
     private static instance: Settings;
-    private settings: SettingsType;
-    private defaultSettings = defaultSettings;
+    public settings: SettingsType;
+    public defaultSettings = defaultSettings;
     private initialized: boolean = false;
     private saveTimeout: any | null = null;
 
-    private constructor(private fileUrl: string) {
+    constructor(private fileUrl: string) {
         this.settings = { ...defaultSettings };
     }
 
@@ -199,14 +199,14 @@ export class Settings {
 
 
 
-    applyGraphicsSettings(settings: GraphicsSettings, PolyForge) {
+    applyGraphicsSettings(settings: GraphicsSettings, PolyForge: any) {
 
         const renderer = PolyForge.engine;
         if (!renderer || !PolyForge.pluginData?.postProcessing) return;
 
         // Resolution scale
         if (settings.resolutionScale) {
-            if (settings.resolutionScale > window.devicePixelRatio) toast('pixel ratio higher then device')
+            if (settings.resolutionScale > window.devicePixelRatio) console.log('pixel ratio higher then device')
             settings.resolutionScale = Math.min(settings.resolutionScale, window.devicePixelRatio)
             renderer.three.renderer.setPixelRatio(settings.resolutionScale);
             if (settings.resolutionScale < 0.6) {
@@ -283,7 +283,7 @@ export class Settings {
         }
     }
 
-    applyPhysicsSettings(settings: PhysicsSettings, PolyForge) {
+    applyPhysicsSettings(settings: PhysicsSettings, PolyForge: any) {
         const physicsPlugin = PolyForge.pluginData?.physics;
         if (!physicsPlugin) return;
 
@@ -291,7 +291,7 @@ export class Settings {
         physicsPlugin.world.gravity.y = settings.gravity;
     }
 
-    applySettings(PolyForge) {
+    applySettings(PolyForge: any) {
         this.applyGraphicsSettings(this.settings.graphics, PolyForge)
         this.applyPhysicsSettings(this.settings.physics, PolyForge)
     }

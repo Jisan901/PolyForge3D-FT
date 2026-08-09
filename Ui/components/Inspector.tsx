@@ -49,7 +49,7 @@ function getIconForComponent(name: string) {
 
 // Create available components list
 const AVAILABLE_COMPONENTS: SelectorItem[] = editor.core.componentManager.getAllTemplate().map(e => ({
-  id: e.nameCode,
+  id: String(e.key ?? (e as any).nameCode ?? e.name),
   name: e.name,
   category: 'components',
   description: e.description || '',
@@ -128,14 +128,14 @@ const Inspector: React.FC = () => {
 
   function getContextMenuItems(component: string): MenuItem[] {
     return [
-      { label: `Reset`, action: () => onAddComponent(parseInt(component), true) },
-      { separator: true },
+      { label: `Reset`, action: () => onAddComponent?.(parseInt(component), true) },
+      { separator: true, label: '', action: () => {} },
       { label: 'Copy Component', action: () => console.log('Copy Component') },
       { label: 'Paste Component Values', action: () => console.log('Paste Values'), disabled: true },
-      { separator: true },
+      { separator: true, label: '', action: () => {} },
       { label: 'Move Up', action: () => console.log('Move Up') },
       { label: 'Move Down', action: () => console.log('Move Down') },
-      { separator: true },
+      { separator: true, label: '', action: () => {} },
       { label: 'Remove Component', danger: true, action: () => onRemoveComponent?.(component) },
     ];
   }
@@ -192,7 +192,7 @@ const Inspector: React.FC = () => {
         {/* Dynamic Component Sections (Scripts, Physics, etc.) */}
         {mappedObject?.components && Object.entries(mappedObject.components).map(([compName, compData]) => (
           <CustomComponentRenderer
-            key={compData.key}
+            key={(compData as any)?.key || compName}
             object={object}
             componentName={compName}
             componentData={compData}

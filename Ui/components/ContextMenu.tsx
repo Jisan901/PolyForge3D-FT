@@ -3,13 +3,15 @@ import { createPortal } from 'react-dom';
 import { ChevronRight } from 'lucide-react';
 
 export interface MenuItem {
-  label: string;
-  action: () => void;
+  label?: string;
+  action?: () => void;
   shortcut?: string;
   separator?: boolean;
+  type?: 'separator' | 'submenu' | string;
   danger?: boolean;
   disabled?: boolean;
   submenu?: MenuItem[];
+  children?: MenuItem[];
 }
 
 interface ContextMenuProps {

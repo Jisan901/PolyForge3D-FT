@@ -1,3 +1,5 @@
+export type ActionHandler = (payload?: any) => void;
+
 export class ActionRegistry {
   private global = new Map<string, ActionHandler>()
   private local = new Map<string, ActionHandler>()

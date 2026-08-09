@@ -1,5 +1,5 @@
 import {type DirInfo, type FileAPI} from '@/Editor/FileApi';
-import { type BusHub } from "@/Editor/Api";
+import { BusHub } from "@/Editor/Api";
 
 export class AssetBrowserManager {
     public activeDir: DirInfo[] = [];
@@ -7,7 +7,7 @@ export class AssetBrowserManager {
     private historyBack: string[] = [];
     private historyForward: string[] = [];
 
-    constructor(private file: FileAPI, private buses: BusHub) {}
+    constructor(public file: FileAPI, public buses: typeof BusHub) {}
     async openDirectory(dir: string, pushHistory: boolean = true) {
         const list = await this.file.readDir(dir);
 

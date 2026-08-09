@@ -17,12 +17,12 @@ export default class PhysicsSystem extends System {
   private world: any;
   private physicsObjects: Map<string, PhysicsData> = new Map();
   private getComponent: (entity: any, nameCode: number) => any;
-  private syncEntityTransform: (uuid: string, p: any, r: any, s: any) => void;
+  private syncEntityTransform: (object3d: any, p: any, r: any, s: any) => void;
   
   constructor(
-    public app:any
+    public override app: any
   ) {
-    super()
+    super(app)
     this.RAPIER = app.pluginData.physics.RAPIER;
     this.world = app.pluginData.physics.world;
     this.getComponent = (e,i)=>getComponent(i,e);

@@ -29,7 +29,7 @@ export default class ScriptSystem extends System {
             
             // Already loading or active
             if (this.activationMask.has(id)) continue;
-            const script = getComponent(Components.SCRIPT, entity);
+            const script: any = getComponent(Components.SCRIPT, entity);
             if (!script?.path?.value) continue;
             
             // mark LOADING immediately
@@ -51,7 +51,7 @@ export default class ScriptSystem extends System {
         }
     }
 
-    private async loadAndAttach(entity, script, id) {
+    private async loadAndAttach(entity: any, script: any, id: string) {
         try {
             if (!this.app.loaders.behaviorLoader) {
                 throw new Error("behaviorLoader not available");

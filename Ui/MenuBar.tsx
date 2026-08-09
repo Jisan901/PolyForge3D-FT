@@ -9,11 +9,15 @@ import { ObjectType } from '@/Core/Types/Objects'
 const editor = Editor;
 const Core = Editor.core;
 
+type ViewMode = 'SCENE' | 'GAME';
+
 const MenuBar = () => {
     
     const { addObject,
         selectObject,
-        deleteObject} = useEditorActions();
+        deleteObject,
+        onDuplicate} = useEditorActions();
+    const { selectedId } = useEditorStates();
     
     const [isPlaying, setIsPlaying] = useState<boolean | null>(null);
     const [viewMode, setViewMode] = useState<ViewMode>('SCENE');
@@ -78,13 +82,13 @@ const MenuBar = () => {
         { label: 'Copy', shortcut: 'Ctrl+C', action: () => console.log('Copy') },
         { label: 'Paste', shortcut: 'Ctrl+V', action: () => console.log('Paste') },
         { separator: true, label: '', action: () => { } },
-        { label: 'Duplicate', shortcut: 'Ctrl+D', action: () => selectedId && handleDuplicateObject(selectedId) },
-        { label: 'Delete', shortcut: 'Del', danger: true, action: () => selectedId && handleDeleteObject(selectedId) },
+        { label: 'Duplicate', shortcut: 'Ctrl+D', action: () => selectedId && onDuplicate?.(selectedId) },
+        { label: 'Delete', shortcut: 'Del', danger: true, action: () => selectedId && deleteObject?.(selectedId) },
         { separator: true, label: '', action: () => { } },
         { label: 'Play', shortcut: 'Ctrl+P', action: () => setIsPlaying(true) },
         { label: 'Pause', shortcut: 'Ctrl+Shift+P', action: () => setIsPlaying(false) },
         { separator: true, label: '', action: () => { } },
-        { label: 'Settings', shortcut: 'Ctrl+,', action: () => setIsSettingsOpen(true) },
+        { label: 'Settings', shortcut: 'Ctrl+,', action: () => console.log('Settings') },
     ];
     const getGameObjectMenuItems = (): MenuItem[] => {
         let id = null
@@ -96,7 +100,7 @@ const MenuBar = () => {
             { label: 'Capsule', action: () => addObject && addObject(ObjectType.CAPSULE, id) },
             { label: 'Cylinder', action: () => addObject && addObject(ObjectType.CYLINDER, id) },
             { label: 'Plane', action: () => addObject && addObject(ObjectType.PLANE, id) },
-            { label: 'Light', action: () => addObject && addObject(ObjectType.LIGHT, id) },
+            { label: 'Light', action: () => addObject && addObject(ObjectType.POINTLIGHT, id) },
             { separator: true, label: '', action: () => { } },
             { label: 'Import New Asset...', action: () => editor.importer.openDialog() },
         ];
@@ -154,7 +158,7 @@ const MenuBar = () => {
         
         <div className="h-8 flex items-center justify-center bg-editor-panel border-b border-editor-border relative px-4 flex-shrink-0">
             <div className="absolute left-2 flex gap-1">
-                <button onClick={() => editor.refreshRegistry()} className="p-1.5 rounded hover:bg-white/10 text-editor-textDim">
+                <button onClick={() => (editor as any).refreshRegistry()} className="p-1.5 rounded hover:bg-white/10 text-editor-textDim">
                     <Hammer size={16} />
                 </button>
                 <button className="p-1.5 rounded hover:bg-white/10 text-editor-textDim">

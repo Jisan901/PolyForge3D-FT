@@ -22,7 +22,7 @@ export async function instantiate(
     url: string,
     transform?: THREE.Matrix4
 ): Promise<THREE.Object3D> {
-    const object = await Instance.loaders.loadObject(url, false);
+    const object = await Instance.loaders.objectLoader.loadObject(url);
 
     if (transform) {
         object.applyMatrix4(transform);

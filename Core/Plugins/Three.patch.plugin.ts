@@ -80,8 +80,8 @@ export default class ThreeJsPatchPlugin extends Plugin {
         };
 
         // ── BufferAttribute patch ──────────────────────────────────────────
-        THREE.BufferAttribute.prototype.toJSON = function () {
-            const data = {
+        (THREE.BufferAttribute.prototype as any).toJSON = function () {
+            const data: Record<string, any> = {
                 itemSize: this.itemSize,
                 type: this.array.constructor.name,
                 array: this.array,
@@ -117,18 +117,18 @@ export default class ThreeJsPatchPlugin extends Plugin {
 
         // ── Source patch ───────────────────────────────────────────────────
         if (THREE.Source) {
-            THREE.Source.prototype.toJSON = function (meta) {
+            THREE.Source.prototype.toJSON = function (meta: any) {
                 const isRootObject =
                     meta === undefined || typeof meta === "string";
 
-                if (!isRootObject && meta.images[this.uuid] !== undefined) {
+                if (!isRootObject && meta.images && meta.images[this.uuid] !== undefined) {
                     return meta.images[this.uuid];
                 }
 
-                const output = { uuid: this.uuid, url: "" };
-                output.data = getBuffer(this.data);
+                const output: any = { uuid: this.uuid, url: "" };
+                output.data = getBuffer((this as any).data);
 
-                if (!isRootObject) {
+                if (!isRootObject && meta.images) {
                     meta.images[this.uuid] = output;
                 }
 
@@ -194,6 +194,8 @@ async function getBuffer(image, type = "image/png") {
 // the asset type they care about.  serialize() (whole Object3D) composes them.
 // ─────────────────────────────────────────────────────────────────────────────
 export class BinarySerializer {
+    public blobs: ArrayBuffer[] = [];
+
     constructor() {
         /** @type {ArrayBuffer[]} */
         this.blobs = [];
@@ -545,11 +547,12 @@ function resolveBlobIndex(blobRef, blobs) {
 
 
 
-window.FSM = function(){
-    let s = editor.api.three.selectedObject;
+(window as any).FSM = function(){
+    let s = (window as any).editor?.api?.three?.selectedObject;
+    if (!s) return;
     console.log(s)
-    const bones = [];
-    s.parent.traverse(child=>{
+    const bones: any[] = [];
+    s.parent.traverse((child: any)=>{
         if(child.isBone){
             bones.push(child)
         }

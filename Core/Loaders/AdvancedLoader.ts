@@ -1,7 +1,6 @@
 import { AbstractLoader, ResolvableAsset, ResolvableType } from "@/Core/Loaders/AbstractLoader";
 import { type ThreeRegistry, type AnyThree } from "@/Core/three/ThreeRegistry";
 import { THREE } from "@/Core/lib/THREE";
-import { AnyThree } from "@/Core/three/ThreeRegistry";
 import { BinarySerializer } from "@/Core/Plugins/Three.patch.plugin";
 
 
@@ -393,7 +392,7 @@ export class AdvancedLoaderv3 extends AbstractLoader {
             case "material": return super.loadMaterial(url) as Promise<T>;
             case "texture":  return super.loadTexture(url) as Promise<T>;
             default:
-                throw new Error(`Unknown asset type: ${type satisfies never}`);
+                throw new Error(`Unknown asset type: ${type}`);
         }
     }
 
@@ -549,7 +548,7 @@ export class AdvancedLoaderv4 extends AbstractLoader {
             case "material": return super.loadMaterial(url) as Promise<T>;
             case "texture":  return super.loadTexture(url) as Promise<T>;
             default:
-                throw new Error(`Unknown asset type: ${type satisfies never}`);
+                throw new Error(`Unknown asset type: ${type}`);
         }
     }
 
@@ -670,7 +669,7 @@ export class AdvancedLoader extends AbstractLoader {
             case "material": return super.loadMaterial(url) as Promise<T>;
             case "texture":  return super.loadTexture(url) as Promise<T>;
             default:
-                throw new Error(`Unknown asset type: ${type satisfies never}`);
+                throw new Error(`Unknown asset type: ${type}`);
         }
     }
 

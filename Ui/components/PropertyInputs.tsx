@@ -331,10 +331,10 @@ export async function loadGeometry(url) {
   const json = JSON.parse(jsonText);
 
   // shapes (optional)
-  const shapes = loader.parseShapes?.(json.shapes || []);
+  const shapes = (loader as any).parseShapes?.(json.shapes || []);
 
   // geometries
-  const geometries = loader.parseGeometries([json], shapes);
+  const geometries = (loader as any).parseGeometries([json], shapes);
 
   // usually only one geometry – return the first
   return Object.values(geometries)[0];
@@ -354,7 +354,7 @@ export async function loadMaterial(url) {
   const textures = loader.parseTextures(json.textures || [], images);
 
   // build materials from textures
-  const materials = loader.parseMaterials([json] || [], textures);
+  const materials = loader.parseMaterials(json ? [json] : [], textures);
 
   // usually only one material – return the first
   return Object.values(materials)[0];
@@ -390,8 +390,8 @@ export const MaterialGeoRefInput: React.FC<{ label: string; value: string; onCha
                         // ---------- MATERIAL ----------
                         if (e.data.type === 'material') {
                             const material = await loadMaterial(e.data.fullPath);
-                            if (material && material.isMaterial && state.isMaterial) {
-                                update(material);   // your hot reload handler
+                            if (material && (material as any).isMaterial && (state as any).isMaterial) {
+                                update(material as any);   // your hot reload handler
                             }
 
 
@@ -401,8 +401,8 @@ export const MaterialGeoRefInput: React.FC<{ label: string; value: string; onCha
                         if (e.data.type === 'geometry') {
                             const geometry = await loadGeometry(e.data.fullPath);
 
-                            if (geometry && geometry.isBufferGeometry && state.isBufferGeometry) {
-                                update(geometry);
+                            if (geometry && (geometry as any).isBufferGeometry && (state as any).isBufferGeometry) {
+                                update(geometry as any);
                             }
                             
                         }

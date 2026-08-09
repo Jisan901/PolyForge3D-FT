@@ -119,14 +119,14 @@ export const ObjectSelector: React.FC<ObjectSelectorProps> = ({
             </div>
           )}
 
-          {Object.entries(groupedItems).map(([category, items]) => (
+          {(Object.entries(groupedItems) as [string, SelectorItem[]][]).map(([category, categoryItems]) => (
             <div key={category} className="mb-3">
               <div className="px-2 py-1 text-[10px] font-bold uppercase opacity-60 sticky top-0 bg-[#1e1e1e]">
                 {category}
               </div>
 
               {/* LIST MODE */}
-              {!grid && items.map(item => (
+              {!grid && categoryItems.map(item => (
                 <div
                   key={item.id}
                   onClick={() => handleSelect(item)}
@@ -147,7 +147,7 @@ export const ObjectSelector: React.FC<ObjectSelectorProps> = ({
               {/* GRID MODE */}
               {grid && (
                 <div className="grid grid-cols-3 gap-1 px-1">
-                  {items.map(item => (
+                  {categoryItems.map(item => (
                     <div
                       key={item.id}
                       onClick={() => handleSelect(item)}

@@ -81,7 +81,7 @@ export class Baxporter1 {
         // -----------------
         // Export geometries
         // -----------------
-        for (const geoJson of Object.values(meta.geometries) ?? []) {
+        for (const geoJson of (Object.values(meta.geometries) as any[]) ?? []) {
             if (seenGeo.has(geoJson.uuid)) continue;
 
             const geometries = [geoJson];
@@ -105,7 +105,7 @@ export class Baxporter1 {
         // -----------------
         // Export materials
         // -----------------
-        for (const matJson of Object.values(meta.materials) ?? []) {
+        for (const matJson of (Object.values(meta.materials) as any[]) ?? []) {
             if (seenMat.has(matJson.uuid)) continue;
 
             // Collect only the images/textures referenced by this material
@@ -153,8 +153,8 @@ export class Baxporter1 {
             })),
             object: json.object,
             // animations and skeletons stay inline — they're lightweight
-            animations: json.animations,
-            skeletons: json.skeletons
+            animations: (json as any).animations,
+            skeletons: (json as any).skeletons
         };
 
         const packed = pack({ json: manifest, blobs: [] });
@@ -202,7 +202,7 @@ export class Baxporter1 {
         // -----------------
         let internalMats = [];
         let externalMats = [];
-        for (const matJson of json.materials ?? []) {
+        for (const matJson of (json as any).materials ?? []) {
             
             let path = this._resolvePath(
                 options,
@@ -293,7 +293,7 @@ export class Baxporter1 {
             nodes: {}
         };
 
-        const geoJson = geometry.toJSON(meta);
+        const geoJson = (geometry as any).toJSON(meta);
         const shapes = Object.values(meta.shapes) as any[];
 
         // Wrap in array — serializeGeometries always expects an array
@@ -567,12 +567,12 @@ export class Baxporter {
 
         // Export geometries — split external (userData.url) from internal
         const { internalList: internalGeos, externalStubs: externalGeos } =
-            await this._exportGeometries(json.geometries ?? [], options);
+            await this._exportGeometries((json as any).geometries ?? [], options);
 
         // Export materials — split external (userData.url) from internal
         // Also handles textures nested inside each material
         const { internalList: internalMats, externalStubs: externalMats } =
-            await this._exportMaterials(json.materials ?? [], json.textures ?? [], json.images ?? [], options);
+            await this._exportMaterials((json as any).materials ?? [], (json as any).textures ?? [], (json as any).images ?? [], options);
 
         // Build manifest — inline assets stay embedded, external ones become stubs
         const manifest = {
@@ -650,7 +650,7 @@ export class Baxporter {
         this.serializer.reset();
 
         const meta = this._freshMeta();
-        const geoJson = geometry.toJSON(meta);
+        const geoJson = (geometry as any).toJSON(meta);
 
         this.serializer.serializeGeometries([geoJson]);
 

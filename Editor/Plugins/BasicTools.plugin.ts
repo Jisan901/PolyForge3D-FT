@@ -26,7 +26,7 @@ export default class BasicToolsPlugin extends Plugin {
     /**
      * Initialize plugin and register all viewport tools
      */
-    init() {
+    async init() {
         console.log('[BasicTools] Initializing...');
 
         // Register all tools with a single dynamic provider

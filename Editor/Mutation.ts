@@ -17,13 +17,13 @@ export function mutate<T extends object>(
     }
 
     ref[keys[keys.length - 1]] = value;
-    BusHub.mutationBus.emit({ target: obj, path });
+    BusHub.mutationBus.emit({ target: obj as any, path });
 }
 export function mutationCall<T extends object>(
     obj: T,
     path: Path
 ): void {
-    BusHub.mutationBus.emit({ target: obj, path });
+    BusHub.mutationBus.emit({ target: obj as any, path });
 }
 export function toast(message: string) {
     BusHub.messageBus.emit(message)

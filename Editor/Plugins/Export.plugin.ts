@@ -12,7 +12,7 @@ export default class ExportPlugin extends Plugin {
     name = 'Export plugin';
     version = '1.0.0';
     private readonly PLUGIN_ID = 'export-tools';
-    init() {
+    async init() {
         const editor = Editor;
         const three = editor.api.three;
         const core = editor.core;

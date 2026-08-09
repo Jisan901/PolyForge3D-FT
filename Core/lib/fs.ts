@@ -1,5 +1,8 @@
-import {configure} from '@jisan901/fs-browser';
+// @ts-ignore
+import { configure } from '@jisan901/fs-browser';
 
-export default configure({ 
+const fs: any = configure({ 
   
 });
+
+export default fs;

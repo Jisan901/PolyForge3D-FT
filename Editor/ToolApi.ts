@@ -64,7 +64,7 @@ export class ViewportToolManager {
     /**
      * Register tool set (called by plugins)
      */
-    register(validationFn: ToolValidationFn, getTools: ToolValidationFn, pluginId: string): void {
+    register(validationFn: ToolValidationFn, getTools: (object: THREE.Object3D) => ViewportTool[], pluginId: string): void {
         this.registeredTools.set(pluginId, {
             validationFn,
             getTools,

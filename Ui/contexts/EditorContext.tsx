@@ -89,11 +89,11 @@ export function useEditorStates(): EditorStatesValue {
 const builder = Core.builder;
 
 interface EditorActionsValue {
-    addObject: (type: string, parentUuid?: string) => THREE.Object3D | null;
+    addObject: (type: any, parentUuid?: string) => THREE.Object3D | null;
     selectObject: (uuid?: string) => THREE.Object3D | null;
     deleteObject: (uuid: string) => void;
     onDuplicate: (uuid: string) => THREE.Object3D | null;
-    onAddComponent: (t:any)=>void;
+    onAddComponent: (t: any, force?: boolean) => void;
     onRemoveComponent: (t:any)=>void;
 }
 
@@ -107,7 +107,7 @@ export function EditorActionsProvider({ children }) {
     
 
     const addObject = useCallback(
-        (type: string, parentUuid?: string) => {
+        (type: any, parentUuid?: string) => {
             const root = sceneManager.activeScene
             if (!root) return null;
 

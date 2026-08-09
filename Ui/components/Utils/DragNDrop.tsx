@@ -5,9 +5,10 @@ interface DragAndDropZoneProps {
     id?: string | number;
     payload?: any;
     onDrop?: (payload: any, event: PointerEvent) => void;
-    children: React.ReactNode;
+    children?: any;
     className?: string;
     highlight?: boolean;
+    [key: string]: any;
 }
 
 export function DragAndDropZone({

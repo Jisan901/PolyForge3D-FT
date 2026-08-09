@@ -276,6 +276,7 @@ export class PostProcessor {
 
     /** Cached scene render node */
     private scenePassNode: any = null;
+    private activeScene!: THREE.Scene;
 
     constructor(private engine: Engine) {
 
@@ -459,7 +460,7 @@ export class PostProcessor {
 
         if (!activePasses.length) {
             // Debug fallback output
-            this.engine.three.postProcessing.outputNode = vec4(1, 0, 0, 1);
+            this.engine.three.postProcessing.outputNode = (TSL as any).vec4(1, 0, 0, 1);
             this.engine.three.postProcessing.needsUpdate = true;
             return;
         }

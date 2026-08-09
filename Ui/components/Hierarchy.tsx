@@ -3,7 +3,7 @@ import {
   ChevronRight, ChevronDown, Box, Camera, Lightbulb, Folder, 
   Eye, Layers, Circle, Cylinder, Square, List, ListTree 
 } from 'lucide-react';
-import { ObjectType } from '../../types';
+import { ObjectType } from '../types';
 import ContextMenu, { MenuItem } from './ContextMenu';
 import { useEditorStates, useEditorActions } from '../contexts/EditorContext';
 import { mutate, mutationCall, toast } from "@/Editor/Mutation";
@@ -23,7 +23,7 @@ const getObjectIcon = (type: ObjectType) => {
   const iconMap = {
     [ObjectType.SCENE]: <Layers {...iconProps} className="text-orange-400" />,
     [ObjectType.CAMERA]: <Camera {...iconProps} className="text-blue-400" />,
-    [ObjectType.LIGHT]: <Lightbulb {...iconProps} className="text-yellow-400" />,
+    [ObjectType.POINTLIGHT]: <Lightbulb {...iconProps} className="text-yellow-400" />,
     [ObjectType.FOLDER]: <Folder {...iconProps} className="text-editor-textDim" />,
     [ObjectType.SPHERE]: <Circle {...iconProps} className="text-green-400" />,
     [ObjectType.CYLINDER]: <Cylinder {...iconProps} className="text-green-400" />,
@@ -127,15 +127,15 @@ const HierarchyNode = ({ node, depth, isFlat, handleContextMenu, sceneVersion })
       const oldParent = draggedNode.parent;
       editor.addObject(dropTarget, draggedNode);
 
-      mutationCall(oldParent);
-      mutationCall(dropTarget);
-      mutationCall(draggedNode);
+      mutationCall(oldParent, 'children');
+      mutationCall(dropTarget, 'children');
+      mutationCall(draggedNode, 'children');
 
       toast('Parent changed');
     } else if (e.type === 'Asset') {
       const objectData = await editor.api.loadObjectFile(e.data.fullPath);
       editor.addObject(node, objectData);
-      mutationCall(node);
+      mutationCall(node, 'children');
       toast('Loaded');
     }
   };
@@ -187,7 +187,6 @@ const HierarchyNode = ({ node, depth, isFlat, handleContextMenu, sceneVersion })
 
           {/* Name */}
           <EditableName
-            key={name}
             name={name || node.type}
             onRename={(newName) => editor.setProperty(node, 'name', newName)}
           />
@@ -265,9 +264,9 @@ const Hierarchy: React.FC = () => {
            { label: 'Duplicate', shortcut: 'Ctrl+D', action: () => onDuplicate?.(id) },
             { separator: true, label: '', action: () => {} },
           ]
-      const defaultItems = id?[...targetedItems,...universalItems]:universalItems;
+      const defaultItems: MenuItem[] = id ? [...targetedItems, ...universalItems] as MenuItem[] : universalItems as MenuItem[];
       
-      Editor.api.buses.hierarchyContextMenu.emit(id,defaultItems)
+      (Editor.api.buses.hierarchyContextMenu.emit as any)(id, defaultItems);
       return defaultItems;
   }
 

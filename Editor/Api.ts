@@ -38,7 +38,7 @@ addTo(parent: THREE.Object3D, child: THREE.Object3D) {
     parent.add(child)
     // FIX: traverse the whole subtree to add helpers for all children, not just root
     child.traverse(e => this.three.helpers.addSpecificHelper(e))
-    mutationCall(parent)
+    mutationCall(parent, 'children')
 }
 
 /**
@@ -53,7 +53,7 @@ removeFrom(parent: THREE.Object3D, child: THREE.Object3D) {
     child.traverse(e => this.three.helpers.removeHelper(e))
     // freeGPU handles recursive disposal of tex/mat/geo — runs after registry is clean
     ThreeHelpers.freeGPU(child)
-    mutationCall(parent)
+    mutationCall(parent, 'children')
 }
     
     /**
@@ -74,11 +74,11 @@ removeFrom(parent: THREE.Object3D, child: THREE.Object3D) {
     async saveMatGeoFile(object: AnyThree, path: string) {
 
         let fileUrl;
-        if (object.isMaterial) {
-            fileUrl = path + '/' + (object.name || object.type) + '.mat'
+        if ((object as any).isMaterial) {
+            fileUrl = path + '/' + ((object as any).name || (object as any).type) + '.mat'
         }
-        else if (object.isBufferGeometry) {
-            fileUrl = path + '/' + (object.name || object.type) + '.geo'
+        else if ((object as any).isBufferGeometry) {
+            fileUrl = path + '/' + ((object as any).name || (object as any).type) + '.geo'
         }
         if (!fileUrl) return
         let json = JSON.stringify(object, null, 2);
@@ -90,16 +90,16 @@ removeFrom(parent: THREE.Object3D, child: THREE.Object3D) {
 
 
 export const BusHub = {
-    fsUpdate: new Bus<void>(),
-    sceneUpdate: new Bus<any>(),
-    selectionUpdate: new Bus<any>(),
-    mutationBus: new Bus<{ target: any, path: string }>(),
-    messageBus: new Bus<any>(),
-    orbitEnabled: new Bus<any>(),
-    assetPanelDrop: new Bus<any>(),
-    viewportDrop: new Bus<any>(),
-    hierarchyContextMenu: new Bus<any>(),
-    toolChange: new Bus<string>(),
+    fsUpdate: new Bus<[]>(),
+    sceneUpdate: new Bus<[any]>(),
+    selectionUpdate: new Bus<[any]>(),
+    mutationBus: new Bus<[{ target: any, path: string }]>(),
+    messageBus: new Bus<[any]>(),
+    orbitEnabled: new Bus<[any]>(),
+    assetPanelDrop: new Bus<[any, MouseEvent]>(),
+    viewportDrop: new Bus<[any, MouseEvent]>(),
+    hierarchyContextMenu: new Bus<[any]>(),
+    toolChange: new Bus<[string]>(),
 } as const;
 
 
