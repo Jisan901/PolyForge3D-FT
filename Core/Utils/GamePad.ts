@@ -195,7 +195,7 @@ export class LightGamePad {
     * syncWith
     */
     public syncWith(source) {
-        
+
         const target = this.domElement;
         const rect = source.getBoundingClientRect();
         Object.assign(target.style, {
@@ -205,15 +205,15 @@ export class LightGamePad {
             width: rect.width + "px",
             height: rect.height + "px"
         });
-        
-        this.movementPad.align();
+
+        this.movementPad?.align();
     }
-    
-    public setVisibility(val: boolean){
-        this.domElement.style.display = val?"block":"none";
-        this.movementPad.align();
+
+    public setVisibility(val: boolean) {
+        this.domElement.style.display = val ? "block" : "none";
+        this.movementPad?.align();
     }
-    
+
 }
 
 // --- 3. Components (Joystick, WASD, Rotation) ---

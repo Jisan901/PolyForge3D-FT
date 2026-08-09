@@ -1,30 +1,30 @@
 import fs from '@/Core/lib/fs';
 
 interface GraphicsSettings {
-  antialiasing: string;
-  resolutionScale: number;
-  realtimeShadows: boolean;
-  ambientLight: string;
-  textureQuality: string;
-  // Post-processing
-  bloom: boolean;
-  bloomStrength: number;
-  bloomThreshold: number;
-  bloomRadius: number;
-  fxaa: boolean;
-  ssao: boolean;
-  ssaoIntensity: number;
-  dof: boolean;
-  dofFocus: number;
-  vignette: boolean;
-  vignetteIntensity: number;
+    antialiasing: string;
+    resolutionScale: number;
+    realtimeShadows: boolean;
+    ambientLight: string;
+    textureQuality: string;
+    // Post-processing
+    bloom: boolean;
+    bloomStrength: number;
+    bloomThreshold: number;
+    bloomRadius: number;
+    fxaa: boolean;
+    ssao: boolean;
+    ssaoIntensity: number;
+    dof: boolean;
+    dofFocus: number;
+    vignette: boolean;
+    vignetteIntensity: number;
 }
 
 interface PhysicsSettings {
-  gravity: number;
-  timeStep: number;
-  maxIterations: number;
-  continuousCollision: boolean;
+    gravity: number;
+    timeStep: number;
+    maxIterations: number;
+    continuousCollision: boolean;
 }
 
 
@@ -93,7 +93,7 @@ export class Settings {
         if (this.initialized) return;
 
         try {
-            const data = await fs.readFile(this.fileUrl, { encoding: 'utf8' });
+            const data = await fs.readFile(this.fileUrl, 'utf8');
             const loadedSettings = JSON.parse(data);
 
             // Deep merge with defaults to handle missing keys
@@ -291,7 +291,7 @@ export class Settings {
         physicsPlugin.world.gravity.y = settings.gravity;
     }
 
-    applySettings(PolyForge){
+    applySettings(PolyForge) {
         this.applyGraphicsSettings(this.settings.graphics, PolyForge)
         this.applyPhysicsSettings(this.settings.physics, PolyForge)
     }
