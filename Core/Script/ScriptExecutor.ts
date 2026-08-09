@@ -1,7 +1,7 @@
 export abstract class BaseScript {
   enabled: boolean = true;
   priority?: number;
-  
+
   // Lifecycle methods (all optional)
   onAwake?(): void;
   onStart?(): void;
@@ -20,7 +20,7 @@ export class ScriptExecutor {
   private scriptOrder: BaseScript[] = [];
   private initialized = false;
 
-  constructor() {}
+  constructor() { }
 
   /**
    * Add a script instance to the executor
@@ -29,7 +29,7 @@ export class ScriptExecutor {
    */
   addScript(instance: BaseScript, instanceId?: string): string {
     const id = instanceId ?? crypto.randomUUID();
-    instance.id = id;
+    (instance as any).id = id;
     if (this.scripts.has(id)) {
       console.warn(`Script with ID "${id}" already exists. Replacing...`);
       this.removeScript(id);
@@ -37,7 +37,7 @@ export class ScriptExecutor {
 
     this.scripts.set(id, instance);
     this.scriptOrder.push(instance);
-    
+
     // Sort by priority
     this.scriptOrder.sort((a, b) => {
       const aPriority = a.priority ?? 0;
@@ -69,7 +69,7 @@ export class ScriptExecutor {
     this.invokeLifecycle(script, 'onDestroy');
 
     this.scripts.delete(id);
-    
+
     const index = this.scriptOrder.indexOf(script);
     if (index !== -1) {
       this.scriptOrder.splice(index, 1);
@@ -168,11 +168,11 @@ export class ScriptExecutor {
    * Update all scripts (called every frame)
    */
   update(deltaTime: number): void {
-      
+
     this.invokeLifecycleAll('onBeforeUpdate', deltaTime);
     this.invokeLifecycleAll('onUpdate', deltaTime);
     this.invokeLifecycleAll('onLateUpdate', deltaTime);
-    
+
   }
 
   /**
@@ -206,7 +206,7 @@ export class ScriptExecutor {
   /**
    * Destroy all scripts
    */
-  destroy(clear=true): void {
+  destroy(clear = true): void {
     // Call onDisable for enabled scripts
     for (const script of this.scriptOrder) {
       if (script.enabled) {
@@ -216,9 +216,9 @@ export class ScriptExecutor {
 
     // Call onDestroy for all scripts
     this.invokeLifecycleAll('onDestroy');
-    if (clear){
-        this.scripts.clear();
-        this.scriptOrder.length = 0;
+    if (clear) {
+      this.scripts.clear();
+      this.scriptOrder.length = 0;
     }
     this.initialized = false;
   }
