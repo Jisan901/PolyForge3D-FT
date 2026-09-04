@@ -12,7 +12,7 @@ import ResourceBrowserImport from './components/RuntimeResourceBrowser';
 import ConsolePanelImport from './components/ConsolePanel';
 import TimelineEditorImport from './components/TimelineEditor';
 import TextureEditorImport from './components/TextureEditor';
-import SettingsModalImport from './components/SettingsModal';
+import SettingsPanelImport from './components/SettingsPanel';
 import PluginsPanel from './components/PluginSystems';
 import {UVEditorApp} from "@/Plugins/uv-editor/UVEditorApp";
 import TextureAtlas from "@/Plugins/TextureAtlas/App";
@@ -44,7 +44,7 @@ const ResourceBrowser = React.memo(ResourceBrowserImport);
 const ConsolePanel = React.memo(ConsolePanelImport);
 const TimelineEditor = React.memo(TimelineEditorImport);
 const TextureEditor = React.memo(TextureEditorImport);
-const SettingsModal = React.memo(SettingsModalImport);
+const SettingsPanel = React.memo(SettingsPanelImport);
 const Viewport = React.memo(ViewportImport);
 
 
@@ -61,7 +61,7 @@ const WINDY_DEFS: WindyDef[] = [
   { id: 'hierarchy', title: 'Hierarchy', icon: <ListTree size={12} />, component: Hierarchy },
   { id: 'AnimationPlayer', title: 'AnimationPlayer', icon: <Clock size={12} />, component: AnimationPlayer },
   { id: 'timelineEditor', title: 'Timeline Editor', icon: <Clock size={12} />, component: TimelineEditor },
-  { id: 'settings', title: 'Settings', icon: <Settings size={12} />, component: SettingsModal },
+  { id: 'settings', title: 'Settings', icon: <Settings size={12} />, component: SettingsPanel },
   { id: 'addons', title: 'Addons', icon: <Settings2 size={12} />, component: PluginsPanel },
   { id: 'uv-editor', title: 'UV Editor', icon: <Settings size={12} />, component: UVEditorApp },
   { id: 'texture-atlas', title: 'Texture Atlas', icon: <Settings size={12} />, component: TextureAtlas },

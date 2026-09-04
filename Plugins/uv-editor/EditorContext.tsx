@@ -63,8 +63,9 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
 
   // Sync from selectedObject to geometry and texture
   useEffect(() => {
-    if (selectedObject && selectedObject.geometry) {
-      const geo = selectedObject.geometry as THREE.BufferGeometry;
+    const mesh = selectedObject as any;
+    if (mesh && mesh.geometry) {
+      const geo = mesh.geometry as THREE.BufferGeometry;
       const posAttr = geo.getAttribute('position');
       const uvAttr = geo.getAttribute('uv');
       const indexAttr = geo.getIndex();
@@ -91,10 +92,10 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
 
       // Check for material map
       let map: THREE.Texture | null = null;
-      if (selectedObject.material) {
-        const mat = Array.isArray(selectedObject.material) ? selectedObject.material[0] : selectedObject.material;
-        if ((mat as any).map) {
-          map = (mat as any).map;
+      if (mesh.material) {
+        const mat = Array.isArray(mesh.material) ? mesh.material[0] : mesh.material;
+        if (mat && mat.map) {
+          map = mat.map;
         }
       }
       setSelectedTexture(map);
@@ -108,8 +109,9 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
 
   // Sync from geometry to selectedObject when uvVersion changes
   useEffect(() => {
-    if (selectedObject && selectedObject.geometry && geometry && uvVersion > 0) {
-      const geo = selectedObject.geometry as THREE.BufferGeometry;
+    const mesh = selectedObject as any;
+    if (mesh && mesh.geometry && geometry && uvVersion > 0) {
+      const geo = mesh.geometry as THREE.BufferGeometry;
       const uvAttr = geo.getAttribute('uv');
       if (uvAttr) {
         for (let i = 0; i < geometry.uvs.length; i++) {

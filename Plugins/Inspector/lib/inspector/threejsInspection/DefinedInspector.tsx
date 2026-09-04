@@ -17,21 +17,29 @@ export const DefinedInspector = ({ obj }: { obj: any }) => {
         )
 
   const customResolvers = globalInspector.customResolvers.filter(r => r.test(obj));
+  const topResolvers = customResolvers.filter(r => r.placement === 'top');
+  const bottomResolvers = customResolvers.filter(r => r.placement !== 'top');
+
+  const renderResolver = (resolver: typeof customResolvers[0], idx: number) => {
+    const Component = resolver.component;
+    if (resolver.noWrapper) {
+      return <Component key={`custom-${idx}`} obj={obj} />;
+    }
+    return (
+      <InspectorCategory key={`custom-${idx}`} title={resolver.title} defaultExpanded={false}>
+        <Component obj={obj} />
+      </InspectorCategory>
+    );
+  };
 
   return (
     <div className="flex flex-col gap-1">
-      {customResolvers.map((resolver, idx) => {
-        const Component = resolver.component;
-        return (
-          <InspectorCategory key={`custom-${idx}`} title={resolver.title} defaultExpanded={false}>
-            <Component obj={obj} />
-          </InspectorCategory>
-        );
-      })}
+      {topResolvers.map(renderResolver)}
       {obj.isObject3D && <Object3DNode obj={obj} />}
       {obj.isMaterial && <MaterialNode obj={obj} />}
       {(obj.isBufferGeometry || obj.isGeometry) && <GeometryNode obj={obj} />}
       {obj.isTexture && <TextureNode obj={obj} />}
+      {bottomResolvers.map(renderResolver)}
     </div>
   );
 };

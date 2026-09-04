@@ -17,7 +17,9 @@ export function DragAndDropZone({
     onDrop,
     children,
     className = '',
-    highlight = true
+    highlight = true,
+    style,
+    ...rest
 }: DragAndDropZoneProps) {
     const ref = useRef<HTMLDivElement>(null);
     const dragStartPos = useRef<{ x: number; y: number } | null>(null);
@@ -245,8 +247,10 @@ export function DragAndDropZone({
                 transition: dragState.isDragging ? 'none' : 'border 0.2s, background-color 0.2s',
                 // Disable native text selection to prevent conflict
                 userSelect: 'none',
-                WebkitUserSelect: 'none'
+                WebkitUserSelect: 'none',
+                ...style
             }}
+            {...rest}
         >
             {children}
         </div>

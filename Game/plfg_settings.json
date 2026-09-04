@@ -8,7 +8,7 @@
   },
   "graphics": {
     "antialiasing": "FXAA",
-    "resolutionScale": 0.8,
+    "resolutionScale": 0.97,
     "realtimeShadows": false,
     "ambientLight": "#1a1a1a",
     "textureQuality": "High",

@@ -1,3 +1,5 @@
+import { mutationCall } from '@/Editor/Mutation';
+
 export class GUIController {
   private onChangeCallback?: (val: any) => void;
 
@@ -60,6 +62,8 @@ export interface CustomResolver {
   title: string;
   test: (obj: any) => boolean;
   component: any;
+  noWrapper?: boolean;
+  placement?: 'top' | 'bottom';
 }
 
 export class Inspector {
@@ -80,8 +84,14 @@ export class Inspector {
     this.currentObject = initialObject;
   }
 
-  setCustomResolverUI(title: string, test: (obj: any) => boolean, component: any) {
-    this.customResolvers.push({ title, test, component });
+  setCustomResolverUI(
+    title: string,
+    test: (obj: any) => boolean,
+    component: any,
+    noWrapper = false,
+    placement: 'top' | 'bottom' = 'bottom'
+  ) {
+    this.customResolvers.push({ title, test, component, noWrapper, placement });
     this.notifyStructureChange();
   }
 
@@ -122,11 +132,15 @@ export class Inspector {
     if (obj) {
       obj[prop] = value;
       this.onChange(obj, prop);
+      mutationCall(obj, prop);
     }
   }
 
   // Notify that an object changed (debounced/throttled)
   onChange(obj: any, prop?: string) {
+    if (obj && prop) {
+      mutationCall(obj, prop);
+    }
     if (!this.pendingNotifications.has(obj)) {
       this.pendingNotifications.set(obj, new Set());
     }

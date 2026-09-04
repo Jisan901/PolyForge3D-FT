@@ -1,12 +1,12 @@
 // game/scripts/Rotate.ts
-import { Behavior } from '@/PolyModule/Runtime/Behavior';
-import { INumber, IObject3D } from '@/PolyModule/Runtime/ITypes';
+import { Behavior } from '@/Core/Behavior';
+import { INumber } from '@/Editor/ITypes';
 import * as THREE from 'three';
 
-export default class Rotate extends Behavior{
+export default class Rotate extends Behavior {
   @INumber
   speed: number = 0.5;
-  offset: number = Math.random()*10
+  offset: number = Math.random() * 10
   val: number = 0;
 
   onStart() {
@@ -15,7 +15,7 @@ export default class Rotate extends Behavior{
   }
 
   onUpdate(dt: number) {
-    if (this.object) this.object.intensity = 5+2*Math.sin(this.val);
-    this.val +=this.speed
+    if (this.object) this.object.intensity = 5 + 2 * Math.sin(this.val);
+    this.val += this.speed
   }
 }

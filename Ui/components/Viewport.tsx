@@ -152,7 +152,7 @@ const Viewport: React.FC = () => {
             </div>`
       }
       el.appendChild(canvas);
-      
+      editor.api?.three?.gizmo?.attachTo?.(el);
     }
 
     const handleResize = () => {
@@ -165,6 +165,7 @@ const Viewport: React.FC = () => {
     return () => {
         resizeObserver.disconnect()
         window.removeEventListener("canvasresize", handleResize);
+        editor.api?.three?.gizmo?.detach?.();
     }
   }, []);
 

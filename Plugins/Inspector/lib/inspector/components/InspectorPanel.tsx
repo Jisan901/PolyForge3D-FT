@@ -14,18 +14,33 @@ export const InspectorPanel = ({ children, title = "Inspector" }: { children: Re
   );
 };
 
-export const InspectorCategory: React.FC<{ title: string, children: React.ReactNode, defaultExpanded?: boolean }> = ({ title, children, defaultExpanded = true }) => {
+export const InspectorCategory: React.FC<{
+  title: string;
+  children: React.ReactNode;
+  defaultExpanded?: boolean;
+  icon?: React.ReactNode;
+  headerActions?: React.ReactNode;
+  className?: string;
+}> = ({ title, children, defaultExpanded = true, icon, headerActions, className = '' }) => {
   const [expanded, setExpanded] = React.useState(defaultExpanded);
   
   return (
-    <div className="mb-2">
-      <button 
-        className="flex items-center w-full text-left px-1 py-1 hover:bg-[#2a2a2a] rounded transition-colors text-xs font-semibold text-gray-300 uppercase tracking-wider"
-        onClick={() => setExpanded(!expanded)}
-      >
-        {expanded ? <ChevronDown size={14} className="mr-1" /> : <ChevronRight size={14} className="mr-1" />}
-        {title}
-      </button>
+    <div className={`mb-2 ${className}`}>
+      <div className="flex items-center justify-between w-full hover:bg-[#2a2a2a] rounded transition-colors pr-1">
+        <button 
+          className="flex items-center flex-1 text-left px-1 py-1 text-xs font-semibold text-gray-300 uppercase tracking-wider"
+          onClick={() => setExpanded(!expanded)}
+        >
+          {expanded ? <ChevronDown size={14} className="mr-1 shrink-0" /> : <ChevronRight size={14} className="mr-1 shrink-0" />}
+          {icon && <span className="mr-1.5 opacity-80 shrink-0">{icon}</span>}
+          <span className="truncate">{title}</span>
+        </button>
+        {headerActions && (
+          <div className="flex items-center shrink-0" onClick={(e) => e.stopPropagation()}>
+            {headerActions}
+          </div>
+        )}
+      </div>
       {expanded && (
         <div className="pl-4 pr-1 pt-1 flex flex-col gap-1">
           {children}

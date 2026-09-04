@@ -18,7 +18,7 @@ export function useObserver(target:any, path:string) {
         BusHub.mutationBus.subscribe(({ target: t, path: changedPath }) => {
             if (changedPath === path && target === t) rerender((v) => v + 1);
         })
-        , [path]);
+        , [path, target]);
 
     // Resolve deep value
     if (!target || !path) return
@@ -53,7 +53,7 @@ export function useTargetObserver(target: object) {
         BusHub.mutationBus.subscribe(({ target: t }) => {
             if (target === t) rerender((v) => v + 1);
         })
-        , []);
+        , [target]);
 
     
     if (!target) return

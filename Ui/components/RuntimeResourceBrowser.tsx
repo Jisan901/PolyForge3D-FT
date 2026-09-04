@@ -1,18 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
-import {
-  Search,
-  FileCode,
-  FileImage,
-  FileText,
-  RefreshCw,
-  Box,
-  Palette,
-  Grid3x3,
-  Move3d,
-  Image as ImageIcon,
-} from "lucide-react";
+import { Search, RefreshCw, FileText, Box } from "lucide-react";
 import ContextMenu, { MenuItem } from "./ContextMenu";
 import { DragAndDropZone } from "./Utils/DragNDrop";
+import { getRuntimeResourceIcon } from "./IconMap";
 
 import { Editor } from "@/Editor/Editor";
 
@@ -32,25 +22,25 @@ const categories: CategoryTab[] = [
   {
     id: "objects",
     label: "Objects",
-    icon: <Box size={16} />,
+    icon: getRuntimeResourceIcon("objects", { size: 16 }),
     type: "Object3D",
   },
   {
     id: "materials",
     label: "Materials",
-    icon: <Palette size={16} />,
+    icon: getRuntimeResourceIcon("materials", { size: 16 }),
     type: "Material",
   },
   {
     id: "geometries",
     label: "Geometries",
-    icon: <Grid3x3 size={16} />,
+    icon: getRuntimeResourceIcon("geometries", { size: 16 }),
     type: "BufferGeometry",
   },
   {
     id: "textures",
     label: "Textures",
-    icon: <ImageIcon size={16} />,
+    icon: getRuntimeResourceIcon("textures", { size: 16 }),
     type: "Texture",
   },
 ];
@@ -97,6 +87,11 @@ const ResourceBrowser: React.FC = () => {
 
   useEffect(() => {
     fetchRuntimeResources(activeCategory);
+    return editor.api.buses.mutationBus.subscribe(({ path }) => {
+      if (path === 'children') {
+        fetchRuntimeResources(activeCategory);
+      }
+    });
   }, [activeCategory, fetchRuntimeResources]);
 
   const handleCategoryChange = (category: ResourceCategory) => {
@@ -104,23 +99,7 @@ const ResourceBrowser: React.FC = () => {
     setSearchQuery("");
   };
 
-  const getIcon = (asset: any) => {
-    const props = { size: 32 };
-    if (!asset) return <FileText {...props} className="text-gray-400" />;
 
-    const normalizedType = asset?.type?.toLowerCase?.() || "";
-
-    if (asset.isMaterial)
-      return <Palette {...props} className="text-pink-400" />;
-    if (asset.isTexture)
-      return <ImageIcon {...props} className="text-orange-400" />;
-    if (asset.isGeometry||asset.isBufferGeometry)
-      return <Grid3x3 {...props} className="text-green-400" />;
-    if (asset.isMesh) return <Box {...props} className="text-blue-800" />;
-    if (asset.isObject3D) return <Move3d {...props} className="text-indigo-400" />;
-
-    return <FileText {...props} className="text-gray-400" />;
-  };
 
   const handleContextMenu = (e: React.MouseEvent, id: string) => {
     e.preventDefault();
@@ -233,7 +212,7 @@ const ResourceBrowser: React.FC = () => {
                 onDoubleClick={() => handleOpen(resource)}
               >
                 <div className="mb-2 transition-transform group-hover:scale-110 pointer-events-none">
-                  {getIcon(resource || activeCategory)}
+                  {getRuntimeResourceIcon(resource || activeCategory, { size: 32 })}
                 </div>
                 <span className="text-[10px] text-center text-editor-text truncate w-full px-1 bg-transparent rounded group-hover:bg-editor-accent group-hover:text-white leading-tight py-0.5 pointer-events-none">
                   {resource.name || "Unnamed"}

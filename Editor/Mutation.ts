@@ -1,4 +1,4 @@
-import {BusHub} from "@/Editor/Api";
+import { BusHub } from "@/Editor/Api";
 
 
 export type Path = string;
@@ -23,6 +23,7 @@ export function mutationCall<T extends object>(
     obj: T,
     path: Path
 ): void {
+    if (!obj) return;
     BusHub.mutationBus.emit({ target: obj as any, path });
 }
 export function toast(message: string) {

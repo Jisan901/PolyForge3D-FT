@@ -33,6 +33,8 @@ const ContextMenuItem: React.FC<{
   onClose: () => void;
 }> = ({ item, index, active, setActive, onClose }) => {
   const ref = useRef<HTMLButtonElement>(null);
+  const submenu = item.submenu || item.children;
+  const hasSubmenu = Boolean(submenu && submenu.length > 0);
 
   return (
     <>
@@ -54,7 +56,7 @@ const ContextMenuItem: React.FC<{
         }}
         onClick={(e) => {
           e.stopPropagation();
-          if (!item.disabled && !item.submenu) {
+          if (!item.disabled && !hasSubmenu && item.action) {
             item.action();
             onClose();
           }
@@ -65,15 +67,15 @@ const ContextMenuItem: React.FC<{
           {item.shortcut && (
             <span className="text-[9px] opacity-70">{item.shortcut}</span>
           )}
-          {item.submenu && <ChevronRight size={12} />}
+          {hasSubmenu && <ChevronRight size={12} />}
         </span>
       </button>
 
-      {item.submenu && active && ref.current && (
+      {hasSubmenu && active && ref.current && (
         <ContextMenu
           x={ref.current.getBoundingClientRect().right}
           y={ref.current.getBoundingClientRect().top}
-          items={item.submenu}
+          items={submenu!}
           onClose={onClose}
           isSubmenu
         />

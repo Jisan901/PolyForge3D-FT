@@ -1,15 +1,14 @@
 import { THREE } from '@/Core/lib/THREE';
 import { ViewHelper } from 'three/addons/helpers/ViewHelper.js';
 
-
 export class InteractiveViewHelper {
     public renderer: THREE.WebGPURenderer;
     public helper: any;
     public div: HTMLDivElement;
+    public controls: any = null;
 
-    constructor(private aligner: HTMLElement, private camera:THREE.PerspectiveCamera) {
+    constructor(private aligner: HTMLElement, private camera: THREE.PerspectiveCamera) {
         // Create dedicated canvas for the view helper
-        //this.camera = new THREE.PerspectiveCamera(45, 128 / 128, 0.01, 500);
         const canvas = document.createElement('canvas');
         canvas.width = 128;
         canvas.height = 128;
@@ -38,39 +37,97 @@ export class InteractiveViewHelper {
         div.style.position = 'absolute';
         div.style.height = '128px';
         div.style.width = '128px';
+        div.style.right = '8px';
+        div.style.bottom = '8px';
         div.style.pointerEvents = 'auto';
         
         // Append canvas to div
         div.appendChild(canvas);
-        document.body.appendChild(div);
+
+        // Attach to aligner's parent if available
+        if (aligner && aligner.parentElement) {
+            aligner.parentElement.appendChild(div);
+        }
         
-        // Handle click events
+        // Handle click events and stop propagation to prevent unwanted viewport orbit/raycasting
+        canvas.addEventListener('pointerdown', (event) => {
+            event.stopPropagation();
+        });
+
         canvas.addEventListener('pointerup', (event) => {
+            event.stopPropagation();
+            if (this.controls?.target) {
+                this.helper.center = this.controls.target;
+            }
             this.helper.handleClick(event);
         });
     }
+
+    get isAnimating(): boolean {
+        return Boolean(this.helper?.animating);
+    }
     
-    setControll(controls) {
+    setControll(controls: any) {
+        this.controls = controls;
         this.helper.controls = controls;
-        this.helper.controls.center = controls.target;
+        if (controls && controls.target) {
+            // Point helper center directly to the OrbitControls target Vector3
+            this.helper.center = controls.target;
+        }
+    }
+
+    attachTo(container: HTMLElement) {
+        if (this.div.parentElement !== container) {
+            container.appendChild(this.div);
+        }
+        this.div.style.display = 'block';
+    }
+
+    detach() {
+        if (this.div && this.div.parentNode) {
+            this.div.parentNode.removeChild(this.div);
+        }
     }
     
     update(dt = 1 / 50) {
+        // If viewport canvas is unmounted or detached from DOM, remove gizmo and skip rendering
+        if (!this.aligner || !this.aligner.isConnected || !this.aligner.parentElement) {
+            this.detach();
+            return;
+        }
+
+        // Ensure gizmo container is inside the canvas parent
+        if (this.div.parentElement !== this.aligner.parentElement) {
+            this.aligner.parentElement.appendChild(this.div);
+            this.div.style.display = 'block';
+        }
+
+        // Keep helper.center in sync with current controls.target (handles panning!)
+        if (this.controls?.target) {
+            this.helper.center = this.controls.target;
+        }
+
         if (this.helper.animating) {
             this.helper.update(dt);
+            // When animation completes, update OrbitControls to align with new camera orientation
+            if (!this.helper.animating && this.controls) {
+                this.controls.update();
+            }
         }
-        // Use dedicated renderer instead of shared one
+
+        // Render dedicated helper
         this.helper.render(this.renderer);
     }
     
     handleResize() {
-        const dim = 128;
-        const domElement = this.aligner;
-        const rect = domElement.getBoundingClientRect();
-        const offsetX = rect.left + (domElement.offsetWidth - dim);
-        const offsetY = rect.top + (domElement.offsetHeight - dim);
-        this.div.style.top = offsetY + 'px';
-        this.div.style.left = offsetX + 'px';
+        if (this.aligner && this.aligner.isConnected && this.aligner.parentElement) {
+            if (this.div.parentElement !== this.aligner.parentElement) {
+                this.aligner.parentElement.appendChild(this.div);
+            }
+            this.div.style.display = 'block';
+        } else {
+            this.detach();
+        }
     }
     
     dispose() {
@@ -78,8 +135,6 @@ export class InteractiveViewHelper {
         if (this.renderer) {
             this.renderer.dispose();
         }
-        if (this.div && this.div.parentNode) {
-            this.div.parentNode.removeChild(this.div);
-        }
+        this.detach();
     }
 }

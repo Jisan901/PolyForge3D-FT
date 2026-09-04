@@ -395,7 +395,11 @@ export class ThreeAPI {
     /* --- Shorthands & Proxies --- */
 
     update(dt) {
-        if (this._activeCamera === this.editorCamera) this.editorControls.update();
+        if (this._activeCamera === this.editorCamera) {
+            if (!this.gizmo?.isAnimating) {
+                this.editorControls.update();
+            }
+        }
         this.gizmo.update(dt);
     }
 
