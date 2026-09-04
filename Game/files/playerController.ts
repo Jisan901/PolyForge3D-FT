@@ -35,9 +35,13 @@ export default class PlayerController extends Behavior {
 
 
     private nextPosition = new THREE.Vector3();
+    yaw: number;
+    pitch: number;
+    standingOnBody: boolean;
+    lastPlatformPosition: any;
 
     onStart() {
-        this.camera = getRef(this.camera) || getCamera();
+        this.camera = getRef<THREE.Camera>(this.camera as any) || getCamera();
 
         console.log('PlayerController started');
 
@@ -45,7 +49,7 @@ export default class PlayerController extends Behavior {
         this.world = Instance.pluginData.physics.world;
 
         // get visual capsule mesh
-        this.capsuleMesh = getRef(this.capsuleMesh);
+        this.capsuleMesh = getRef<THREE.Group>(this.capsuleMesh as any);
 
         // Create character controller
         this.controller = this.world.createCharacterController(0.01);
@@ -118,16 +122,7 @@ export default class PlayerController extends Behavior {
     }
 
     private applyPhysics(dt: number) {
-        // Track platform movement BEFORE physics update
         let platformDelta = new THREE.Vector3();
-        if (this.standingOnBody && this.isGrounded) {
-            const currentPos = this.standingOnBody.translation();
-            platformDelta.set(
-                currentPos.x - this.lastPlatformPosition.x,
-                currentPos.y - this.lastPlatformPosition.y,
-                currentPos.z - this.lastPlatformPosition.z
-            );
-        }
 
         // Apply gravity
         if (!this.isGrounded || this.velocity.y > 0) {
@@ -150,8 +145,7 @@ export default class PlayerController extends Behavior {
         const movement = this.controller.computedMovement();
         const rawGrounded = this.controller.computedGrounded();
 
-        // Detect what we're standing on
-        this.standingOnBody = null;
+
         if (rawGrounded) {
             const pos = this.characterBody.translation();
         }
@@ -185,13 +179,13 @@ export default class PlayerController extends Behavior {
 
         this.characterBody.setNextKinematicTranslation(this.nextPosition);
     }
-    
-    
-    onLateUpdate(deltaTime: number){
-        
+
+
+    onLateUpdate(deltaTime: number) {
+
     }
-    onBeforeUpdate(deltaTime: number){
-        
+    onBeforeUpdate(deltaTime: number) {
+
     }
 
     private updateObjectTransform(dt) {

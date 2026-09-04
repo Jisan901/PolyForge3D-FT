@@ -4,7 +4,7 @@ import { THREE } from '@/Core/lib/THREE';
 import { INumber, IRef } from '@/Editor/ITypes';
 
 
-import { Noise,NoiseDetail } from "./Utils/perlin.js"
+import { Noise, NoiseDetail } from "./Utils/perlin.js"
 NoiseDetail(10)
 
 
@@ -115,13 +115,13 @@ function smoothstep(edge0, edge1, x) {
     x = Math.min(Math.max((x - edge0) / (edge1 - edge0), 0), 1);
     return x * x * (3 - 2 * x);
 }
-function distance (x1,y1,x2,y2){
+function distance(x1, y1, x2, y2) {
     const dx = x1 - x2;
     const dy = y1 - y2;
     return Math.sqrt(dx * dx + dy * dy);
 }
-function csdf( x,y, r, h,w){
-	return (distance(x,y,w/2,h/2) - r)/h;
+function csdf(x, y, r, h, w) {
+    return (distance(x, y, w / 2, h / 2) - r) / h;
 }
 
 
@@ -148,8 +148,8 @@ export class ChunkGenerator {
             let halfW = (meshSize - 1) / 2;
             let px = center[0] + (x - halfW);
             let pz = center[1] + (z - halfW);
-            let noiseVal = this.noiseGen.noise(px * 0.02, 0, pz * 0.02) * 20 ;
-            noiseVal = noiseVal * smoothstep(0.5,0.01,csdf(px,pz,10,180,180))
+            let noiseVal = this.noiseGen.noise(px * 0.02, 0, pz * 0.02) * 20;
+            noiseVal = noiseVal * smoothstep(0.5, 0.01, csdf(px, pz, 10, 180, 180))
             return noiseVal
         };
 
@@ -318,138 +318,138 @@ export class ChunkGenerator {
 
 
 function getChunkRange(center, radius, chunkSize) {
-  const minX = Math.floor((center.x - radius) / chunkSize);
-  const maxX = Math.floor((center.x + radius) / chunkSize);
-  const minZ = Math.floor((center.z - radius) / chunkSize);
-  const maxZ = Math.floor((center.z + radius) / chunkSize);
+    const minX = Math.floor((center.x - radius) / chunkSize);
+    const maxX = Math.floor((center.x + radius) / chunkSize);
+    const minZ = Math.floor((center.z - radius) / chunkSize);
+    const maxZ = Math.floor((center.z + radius) / chunkSize);
 
-  const keys = [];
-  for (let x = minX; x <= maxX; x++) {
-    for (let z = minZ; z <= maxZ; z++) {
-      keys.push(`${x},${z}`);
+    const keys = [];
+    for (let x = minX; x <= maxX; x++) {
+        for (let z = minZ; z <= maxZ; z++) {
+            keys.push(`${x},${z}`);
+        }
     }
-  }
-  return keys;
+    return keys;
 }
 
 
 function scatter(
-  target,
-  camera,
-  mouseEvent,
-  radius,
-  density,
-  chunkSize,
-  clear = false
+    target,
+    camera,
+    mouseEvent,
+    radius,
+    density,
+    chunkSize,
+    clear = false
 ) {
-  const raycaster = new THREE.Raycaster();
-  const mouse = new THREE.Vector2();
-  const touchedChunks = new Set();
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    const touchedChunks = new Set();
 
-  // Mouse → NDC
-  mouse.x = (mouseEvent.clientX / window.innerWidth) * 2 - 1;
-  mouse.y = -(mouseEvent.clientY / window.innerHeight) * 2 + 1;
+    // Mouse → NDC
+    mouse.x = (mouseEvent.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(mouseEvent.clientY / window.innerHeight) * 2 + 1;
 
-  raycaster.setFromCamera(mouse, camera);
+    raycaster.setFromCamera(mouse, camera);
 
-  const hits = raycaster.intersectObject(target, false);
-  if (!hits.length) return [];
+    const hits = raycaster.intersectObject(target, false);
+    if (!hits.length) return [];
 
-  const hitPoint = hits[0].point;
+    const hitPoint = hits[0].point;
 
-  // ---------------- CLEAR MODE ----------------
-  if (clear) {
-    const keys = getChunkRange(hitPoint, radius, chunkSize);
-    const r2 = radius * radius;
+    // ---------------- CLEAR MODE ----------------
+    if (clear) {
+        const keys = getChunkRange(hitPoint, radius, chunkSize);
+        const r2 = radius * radius;
 
-    for (const key of keys) {
-      const points = chunkMap.get(key);
-      if (!points || points.length === 0) continue;
+        for (const key of keys) {
+            const points = chunkMap.get(key);
+            if (!points || points.length === 0) continue;
 
-      const filtered = points.filter(([pos]) => {
-        const dx = pos.x - hitPoint.x;
-        const dz = pos.z - hitPoint.z;
-        return (dx * dx + dz * dz) > r2;
-      });
+            const filtered = points.filter(([pos]) => {
+                const dx = pos.x - hitPoint.x;
+                const dz = pos.z - hitPoint.z;
+                return (dx * dx + dz * dz) > r2;
+            });
 
-      if (filtered.length !== points.length) {
-        chunkMap.set(key, filtered);
+            if (filtered.length !== points.length) {
+                chunkMap.set(key, filtered);
+                touchedChunks.add(key);
+            }
+        }
+
+        return [...touchedChunks];
+    }
+
+    // ---------------- PLACE MODE ----------------
+    const area = Math.PI * radius * radius;
+    const count = Math.floor(area * density);
+
+    for (let i = 0; i < count; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const r = Math.sqrt(Math.random()) * radius;
+
+        const x = hitPoint.x + Math.cos(angle) * r;
+        const z = hitPoint.z + Math.sin(angle) * r;
+
+        // Project top → down
+        raycaster.set(
+            new THREE.Vector3(x, hitPoint.y + 100, z),
+            new THREE.Vector3(0, -1, 0)
+        );
+
+        const projected = raycaster.intersectObject(target, false);
+        if (!projected.length) continue;
+
+        const hit = projected[0];
+
+        const position = hit.point.clone();
+        const normal = hit.face.normal.clone();
+        normal.transformDirection(target.matrixWorld);
+
+        const cx = Math.floor(position.x / chunkSize);
+        const cz = Math.floor(position.z / chunkSize);
+        const key = `${cx},${cz}`;
+
+        if (!chunkMap.has(key)) {
+            chunkMap.set(key, []);
+        }
+
+        chunkMap.get(key).push([position, normal]);
         touchedChunks.add(key);
-      }
     }
 
     return [...touchedChunks];
-  }
-
-  // ---------------- PLACE MODE ----------------
-  const area = Math.PI * radius * radius;
-  const count = Math.floor(area * density);
-
-  for (let i = 0; i < count; i++) {
-    const angle = Math.random() * Math.PI * 2;
-    const r = Math.sqrt(Math.random()) * radius;
-
-    const x = hitPoint.x + Math.cos(angle) * r;
-    const z = hitPoint.z + Math.sin(angle) * r;
-
-    // Project top → down
-    raycaster.set(
-      new THREE.Vector3(x, hitPoint.y + 100, z),
-      new THREE.Vector3(0, -1, 0)
-    );
-
-    const projected = raycaster.intersectObject(target, false);
-    if (!projected.length) continue;
-
-    const hit = projected[0];
-
-    const position = hit.point.clone();
-    const normal = hit.face.normal.clone();
-    normal.transformDirection(target.matrixWorld);
-
-    const cx = Math.floor(position.x / chunkSize);
-    const cz = Math.floor(position.z / chunkSize);
-    const key = `${cx},${cz}`;
-
-    if (!chunkMap.has(key)) {
-      chunkMap.set(key, []);
-    }
-
-    chunkMap.get(key).push([position, normal]);
-    touchedChunks.add(key);
-  }
-
-  return [...touchedChunks];
 }
 
 
 
 
-export default class Terrain extends Behavior{
-  @INumber
-  speed: number = 50;
-  @IRef
-  target: THREE.Object3D = null; 
+export default class Terrain extends Behavior {
+    @INumber()
+    speed: number = 50;
+    @IRef()
+    target: THREE.Object3D = null;
 
-  onStart() {
-    console.log('Terrain started', this.speed, this.target);
-    let chunkSize = 32;
-    let geoBuilder = new ChunkGenerator(4, chunkSize)
-    const material = new THREE.MeshStandardMaterial({ color: 0xffffff, wireframe: false })
-    for (let z = 0; z < 6; z++) {
-        for (let x = 0; x < 6; x++) {
-            let chunk = new THREE.Mesh(
-                geoBuilder.build(1, [x*(chunkSize+2), z*(chunkSize+2)]),
-                material
-            )
-            chunk.position.set(x*(chunkSize+2),0,z*(chunkSize+2))
-            this.object.add(chunk)
+    onStart() {
+        console.log('Terrain started', this.speed, this.target);
+        let chunkSize = 32;
+        let geoBuilder = new ChunkGenerator(4, chunkSize)
+        const material = new THREE.MeshStandardMaterial({ color: 0xffffff, wireframe: false })
+        for (let z = 0; z < 6; z++) {
+            for (let x = 0; x < 6; x++) {
+                let chunk = new THREE.Mesh(
+                    geoBuilder.build(1, [x * (chunkSize + 2), z * (chunkSize + 2)]),
+                    material
+                )
+                chunk.position.set(x * (chunkSize + 2), 0, z * (chunkSize + 2))
+                this.object.add(chunk)
+            }
         }
     }
-  }
 
-  onUpdate(dt: number) {
-    //if (this.target) this.target.rotation.y += dt * this.speed||0.002;
-    //if (this.object) this.object.rotation.y += dt * this.speed||0.002;
-  }
+    onUpdate(dt: number) {
+        //if (this.target) this.target.rotation.y += dt * this.speed||0.002;
+        //if (this.object) this.object.rotation.y += dt * this.speed||0.002;
+    }
 }

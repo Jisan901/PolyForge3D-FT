@@ -12,7 +12,7 @@ export function INumber(defaultValue = 0) {
   };
 }
 
-export function IRef(defaultValue) {
+export function IRef(defaultValue?: any) {
   return function (target: any, propertyKey: string) {
     const ctor = target.constructor;
 
@@ -21,7 +21,7 @@ export function IRef(defaultValue) {
     ctor.propMap[propertyKey] = {
       name: propertyKey,
       type: "ref",
-      default: {isRef: true, ref: defaultValue}
+      default: { isRef: true, ref: defaultValue }
     };
   };
 }
@@ -35,7 +35,7 @@ export function IVec(defaultValue) {
     ctor.propMap[propertyKey] = {
       name: propertyKey,
       type: "vec",
-      default: {isVector3: true}
+      default: { isVector3: true }
     };
   };
 }

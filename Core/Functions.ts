@@ -1,72 +1,72 @@
-import {Components} from "@/Core/Types/Components";
+import { Components } from "@/Core/Types/Components";
 import { THREE } from '@/Core/lib/THREE';
 import { Instance } from "@/Core/PolyForge";
 import { ThreeHelpers } from '@/Core/three/Helper';
 
-export const getComponent = (componentId:Components, object:THREE.Object3D):unknown=>{
-    return object?.userData?.components?.[componentId]?.data
+export const getComponent = (componentId: Components, object: THREE.Object3D): unknown => {
+  return object?.userData?.components?.[componentId]?.data
 }
 
-export const getRef = (ref: {isRef: boolean, ref: string}) => {
-    if (ref && ref?.isRef && ref?.ref) return Instance.threeRegistry.getObject(ref.ref);
+export const getRef = <T = THREE.Object3D>(ref: { isRef: boolean, ref: string }): T => {
+  if (ref && ref?.isRef && ref?.ref) return Instance.threeRegistry.getObject(ref.ref) as T;
 }
 
-export const getScript = (id: string)=>{
-    return Instance.scriptExecutor.getScript(id);
+export const getScript = (id: string) => {
+  return Instance.scriptExecutor.getScript(id);
 }
 
 
 // *** object instance
 
 export async function instantiate(
-    url: string,
-    transform?: THREE.Matrix4
+  url: string,
+  transform?: THREE.Matrix4
 ): Promise<THREE.Object3D> {
-    const object = await Instance.loaders.objectLoader.loadObject(url);
+  const object = await Instance.loaders.objectLoader.loadObject(url);
 
-    if (transform) {
-        object.applyMatrix4(transform);
-        object.updateMatrixWorld(true);
-    }
+  if (transform) {
+    object.applyMatrix4(transform);
+    object.updateMatrixWorld(true);
+  }
 
-    Instance.sceneManager.activeScene.add(object);
-    Instance.threeRegistry.register(object);
+  Instance.sceneManager.activeScene.add(object);
+  Instance.threeRegistry.register(object);
 
-    return object;
+  return object;
 }
 
 export function destroy(
-    target: THREE.Object3D | string,
-    gpuCleanup = true
+  target: THREE.Object3D | string,
+  gpuCleanup = true
 ): boolean {
-    const object =
-        typeof target === "string"
-            ? getRef({ isRef: true, ref: target })
-            : target;
+  const object =
+    typeof target === "string"
+      ? getRef({ isRef: true, ref: target })
+      : target;
 
-    if (!(object instanceof THREE.Object3D)) {
-        return false;
-    }
+  if (!(object instanceof THREE.Object3D)) {
+    return false;
+  }
 
-    object.removeFromParent();
+  object.removeFromParent();
 
-    Instance.threeRegistry.unregisterTree(object);
+  Instance.threeRegistry.unregisterTree(object);
 
-    if (gpuCleanup) {
-        ThreeHelpers.freeGPU(object);
-    }
+  if (gpuCleanup) {
+    ThreeHelpers.freeGPU(object);
+  }
 
-    return true;
+  return true;
 }
 
 
 
-export const queryAll = ()=>{
-    return Instance.threeRegistry.getSpecialObjects();
+export const queryAll = () => {
+  return Instance.threeRegistry.getSpecialObjects();
 }
 
 export const queryCamera = (i: typeof Instance) => {
-    return i.sceneManager.activeScene.getObjectByProperty('isCamera', true) as THREE.Camera || Instance.engine.getActiveCamera();
+  return i.sceneManager.activeScene.getObjectByProperty('isCamera', true) as THREE.Camera || Instance.engine.getActiveCamera();
 }
 
 
@@ -93,14 +93,14 @@ export const getEntities = (...components: Components[]): THREE.Object3D[] => {
   return result;
 };
 
-export const isSpacial = (e)=>e?.isObject3D && e.userData?.special
+export const isSpacial = (e) => e?.isObject3D && e.userData?.special
 
 export function getCamera() {
-    return queryCamera(Instance);
+  return queryCamera(Instance);
 }
 
 export function getRenderer() {
-    return Instance.engine.three.renderer;
+  return Instance.engine.three.renderer;
 }
 
 /**
@@ -120,17 +120,17 @@ export const syncEntityTransform = (
   if (p) {
     object3d.position.set(p.x, p.y, p.z);
   }
-  
+
   // Update rotation (quaternion)
   if (r) {
     object3d.quaternion.set(r.x, r.y, r.z, r.w);
   }
-  
+
   // Update scale
   if (s) {
     object3d.scale.set(s.x, s.y, s.z);
   }
-  
+
   // Mark matrix as needing update
   object3d.updateMatrix();
 };
@@ -138,8 +138,8 @@ export const syncEntityTransform = (
 
 
 export function resetTransform(obj: THREE.Object3D) {
-    obj.position.set(0, 0, 0);
-    obj.quaternion.identity();
-    obj.scale.set(1, 1, 1);
-    obj.updateMatrixWorld(true);
+  obj.position.set(0, 0, 0);
+  obj.quaternion.identity();
+  obj.scale.set(1, 1, 1);
+  obj.updateMatrixWorld(true);
 }
