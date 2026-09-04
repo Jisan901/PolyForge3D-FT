@@ -19,6 +19,8 @@ export class HelperManager {
 
     public activeTool: string = '';
     public activeGizmo: boolean = false;
+    public isDraggingGizmo: boolean = false;
+    public lastGizmoDragEndTime: number = 0;
     private _box = new THREE.Box3();
 
     // Cleanup refs
@@ -68,10 +70,27 @@ export class HelperManager {
         };
 
         // Disable orbit when dragging gizmo
-        this._listeners.drag = (e: any) => this.bus.orbitEnabled.emit(!e.value);
+        this._listeners.drag = (e: any) => {
+            this.isDraggingGizmo = Boolean(e.value);
+            if (!e.value) {
+                this.lastGizmoDragEndTime = Date.now();
+            }
+            this.bus.orbitEnabled.emit(!e.value);
+        };
+
+        this._listeners.tcMouseDown = () => {
+            this.isDraggingGizmo = true;
+        };
+
+        this._listeners.tcMouseUp = () => {
+            this.isDraggingGizmo = false;
+            this.lastGizmoDragEndTime = Date.now();
+        };
 
         this.transformControls.addEventListener('objectChange', this._listeners.change as any);
         this.transformControls.addEventListener('dragging-changed', this._listeners.drag as any);
+        this.transformControls.addEventListener('mouseDown', this._listeners.tcMouseDown as any);
+        this.transformControls.addEventListener('mouseUp', this._listeners.tcMouseUp as any);
 
         // Mutation Sync
         this._sub = this.bus.mutationBus.subscribe((e: any) => {
@@ -168,6 +187,8 @@ export class HelperManager {
     dispose() {
         this.transformControls.removeEventListener('objectChange', this._listeners.change as any);
         this.transformControls.removeEventListener('dragging-changed', this._listeners.drag as any);
+        this.transformControls.removeEventListener('mouseDown', this._listeners.tcMouseDown as any);
+        this.transformControls.removeEventListener('mouseUp', this._listeners.tcMouseUp as any);
         this._sub?.();
         this.transformControls.detach();
         this.transformControls.dispose();
@@ -305,8 +326,41 @@ export class ThreeAPI {
     /* --- Interaction --- */
 
     private initInteraction() {
+        let pointerDownPos = { x: 0, y: 0 };
+        let hasMoved = false;
+
+        this._canvas.addEventListener('pointerdown', (e) => {
+            pointerDownPos = { x: e.clientX, y: e.clientY };
+            hasMoved = false;
+        });
+
+        this._canvas.addEventListener('pointermove', (e) => {
+            if (!hasMoved) {
+                const dist = Math.hypot(e.clientX - pointerDownPos.x, e.clientY - pointerDownPos.y);
+                if (dist > 4) {
+                    hasMoved = true;
+                }
+            }
+        });
+
         this._canvas.addEventListener('click', (e) => {
             if (!this.editorGroup.visible) return; // Don't select if helpers hidden
+
+            // 1. If user dragged (touchpad drag, camera orbit, or pan > 4px), ignore click
+            if (hasMoved) {
+                hasMoved = false;
+                return;
+            }
+
+            // 2. If gizmo is currently dragging or was dragged/interacted with recently (< 300ms)
+            if (this.helpers.isDraggingGizmo || (Date.now() - this.helpers.lastGizmoDragEndTime < 300)) {
+                return;
+            }
+
+            // 3. If mouse is over a transform controls handle
+            if (this.helpers.transformControls.axis !== null) {
+                return;
+            }
 
             const rect = this._canvas.getBoundingClientRect();
             this._mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;

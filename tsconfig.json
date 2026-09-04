@@ -27,7 +27,6 @@
     "noEmit": true
   },
   "exclude": [
-    "Game",
     "node_modules",
     "dist"
   ]
