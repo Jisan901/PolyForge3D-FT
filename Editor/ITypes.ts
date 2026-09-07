@@ -26,16 +26,26 @@ export function IRef(defaultValue?: any) {
   };
 }
 
-export function IVec(defaultValue) {
+export function IVec(defaultValue?: any) {
   return function (target: any, propertyKey: string) {
     const ctor = target.constructor;
 
     if (!ctor.propMap) ctor.propMap = {};
 
+    let def = { isVector3: true, x: 0, y: 0, z: 0 };
+    if (defaultValue && typeof defaultValue === 'object') {
+      def = {
+        isVector3: true,
+        x: Number(defaultValue.x ?? 0),
+        y: Number(defaultValue.y ?? 0),
+        z: Number(defaultValue.z ?? 0)
+      };
+    }
+
     ctor.propMap[propertyKey] = {
       name: propertyKey,
       type: "vec",
-      default: { isVector3: true }
+      default: def
     };
   };
 }

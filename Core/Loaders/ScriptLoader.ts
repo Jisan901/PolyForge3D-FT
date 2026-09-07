@@ -41,17 +41,60 @@ export class ScriptLoader {
         }
     }
 
+    // Resolve url to matching lazyScripts key
+    public resolveScriptKey(url: string): string {
+        if (!url) return url;
+        if (this.lazyScripts[url]) return url;
+
+        const clean = url.replace(/\\/g, '/');
+        const gameIdx = clean.indexOf('/Game/');
+        if (gameIdx !== -1) {
+            const rel = clean.slice(gameIdx); // "/Game/..."
+            if (this.lazyScripts[rel]) return rel;
+            if (this.lazyScripts['@' + rel]) return '@' + rel;
+        }
+
+        if (clean.startsWith('/')) {
+            const atVer = '@' + clean;
+            if (this.lazyScripts[atVer]) return atVer;
+        } else if (clean.startsWith('@/')) {
+            const slashVer = clean.slice(1);
+            if (this.lazyScripts[slashVer]) return slashVer;
+        }
+
+        for (const k in this.lazyScripts) {
+            if (k.endsWith(url) || url.endsWith(k)) return k;
+        }
+
+        return url;
+    }
+
+    public invalidateCache(url: string) {
+        const key = this.resolveScriptKey(url);
+        delete this.cache[key];
+        delete this.cache[url];
+    }
+
     // Load script class (lazy or cached) using full URL
     public async getScriptClass(url: string, cache = true): Promise<ScriptConstructor> {
-        // Already cached? return it
-        if (this.cache[url] && cache) return this.cache[url];
+        const resolvedKey = this.resolveScriptKey(url);
 
-        const loader = this.lazyScripts[url];
-        if (!loader) throw new Error(`Script not found: ${url}`);
-        //console.log(loader)
-        let mod = await import(/* @vite-ignore */`${url}?${crypto.randomUUID()}=${Math.floor(performance.now())}`);
+        // Already cached? return it
+        if (cache) {
+            if (this.cache[resolvedKey]) return this.cache[resolvedKey];
+            if (this.cache[url]) return this.cache[url];
+        }
+
+        const loader = this.lazyScripts[resolvedKey];
+        if (!loader) throw new Error(`Script not found: ${url} (resolved: ${resolvedKey})`);
+
+        // Use cache-busting query to ensure browser fetches latest transpiled module
+        const importUrl = `${resolvedKey}?t=${Date.now()}&id=${crypto.randomUUID()}`;
+        let mod = await import(/* @vite-ignore */ importUrl);
         const ScriptClass = mod.default;
-        this.cache[url] = ScriptClass; // cache after load
+
+        this.cache[resolvedKey] = ScriptClass;
+        this.cache[url] = ScriptClass;
         return ScriptClass;
     }
 

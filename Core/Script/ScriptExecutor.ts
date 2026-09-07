@@ -13,6 +13,7 @@ export abstract class BaseScript {
   onDestroy?(): void;
   onBeforeRender?(): void;
   onAfterRender?(): void;
+  onValidate?(): void;
 }
 
 export class ScriptExecutor {

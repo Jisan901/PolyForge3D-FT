@@ -15,6 +15,7 @@ import { toast } from "@/Editor/Mutation";
 import { ImportManager } from '@/Editor/Importer';
 
 import { refreshScriptVariables } from "@/Editor/Utils";
+import ScriptSystem from "@/Core/Systems/Script.system";
 
 
 
@@ -78,6 +79,18 @@ export class EditorClass {
         
         await this.core.initScripting()
         this.core.settings.applySettings(this.core);
+
+        // Unidirectional: Editor listens to its own mutation bus and forwards variable edits to Core ScriptSystem
+        this.api.buses.mutationBus.subscribe(({ target, path }) => {
+            if (path && path.includes('.data.variables') && target?.uuid) {
+                ScriptSystem.instance?.handleVariableMutation(target, path);
+            }
+        });
+
+        // When a script is hot-reloaded by ScriptSystem, update script variable schemas in Editor
+        ScriptSystem.instance?.onScriptReloaded.add(() => {
+            refreshScriptVariables();
+        });
     }
     
     

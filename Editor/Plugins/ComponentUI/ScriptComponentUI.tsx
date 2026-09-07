@@ -13,6 +13,7 @@ import {
 import { Editor } from '@/Editor/Editor';
 import { mutationCall } from '@/Editor/Mutation';
 import { refreshScriptVariables } from '@/Editor/Utils';
+import ScriptSystem from '@/Core/Systems/Script.system';
 
 export const ScriptComponentUI: React.FC<ComponentProps> = ({
   object,
@@ -24,6 +25,7 @@ export const ScriptComponentUI: React.FC<ComponentProps> = ({
   const [propMap, setPropMap] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [reloadTick, setReloadTick] = useState(0);
 
   const scriptPath = data.path?.value || (typeof data.path === 'string' ? data.path : null);
 
@@ -52,9 +54,41 @@ export const ScriptComponentUI: React.FC<ComponentProps> = ({
           const updatedVars = { ...variables };
 
           Object.keys(ScriptClass.propMap).forEach((key) => {
+            const meta = ScriptClass.propMap[key];
+            const isVec = meta.type === 'vec' || meta.type === 'vector3' || updatedVars[key]?.isVector3;
+
             if (updatedVars[key] === undefined) {
-              updatedVars[key] = ScriptClass.propMap[key].default ?? null;
+              if (isVec) {
+                const def = meta.default || {};
+                updatedVars[key] = {
+                  isVector3: true,
+                  x: Number(def.x ?? 0),
+                  y: Number(def.y ?? 0),
+                  z: Number(def.z ?? 0)
+                };
+              } else {
+                updatedVars[key] = meta.default !== undefined ? meta.default : null;
+              }
               changed = true;
+            } else if (isVec) {
+              const val = updatedVars[key];
+              if (
+                !val ||
+                typeof val !== 'object' ||
+                val.x === undefined ||
+                val.y === undefined ||
+                val.z === undefined ||
+                !val.isVector3
+              ) {
+                const def = meta.default || {};
+                updatedVars[key] = {
+                  isVector3: true,
+                  x: Number(val?.x ?? def.x ?? 0),
+                  y: Number(val?.y ?? def.y ?? 0),
+                  z: Number(val?.z ?? def.z ?? 0)
+                };
+                changed = true;
+              }
             }
           });
 
@@ -76,14 +110,32 @@ export const ScriptComponentUI: React.FC<ComponentProps> = ({
     return () => {
       cancelled = true;
     };
-  }, [scriptPath, object, basePath, data]);
+  }, [scriptPath, object, basePath, data, reloadTick]);
+
+  // Subscribe to live hot reloads from ScriptSystem
+  useEffect(() => {
+    const handleReloaded = (path: string) => {
+      if (ScriptSystem.instance?.matchesPath(path, scriptPath || '')) {
+        setReloadTick((t) => t + 1);
+      }
+    };
+    ScriptSystem.instance?.onScriptReloaded.add(handleReloaded);
+    return () => {
+      ScriptSystem.instance?.onScriptReloaded.delete(handleReloaded);
+    };
+  }, [scriptPath]);
 
   const handleReload = async () => {
     if (!scriptPath) return;
     try {
       setLoading(true);
-      await Editor.core.loaders.scriptLoader.getScriptClass(scriptPath, false); // force reload
-      refreshScriptVariables();
+      if (ScriptSystem.instance) {
+        await ScriptSystem.instance.reloadScript(scriptPath);
+      } else {
+        await Editor.core.loaders.scriptLoader.getScriptClass(scriptPath, false); // force reload
+        refreshScriptVariables();
+      }
+      setReloadTick((t) => t + 1);
       setLoading(false);
       mutationCall(object, `${basePath}.data`);
     } catch (e: any) {
@@ -122,17 +174,18 @@ export const ScriptComponentUI: React.FC<ComponentProps> = ({
       );
     }
 
+    if (meta.type === 'vec' || meta.type === 'vector3' || (typeof val === 'object' && val !== null && val.isVector3)) {
+      return (
+        <Vector3Input
+          key={propPath}
+          label={label}
+          obj={object}
+          prop={propPath}
+        />
+      );
+    }
+
     if (typeof val === 'object' && val !== null) {
-      if (val.isVector3 || meta.type === 'vector3') {
-        return (
-          <Vector3Input
-            key={propPath}
-            label={label}
-            obj={object}
-            prop={propPath}
-          />
-        );
-      }
       if (val.isColor || meta.type === 'color') {
         return (
           <ColorInput
