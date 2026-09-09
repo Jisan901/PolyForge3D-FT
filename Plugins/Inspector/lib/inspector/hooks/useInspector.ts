@@ -33,12 +33,23 @@ export function useInspector<T = any>(
   _delayMs: number = 500
 ): [T | undefined, (newValue: T) => void] {
   const getVal = useCallback(() => getDeepValue(obj, prop), [obj, prop]);
+  const [prevTarget, setPrevTarget] = useState({ obj, prop });
   const [value, setInternalValue] = useState<T | undefined>(getVal);
 
+  if (prevTarget.obj !== obj || prevTarget.prop !== prop) {
+    setPrevTarget({ obj, prop });
+    const fresh = getVal();
+    setInternalValue(fresh);
+  }
+
   useEffect(() => {
-    if (!obj || !prop) return;
+    if (!obj || !prop) {
+      setInternalValue(undefined);
+      return;
+    }
 
     let lastValue = getVal();
+    setInternalValue(lastValue);
 
     const checkAndUpdate = () => {
       const current = getVal();

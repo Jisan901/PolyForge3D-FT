@@ -72,11 +72,21 @@
         "default": {
             "mass": 1,
             "useGravity": true,
+            "gravityScale": 1,
             "isStatic": false,
             "isKinematic": false,
             "updateKinematic": false,
             "drag": 0,
-            "angularDrag": 0.05
+            "angularDrag": 0.05,
+            "lockTranslationX": false,
+            "lockTranslationY": false,
+            "lockTranslationZ": false,
+            "lockRotationX": false,
+            "lockRotationY": false,
+            "lockRotationZ": false,
+            "ccdEnabled": false,
+            "canSleep": true,
+            "dominance": 0
         }
     },
     "collider": {
@@ -93,7 +103,21 @@
             },
             "radius": 0.5,
             "height": 2,
-            "isTrigger": false
+            "center": {
+                "x": 0,
+                "y": 0,
+                "z": 0,
+                "isVector3": true
+            },
+            "isTrigger": false,
+            "friction": 0.5,
+            "frictionCombineRule": "average",
+            "restitution": 0,
+            "restitutionCombineRule": "average",
+            "density": 1,
+            "meshType": "convexHull",
+            "collisionLayer": 0,
+            "collisionMask": 65535
         }
     },
     "script": {

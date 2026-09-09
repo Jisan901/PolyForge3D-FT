@@ -77,7 +77,7 @@ export class EditorClass {
         
         
         
-        await this.core.initScripting()
+        await this.core.initScripting(false)
         this.core.settings.applySettings(this.core);
 
         // Unidirectional: Editor listens to its own mutation bus and forwards variable edits to Core ScriptSystem

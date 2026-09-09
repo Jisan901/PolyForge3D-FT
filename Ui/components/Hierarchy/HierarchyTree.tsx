@@ -2,7 +2,7 @@ import React from 'react';
 import { Layers } from 'lucide-react';
 import { DragAndDropZone } from '../Utils/DragNDrop';
 import HierarchyNodeMemo from './HierarchyNode';
-import { useEditorActions } from '../../contexts/EditorContext';
+import { ACTIONS } from '@/Editor/Actions';
 import { Editor } from '@/Editor/Editor';
 import { mutationCall, toast } from '@/Editor/Mutation';
 
@@ -29,8 +29,6 @@ export const HierarchyTree: React.FC<HierarchyTreeProps> = ({
   handleContextMenu,
   handleEmptySpaceContextMenu,
 }) => {
-  const { selectObject } = useEditorActions();
-
   // Clear selection when clicking empty space
   const handleDeselect = (e: React.MouseEvent) => {
     // Check if clicked element is not an interactive child button/input
@@ -38,7 +36,7 @@ export const HierarchyTree: React.FC<HierarchyTreeProps> = ({
     if (target.closest('.group') || target.tagName === 'INPUT' || target.tagName === 'BUTTON') {
       return;
     }
-    selectObject('');
+    ACTIONS.execute('select_object', '');
     editor.api?.three?.selectObject?.(null);
   };
 

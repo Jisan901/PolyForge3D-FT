@@ -4,7 +4,6 @@ import { FileText, Box, BoxSelect, Image as ImageIcon } from 'lucide-react';
 
 
 import HierarchyImport from './components/Hierarchy';
-import InspectorImport from './components/Inspector';
 import ViewportImport from './components/Viewport';
 import AssetBrowserImport from './components/AssetBrowser';
 import AssetStoreImport from './components/AssetStore';
@@ -19,11 +18,12 @@ import TextureAtlas from "@/Plugins/TextureAtlas/App";
 import InspectorApp from "@/Plugins/InspectorV5";
 import AnimationPlayer from "@/Plugins/Anip";
 import RetargetingApp from "@/Plugins/Retargeting/App";
+import ECSInspectorImport from './components/ECSInspector';
 import MenuBar from "./MenuBar";
 
 import { SceneObject, ViewMode } from '../types';
 import { Editor } from "@/Editor/Editor";
-import { useEditorStates, useEditorActions } from './contexts/EditorContext';
+import { useEditorStates } from './contexts/EditorContext';
 
 
 import { WindyRoot, WindyDef } from '@/WindyUI';
@@ -37,7 +37,6 @@ import { Windy } from '@/Windy';
 const editor = Editor;
 
 const Hierarchy = React.memo(HierarchyImport);
-const Inspector = React.memo(InspectorImport);
 const AssetBrowser = React.memo(AssetBrowserImport);
 const AssetStore = React.memo(AssetStoreImport);
 const ResourceBrowser = React.memo(ResourceBrowserImport);
@@ -46,13 +45,14 @@ const TimelineEditor = React.memo(TimelineEditorImport);
 const TextureEditor = React.memo(TextureEditorImport);
 const SettingsPanel = React.memo(SettingsPanelImport);
 const Viewport = React.memo(ViewportImport);
+const ECSInspector = React.memo(ECSInspectorImport);
 
 
 
 const WINDY_DEFS: WindyDef[] = [
   { id: 'viewport3d', title: '3D Viewport', icon: <BoxSelect size={12} />, component: Viewport },
-  { id: 'inspector', title: 'Inspector', icon: <ImageIcon size={12} />, component: Inspector },
-  { id: 'inspectorapp', title: 'Inspector App', icon: <ImageIcon size={12} />, component: InspectorApp },
+  { id: 'inspector', title: 'Inspector', icon: <ImageIcon size={12} />, component: InspectorApp },
+  { id: 'ecsinspector', title: 'ECS Inspector', icon: <Cpu size={12} />, component: ECSInspector },
   { id: 'RetargetingApp', title: 'Retargeting App', icon: <ImageIcon size={12} />, component: RetargetingApp },
   { id: 'textureEditor', title: 'Texture Editor', icon: <ImageIcon size={12} />, component: TextureEditor },
   { id: 'assetbrowser', title: 'Asset Browser', icon: <FileText size={12} />, component: AssetBrowser },

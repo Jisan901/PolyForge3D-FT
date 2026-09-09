@@ -2,7 +2,8 @@ import ContextMenu, { MenuItem } from './components/ContextMenu';
 import React, { useState, useEffect, useRef } from 'react';
 import { Editor } from "@/Editor/Editor";
 import { toast } from "@/Editor/Mutation";
-import { useEditorStates, useEditorActions } from './contexts/EditorContext';
+import { useEditorStates } from './contexts/EditorContext';
+import { ACTIONS } from '@/Editor/Actions';
 import { LayoutTemplate, Layers, Play, Pause, Square, Settings, Hammer, FilePlus, Cpu, Gamepad2 } from 'lucide-react';
 import { ObjectType } from '@/Core/Types/Objects'
 
@@ -12,11 +13,6 @@ const Core = Editor.core;
 type ViewMode = 'SCENE' | 'GAME';
 
 const MenuBar = () => {
-    
-    const { addObject,
-        selectObject,
-        deleteObject,
-        onDuplicate} = useEditorActions();
     const { selectedId } = useEditorStates();
     
     const [isPlaying, setIsPlaying] = useState<boolean | null>(null);
@@ -82,8 +78,8 @@ const MenuBar = () => {
         { label: 'Copy', shortcut: 'Ctrl+C', action: () => console.log('Copy') },
         { label: 'Paste', shortcut: 'Ctrl+V', action: () => console.log('Paste') },
         { separator: true, label: '', action: () => { } },
-        { label: 'Duplicate', shortcut: 'Ctrl+D', action: () => selectedId && onDuplicate?.(selectedId) },
-        { label: 'Delete', shortcut: 'Del', danger: true, action: () => selectedId && deleteObject?.(selectedId) },
+        { label: 'Duplicate', shortcut: 'Ctrl+D', action: () => selectedId && ACTIONS.execute('duplicate_object', selectedId) },
+        { label: 'Delete', shortcut: 'Del', danger: true, action: () => selectedId && ACTIONS.execute('delete_object', selectedId) },
         { separator: true, label: '', action: () => { } },
         { label: 'Play', shortcut: 'Ctrl+P', action: () => setIsPlaying(true) },
         { label: 'Pause', shortcut: 'Ctrl+Shift+P', action: () => setIsPlaying(false) },
@@ -93,14 +89,14 @@ const MenuBar = () => {
     const getGameObjectMenuItems = (): MenuItem[] => {
         let id = null
         return [
-            { label: 'Create Empty', action: () => addObject && addObject(ObjectType.FOLDER, id) },
+            { label: 'Create Empty', action: () => ACTIONS.execute('add_object', { type: ObjectType.FOLDER, parentUuid: id }) },
             { separator: true, label: '', action: () => { } },
-            { label: 'Cube', action: () => addObject && addObject(ObjectType.CUBE, id) },
-            { label: 'Sphere', action: () => addObject && addObject(ObjectType.SPHERE, id) },
-            { label: 'Capsule', action: () => addObject && addObject(ObjectType.CAPSULE, id) },
-            { label: 'Cylinder', action: () => addObject && addObject(ObjectType.CYLINDER, id) },
-            { label: 'Plane', action: () => addObject && addObject(ObjectType.PLANE, id) },
-            { label: 'Light', action: () => addObject && addObject(ObjectType.POINTLIGHT, id) },
+            { label: 'Cube', action: () => ACTIONS.execute('add_object', { type: ObjectType.CUBE, parentUuid: id }) },
+            { label: 'Sphere', action: () => ACTIONS.execute('add_object', { type: ObjectType.SPHERE, parentUuid: id }) },
+            { label: 'Capsule', action: () => ACTIONS.execute('add_object', { type: ObjectType.CAPSULE, parentUuid: id }) },
+            { label: 'Cylinder', action: () => ACTIONS.execute('add_object', { type: ObjectType.CYLINDER, parentUuid: id }) },
+            { label: 'Plane', action: () => ACTIONS.execute('add_object', { type: ObjectType.PLANE, parentUuid: id }) },
+            { label: 'Light', action: () => ACTIONS.execute('add_object', { type: ObjectType.POINTLIGHT, parentUuid: id }) },
             { separator: true, label: '', action: () => { } },
             { label: 'Import New Asset...', action: () => editor.importer.openDialog() },
         ];

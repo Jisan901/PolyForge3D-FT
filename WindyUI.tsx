@@ -18,7 +18,7 @@ export function useWindy() {
 
 export function WindyRoot({ defs = [] }: { defs?: WindyDef[] }) {
   const windy = useWindy();
-  
+
   let maximizedNode = null;
   if (windy.maximizedWindowId) {
     const found = windy.findNodeAndParent(windy.maximizedWindowId);
@@ -66,7 +66,7 @@ function SplitView({ split }: { split: WindySplit }) {
     if (!container) return;
 
     const rect = container.getBoundingClientRect();
-    
+
     const onMove = (clientX: number, clientY: number) => {
       let newRatio = split.ratio;
       if (isHorizontal) {
@@ -101,7 +101,7 @@ function SplitView({ split }: { split: WindySplit }) {
       <div style={{ [isHorizontal ? 'width' : 'height']: `${split.ratio * 100}%` }} className="overflow-hidden">
         <WindyNodeView node={split.childA} />
       </div>
-      <div 
+      <div
         className={`relative bg-[#2d2d2d] hover:bg-[#4d4d4d] transition-colors z-10 flex items-center justify-center ${isHorizontal ? 'w-1 cursor-col-resize' : 'h-1 cursor-row-resize'}`}
         onMouseDown={handleDragStart}
         onTouchStart={handleDragStart}
@@ -143,13 +143,13 @@ function WindowHeader({ window, isFloating = false, onDragStart }: { window: Win
   };
 
   return (
-    <div 
+    <div
       className={`h-6 ${isFloating ? 'bg-[#333333] cursor-move' : 'bg-[#2d2d2d]'} flex items-center justify-between px-2 select-none shrink-0`}
       onMouseDown={onDragStart}
       onTouchStart={onDragStart}
     >
       <div className="flex items-center gap-2 relative group h-full" ref={dropdownRef}>
-        <div 
+        <div
           className="flex items-center gap-1.5 text-[10px] font-medium text-[#b3b3b3] uppercase tracking-wider hover:text-white transition-colors cursor-pointer h-full px-1.5 -ml-1.5 rounded hover:bg-[#404040]"
           onClick={(e) => {
             e.stopPropagation();
@@ -162,9 +162,9 @@ function WindowHeader({ window, isFloating = false, onDragStart }: { window: Win
           {window.title}
           <ChevronDown size={10} className={`opacity-50 group-hover:opacity-100 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
         </div>
-        
+
         {isDropdownOpen && (
-          <div 
+          <div
             className="absolute top-full left-0 mt-1 w-48 bg-[#2d2d2d] border border-[#111111] rounded shadow-lg z-50 py-1 max-h-64 overflow-y-auto"
             onMouseDown={e => e.stopPropagation()}
             onTouchStart={e => e.stopPropagation()}
@@ -286,7 +286,7 @@ const FloatingWindow: React.FC<{ window: WindyWindow }> = ({ window }) => {
   const Component = currentDef?.component;
 
   return (
-    <div 
+    <div
       className="absolute z-50 bg-[#232323] border border-[#404040] shadow-2xl flex flex-col rounded overflow-hidden"
       style={{ left: bounds.x, top: bounds.y, width: bounds.w, height: bounds.h }}
     >
@@ -310,7 +310,7 @@ export function HelpView() {
         <h1 className="text-2xl font-bold text-white mb-2">Windy UI Manager</h1>
         <p className="text-[#a0a0a0]">Windy is a flexible, Blender-inspired window management system for React.</p>
       </div>
-      
+
       <div>
         <h2 className="text-lg font-semibold text-white mb-3 border-b border-[#444] pb-1">Features</h2>
         <ul className="list-disc pl-5 space-y-2 text-[#b0b0b0]">
@@ -350,7 +350,7 @@ export function DemoView({ windowId }: { windowId: string }) {
         <h3 className="text-white font-medium">Demo Component</h3>
         <p className="text-xs text-[#888] mt-1">Window ID: {windowId}</p>
       </div>
-      <button 
+      <button
         className="px-4 py-2 bg-[#333] hover:bg-[#444] rounded text-xs transition-colors border border-[#444]"
         onClick={() => Windy.trigger('demo_action', { id: windowId })}
       >

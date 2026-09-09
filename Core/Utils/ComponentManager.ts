@@ -5,6 +5,7 @@ export interface ComponentRecord {
     id: number;
     nameCode: number;
     key?: string;
+    instanceId?: string;
     data: any;
 }
 

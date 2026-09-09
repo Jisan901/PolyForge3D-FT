@@ -85,40 +85,54 @@ export const AddComponentSelector: React.FC<AddComponentSelectorProps> = ({
           ) : (
             filtered.map((tpl) => {
               const Icon = ComponentRegistry.getIcon(tpl.nameCode || tpl.key || '');
-              const keyStr = String(tpl.key || tpl.nameCode);
-              const isAttached =
-                attachedComponentKeys.includes(keyStr) ||
-                attachedComponentKeys.includes(String(tpl.nameCode));
+              const ctor = Editor.core.entityManager?.getCtorByNameCode(tpl.nameCode);
+              const allowMultiple = ctor ? (ctor as any).allowMultiple !== false : true;
+
+              // Count how many instances of this component type are currently attached
+              const attachedCount = attachedComponentKeys.filter((k) => {
+                const baseKey = k.split('_')[0].toLowerCase();
+                return (
+                  baseKey === String(tpl.nameCode).toLowerCase() ||
+                  (tpl.key && baseKey === String(tpl.key).toLowerCase())
+                );
+              }).length;
+
+              const isAttached = attachedCount > 0;
+              const isDisabled = isAttached && !allowMultiple;
 
               return (
                 <button
                   key={tpl.nameCode}
                   type="button"
-                  disabled={isAttached}
+                  disabled={isDisabled}
                   onClick={() => {
                     onSelect(tpl.nameCode);
                     onClose();
                   }}
                   className={`w-full text-left p-2 rounded flex items-center gap-2.5 transition-colors ${
-                    isAttached
+                    isDisabled
                       ? 'opacity-40 cursor-not-allowed bg-transparent'
-                      : 'hover:bg-[#282828] cursor-pointer'
+                      : 'hover:bg-[#282828] cursor-pointer group'
                   }`}
                 >
-                  <div className="w-7 h-7 rounded bg-[#2a2a2a] flex items-center justify-center text-blue-400 shrink-0">
+                  <div className="w-7 h-7 rounded bg-[#2a2a2a] flex items-center justify-center text-blue-400 shrink-0 group-hover:bg-blue-500/20 transition-colors">
                     <Icon size={14} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-medium text-gray-200 truncate">
+                      <span className="text-xs font-medium text-gray-200 truncate group-hover:text-white transition-colors">
                         {tpl.name || tpl.key}
                       </span>
-                      {isAttached ? (
+                      {isDisabled ? (
                         <span className="text-[10px] text-gray-500 flex items-center gap-0.5">
                           <Check size={11} /> Added
                         </span>
+                      ) : attachedCount > 0 ? (
+                        <span className="text-[10px] text-blue-400 bg-blue-500/10 px-1.5 py-0.5 rounded border border-blue-500/20 flex items-center gap-1 font-medium group-hover:bg-blue-500/20 transition-colors">
+                          {attachedCount} added <Plus size={10} />
+                        </span>
                       ) : (
-                        <Plus size={13} className="text-gray-500" />
+                        <Plus size={13} className="text-gray-500 group-hover:text-blue-400 transition-colors" />
                       )}
                     </div>
                     {tpl.description && (

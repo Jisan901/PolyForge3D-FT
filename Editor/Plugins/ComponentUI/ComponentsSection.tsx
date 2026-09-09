@@ -1,10 +1,11 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Plus, MoreVertical, Trash2, RotateCcw, Copy } from 'lucide-react';
 import { InspectorCategory, useInspector } from '@/Plugins/Inspector/lib/inspector';
 import { ComponentRegistry } from './ComponentRegistry';
 import { GenericComponentUI } from './GenericComponentUI';
 import { AddComponentSelector } from './AddComponentSelector';
 import { Editor } from '@/Editor/Editor';
+import { BusHub } from '@/Editor/Api';
 import { mutationCall, toast } from '@/Editor/Mutation';
 
 interface ComponentsSectionProps {
@@ -15,11 +16,33 @@ export const ComponentsSection: React.FC<ComponentsSectionProps> = ({ obj }) => 
   const [selectorOpen, setSelectorOpen] = useState(false);
   const [activeMenuKey, setActiveMenuKey] = useState<string | null>(null);
 
-  // Reactive subscription to userData.components changes
-  const [components] = useInspector<Record<string, any>>(obj, 'userData.components');
+  // Auto-migrate any legacy userData.components to userData._ecs on load
+  useEffect(() => {
+    if (obj?.userData?.components) {
+      const entity = Editor.core.entityManager?.getOrCreateEntity(obj);
+      if (entity) {
+        entity.syncToUserData();
+      }
+      delete obj.userData.components;
+      mutationCall(obj, 'userData._ecs');
+    }
+  }, [obj]);
 
-  const componentsMap = components || obj?.userData?.components || {};
-  const entries = Object.entries(componentsMap);
+  // Real-time synchronization: when inputs mutate userData._ecs, update in-memory entity components
+  useEffect(() => {
+    const unsub = BusHub.mutationBus.subscribe(({ target, path }) => {
+      if (target === obj && path?.startsWith('userData._ecs.components')) {
+        const entity = Editor.core.entityManager?.getEntity(obj);
+        entity?.syncFromUserData();
+      }
+    });
+    return () => unsub();
+  }, [obj]);
+
+  // Reactive subscription to modern userData._ecs changes
+  const [ecs] = useInspector<any>(obj, 'userData._ecs');
+
+  const componentsList: any[] = ecs?.components || obj?.userData?._ecs?.components || [];
 
   const handleAddComponent = useCallback(
     (nameCodeOrKey: number | string) => {
@@ -28,19 +51,19 @@ export const ComponentsSection: React.FC<ComponentsSectionProps> = ({ obj }) => 
         const id = typeof nameCodeOrKey === 'number' ? nameCodeOrKey : parseInt(nameCodeOrKey, 10);
         const comp = Editor.core.componentManager.createComponent(id);
 
-        if (!obj.userData.components) {
-          obj.userData.components = {};
+        const entity = Editor.core.entityManager?.getOrCreateEntity(obj);
+        if (entity) {
+          const ctor = Editor.core.entityManager?.getCtorByNameCode(id);
+          if (ctor) {
+            entity.addComponent(ctor, comp?.data);
+            entity.syncToUserData();
+          }
         }
 
-        const key = String(id);
-        obj.userData.components[key] = comp;
-        obj.userData.special = true;
-
-        mutationCall(obj, 'userData.components');
-        if (id === 7) {
-          mutationCall(obj, 'userData.components.7');
-        }
-        toast(`Added ${comp.key || 'Component'}`);
+        delete obj.userData.components;
+        mutationCall(obj, 'userData._ecs');
+        mutationCall(obj, 'userData.special');
+        toast(`Added ${comp?.key || 'Component'}`);
       } catch (err: any) {
         console.error('Failed to add component:', err);
       }
@@ -48,43 +71,96 @@ export const ComponentsSection: React.FC<ComponentsSectionProps> = ({ obj }) => 
     [obj]
   );
 
-  const handleRemoveComponent = useCallback(
-    (key: string) => {
-      if (!obj?.userData?.components) return;
-      const comp = obj.userData.components[key];
-      delete obj.userData.components[key];
+  const handleDuplicateComponent = useCallback(
+    (index: number) => {
+      if (!obj) return;
+      const comp = componentsList[index];
+      if (!comp) return;
 
-      if (Object.keys(obj.userData.components).length === 0) {
-        obj.userData.special = false;
-      }
+      const nameCode = comp.nameCode;
+      const clonedData = structuredClone(comp.data || {});
 
-      mutationCall(obj, 'userData.components');
-      if (key === '7' || parseInt(key, 10) === 7) {
-        mutationCall(obj, 'userData.components.7');
+      try {
+        const entity = Editor.core.entityManager?.getOrCreateEntity(obj);
+        if (entity) {
+          const ctor = Editor.core.entityManager?.getCtorByNameCode(nameCode);
+          if (ctor) {
+            entity.addComponent(ctor, clonedData);
+            entity.syncToUserData();
+          }
+        }
+
+        delete obj.userData.components;
+        mutationCall(obj, 'userData._ecs');
+        setActiveMenuKey(null);
+        toast(`Duplicated ${comp.type || 'Component'}`);
+      } catch (err: any) {
+        console.error('Failed to duplicate component:', err);
       }
-      setActiveMenuKey(null);
-      toast(`Removed ${comp?.key || 'Component'}`);
     },
-    [obj]
+    [obj, componentsList]
+  );
+
+  const handleRemoveComponent = useCallback(
+    (index: number) => {
+      if (!obj) return;
+      const comp = componentsList[index];
+      if (!comp) return;
+
+      const entity = Editor.core.entityManager?.getEntity(obj);
+      if (entity) {
+        let target = entity.allComponents.find((c) => c.id === comp.id);
+        if (!target) {
+          const ctor = Editor.core.entityManager?.getCtorByNameCode(comp.nameCode);
+          if (ctor) {
+            const list = entity.getComponents(ctor);
+            if (list.length > 0) target = list[list.length - 1];
+          }
+        }
+        if (target) {
+          entity.removeComponent(target);
+          entity.syncToUserData();
+        }
+      }
+
+      delete obj.userData.components;
+      mutationCall(obj, 'userData._ecs');
+      mutationCall(obj, 'userData.special');
+      setActiveMenuKey(null);
+      toast(`Removed ${comp.type || 'Component'}`);
+    },
+    [obj, componentsList]
   );
 
   const handleResetComponent = useCallback(
-    (key: string) => {
-      if (!obj?.userData?.components) return;
-      try {
-        const nameCode = parseInt(key, 10);
-        const newComp = Editor.core.componentManager.createComponent(nameCode);
-        obj.userData.components[key] = newComp;
+    (index: number) => {
+      if (!obj) return;
+      const comp = componentsList[index];
+      if (!comp) return;
 
-        mutationCall(obj, `userData.components.${key}`);
-        mutationCall(obj, 'userData.components');
+      try {
+        const entity = Editor.core.entityManager?.getEntity(obj);
+        if (entity) {
+          const target = entity.allComponents.find((c) => c.id === comp.id);
+          const ctor = Editor.core.entityManager?.getCtorByNameCode(comp.nameCode);
+          if (target && ctor) {
+            const fresh = Editor.core.componentManager.createComponent(comp.nameCode);
+            if (fresh?.data && typeof target.deserialize === 'function') {
+              target.deserialize(fresh.data);
+            }
+            entity.syncToUserData();
+          }
+        }
+
+        delete obj.userData.components;
+        mutationCall(obj, 'userData._ecs');
         setActiveMenuKey(null);
-        toast(`Reset ${newComp.key || 'Component'}`);
+        toast(`Reset ${comp.type || 'Component'}`);
       } catch (err: any) {
         console.error('Failed to reset component:', err);
       }
     },
-    [obj]
+    [obj, componentsList]
   );
 
   if (!obj || !obj.isObject3D) {
@@ -94,14 +170,22 @@ export const ComponentsSection: React.FC<ComponentsSectionProps> = ({ obj }) => 
   return (
     <div className="flex flex-col gap-1 mt-1 border-t border-[#262626] pt-2">
       {/* Attached Components List */}
-      {entries.map(([compKey, compData]: [string, any]) => {
-        const Icon = ComponentRegistry.getIcon(compData?.key || compKey);
-        const title = ComponentRegistry.getTitle(compKey, compData);
+      {componentsList.map((comp: any, index: number) => {
+        const compKey = `${obj?.uuid || ''}_${comp.id || comp.nameCode || index}`;
+        const Icon = ComponentRegistry.getIcon(comp.nameCode ?? comp.type);
+
+        const sameTypePrevCount = componentsList
+          .slice(0, index)
+          .filter((c) => (c.nameCode ?? c.type) === (comp.nameCode ?? comp.type)).length;
+        const baseName = comp.type || 'Component';
+        const title = sameTypePrevCount > 0 ? `${baseName} (${sameTypePrevCount})` : baseName;
+
         const Renderer =
-          ComponentRegistry.getRenderer(compData?.key || compKey) ||
+          ComponentRegistry.getRenderer(comp.nameCode ?? comp.type) ||
           GenericComponentUI;
 
         const isMenuOpen = activeMenuKey === compKey;
+        const basePath = `userData._ecs.components.${index}`;
 
         const headerActions = (
           <div className="relative flex items-center">
@@ -124,7 +208,15 @@ export const ComponentsSection: React.FC<ComponentsSectionProps> = ({ obj }) => 
               >
                 <button
                   type="button"
-                  onClick={() => handleResetComponent(compKey)}
+                  onClick={() => handleDuplicateComponent(index)}
+                  className="px-2.5 py-1 text-left hover:bg-white/10 text-gray-200 flex items-center gap-1.5 transition-colors"
+                >
+                  <Copy size={11} className="text-gray-400" />
+                  Duplicate
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleResetComponent(index)}
                   className="px-2.5 py-1 text-left hover:bg-white/10 text-gray-200 flex items-center gap-1.5 transition-colors"
                 >
                   <RotateCcw size={11} className="text-gray-400" />
@@ -133,7 +225,7 @@ export const ComponentsSection: React.FC<ComponentsSectionProps> = ({ obj }) => 
                 <div className="h-px bg-[#333] my-1" />
                 <button
                   type="button"
-                  onClick={() => handleRemoveComponent(compKey)}
+                  onClick={() => handleRemoveComponent(index)}
                   className="px-2.5 py-1 text-left hover:bg-red-500/20 text-red-400 flex items-center gap-1.5 transition-colors"
                 >
                   <Trash2 size={11} />
@@ -155,9 +247,9 @@ export const ComponentsSection: React.FC<ComponentsSectionProps> = ({ obj }) => 
               <Renderer
                 object={obj}
                 componentKey={compKey}
-                nameCode={compData?.nameCode}
-                componentData={compData}
-                basePath={`userData.components.${compKey}`}
+                nameCode={comp.nameCode}
+                componentData={comp}
+                basePath={basePath}
               />
             </InspectorCategory>
           </div>
@@ -181,7 +273,7 @@ export const ComponentsSection: React.FC<ComponentsSectionProps> = ({ obj }) => 
         isOpen={selectorOpen}
         onClose={() => setSelectorOpen(false)}
         onSelect={handleAddComponent}
-        attachedComponentKeys={Object.keys(componentsMap)}
+        attachedComponentKeys={componentsList.map((c) => String(c.nameCode ?? c.type))}
       />
     </div>
   );

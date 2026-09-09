@@ -4,6 +4,7 @@ import { resetTransform, getCamera, getRef, getScript } from "@/Core/Functions"
 import { THREE } from '@/Core/lib/THREE';
 import { INumber, IRef } from '@/Editor/ITypes';
 import { Animator } from '@/Core/Animation/Animator';
+import PlayerController from "./playerController";
 
 const input = (window as any).gamePad.data;
 
@@ -11,10 +12,11 @@ export default class PlayerAnimation extends Behavior {
     @IRef()
     private playerEntity: THREE.Object3D;
     private animator: Animator;
+    playerController: PlayerController;
     onStart() {
         this.animator = new Animator(this.object);
         this.playerEntity = getRef<THREE.Object3D>(this.playerEntity as any);
-        this.playerController = getScript(this.playerEntity.uuid);
+        this.playerController = getScript<PlayerController>(this.playerEntity.uuid);
 
 
 

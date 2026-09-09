@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { ChevronRight, ChevronDown, Eye, EyeOff } from 'lucide-react';
 import { HierarchyNodeProps, isDescendant } from './types';
 import EditableName from './EditableName';
-import { useEditorActions } from '../../contexts/EditorContext';
+import { ACTIONS } from '@/Editor/Actions';
 import { mutate, mutationCall, toast } from "@/Editor/Mutation";
 import { Editor } from "@/Editor/Editor";
 import { useObserver, useTargetObserver, useValidatedSelection } from "../../Hooks";
@@ -27,7 +27,6 @@ export const HierarchyNode: React.FC<HierarchyNodeProps> = ({
   useObserver(node, 'children');
   useTargetObserver(node);
   const isSelected = useValidatedSelection(node?.uuid);
-  const { selectObject } = useEditorActions();
 
   const isExpanded = expandedProp !== false;
   const hasChildren = Boolean(node?.children && node.children.length > 0);
@@ -117,12 +116,12 @@ export const HierarchyNode: React.FC<HierarchyNodeProps> = ({
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    selectObject(node.uuid);
+    ACTIONS.execute('select_object', node.uuid);
   };
 
   const handleDoubleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    selectObject(node.uuid);
+    ACTIONS.execute('select_object', node.uuid);
     editor.api?.three?.focusSelected?.();
   };
 
@@ -132,9 +131,11 @@ export const HierarchyNode: React.FC<HierarchyNodeProps> = ({
   };
 
   // Check component count
-  const componentCount = Array.isArray(node?.userData?.components) 
-    ? node.userData.components.length 
-    : (node?.userData?.components ? Object.keys(node.userData.components).length : 0);
+  const componentCount = Array.isArray(node?.userData?._ecs?.components)
+    ? node.userData._ecs.components.length
+    : (Array.isArray(node?.userData?.components) 
+      ? node.userData.components.length 
+      : (node?.userData?.components ? Object.keys(node.userData.components).length : 0));
 
   return (
     <DragAndDropZone

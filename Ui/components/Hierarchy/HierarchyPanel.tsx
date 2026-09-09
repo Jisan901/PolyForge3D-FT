@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { ObjectType } from '../../types';
 import ContextMenu, { MenuItem } from '../ContextMenu';
-import { useEditorStates, useEditorActions } from '../../contexts/EditorContext';
+import { useEditorStates } from '../../contexts/EditorContext';
+import { ACTIONS } from '@/Editor/Actions';
 import { mutate, toast } from "@/Editor/Mutation";
 import { Editor } from "@/Editor/Editor";
 import { useSceneObserver } from "../../Hooks";
@@ -14,7 +15,6 @@ import HierarchyTree from './HierarchyTree';
 const editor = Editor;
 
 export const Hierarchy: React.FC = () => {
-  const { addObject, selectObject, deleteObject, onDuplicate } = useEditorActions();
   const { scene, selectedId, selectedObject } = useEditorStates();
   useSceneObserver();
 
@@ -37,12 +37,20 @@ export const Hierarchy: React.FC = () => {
     });
   }, []);
 
+  const handleSelectObject = useCallback((id?: string) => {
+    ACTIONS.execute('select_object', id);
+  }, []);
+
+  const handleAddObject = useCallback((type: any, parentId?: string) => {
+    return ACTIONS.execute('add_object', { type, parentUuid: parentId });
+  }, []);
+
   const handleContextMenu = useCallback((e: React.MouseEvent, id: string) => {
     e.preventDefault();
     e.stopPropagation();
-    selectObject(id);
+    handleSelectObject(id);
     setContextMenu({ x: e.clientX, y: e.clientY, targetId: id });
-  }, [selectObject]);
+  }, [handleSelectObject]);
 
   const handleEmptySpaceContextMenu = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -56,7 +64,7 @@ export const Hierarchy: React.FC = () => {
     if (e.key === 'Delete' || e.key === 'Backspace') {
       if (selectedId && selectedObject && selectedObject !== activeScene) {
         e.preventDefault();
-        deleteObject?.(selectedId);
+        ACTIONS.execute('delete_object', selectedId);
       }
     } else if (e.key === 'F2') {
       if (selectedId && selectedObject && selectedObject !== activeScene) {
@@ -66,7 +74,7 @@ export const Hierarchy: React.FC = () => {
     } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'd') {
       if (selectedId && selectedObject && selectedObject !== activeScene) {
         e.preventDefault();
-        onDuplicate?.(selectedId);
+        ACTIONS.execute('duplicate_object', selectedId);
       }
     } else if (e.key.toLowerCase() === 'f') {
       e.preventDefault();
@@ -91,12 +99,12 @@ export const Hierarchy: React.FC = () => {
   const getContextMenuItems = (id: string | null): MenuItem[] => {
     const parentId = id || activeScene?.uuid;
     const universalItems: MenuItem[] = [
-      { label: 'Create Empty / Group', action: () => addObject?.(ObjectType.FOLDER, parentId) },
+      { label: 'Create Empty / Group', action: () => ACTIONS.execute('add_object', { type: ObjectType.FOLDER, parentUuid: parentId }) },
       {
         label: '3D Object',
-        submenu: getMenuFlat(addObject, parentId)
+        submenu: getMenuFlat(handleAddObject, parentId)
       },
-      ...getMenu(addObject, parentId)
+      ...getMenu(handleAddObject, parentId)
     ];
 
     if (!id || id === activeScene?.uuid) {
@@ -117,13 +125,13 @@ export const Hierarchy: React.FC = () => {
       { 
         label: 'Duplicate', 
         shortcut: 'Ctrl+D', 
-        action: () => onDuplicate?.(id) 
+        action: () => ACTIONS.execute('duplicate_object', id) 
       },
       { 
         label: 'Delete', 
         shortcut: 'Del', 
         danger: true, 
-        action: () => deleteObject?.(id) 
+        action: () => ACTIONS.execute('delete_object', id) 
       },
       { separator: true, label: '', action: () => {} },
     ];
@@ -174,8 +182,8 @@ export const Hierarchy: React.FC = () => {
         addButtonRef={addButtonRef}
         onOpenAddMenu={handleOpenAddMenu}
         onFocusSelected={() => editor.api?.three?.focusSelected?.()}
-        onDuplicateSelected={() => selectedId && onDuplicate?.(selectedId)}
-        onDeleteSelected={() => selectedId && deleteObject?.(selectedId)}
+        onDuplicateSelected={() => selectedId && ACTIONS.execute('duplicate_object', selectedId)}
+        onDeleteSelected={() => selectedId && ACTIONS.execute('delete_object', selectedId)}
         onToggleExpandAll={handleToggleExpandAll}
         onViewModeChange={setViewMode}
       />

@@ -72,7 +72,7 @@ export default function App() {
         )}
 
         <InspectorPanel title="Defined Inspector">
-          <DefinedInspector obj={globalInspector.currentObject} />
+          <DefinedInspector key={globalInspector.currentObject?.uuid || 'no-selection'} obj={globalInspector.currentObject} />
         </InspectorPanel>
       </div>
     </div>

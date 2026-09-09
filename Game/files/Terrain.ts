@@ -333,94 +333,94 @@ function getChunkRange(center, radius, chunkSize) {
 }
 
 
-function scatter(
-    target,
-    camera,
-    mouseEvent,
-    radius,
-    density,
-    chunkSize,
-    clear = false
-) {
-    const raycaster = new THREE.Raycaster();
-    const mouse = new THREE.Vector2();
-    const touchedChunks = new Set();
+// function scatter(
+//     target,
+//     camera,
+//     mouseEvent,
+//     radius,
+//     density,
+//     chunkSize,
+//     clear = false
+// ) {
+//     const raycaster = new THREE.Raycaster();
+//     const mouse = new THREE.Vector2();
+//     const touchedChunks = new Set();
 
-    // Mouse → NDC
-    mouse.x = (mouseEvent.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(mouseEvent.clientY / window.innerHeight) * 2 + 1;
+//     // Mouse → NDC
+//     mouse.x = (mouseEvent.clientX / window.innerWidth) * 2 - 1;
+//     mouse.y = -(mouseEvent.clientY / window.innerHeight) * 2 + 1;
 
-    raycaster.setFromCamera(mouse, camera);
+//     raycaster.setFromCamera(mouse, camera);
 
-    const hits = raycaster.intersectObject(target, false);
-    if (!hits.length) return [];
+//     const hits = raycaster.intersectObject(target, false);
+//     if (!hits.length) return [];
 
-    const hitPoint = hits[0].point;
+//     const hitPoint = hits[0].point;
 
-    // ---------------- CLEAR MODE ----------------
-    if (clear) {
-        const keys = getChunkRange(hitPoint, radius, chunkSize);
-        const r2 = radius * radius;
+//     // ---------------- CLEAR MODE ----------------
+//     if (clear) {
+//         const keys = getChunkRange(hitPoint, radius, chunkSize);
+//         const r2 = radius * radius;
 
-        for (const key of keys) {
-            const points = chunkMap.get(key);
-            if (!points || points.length === 0) continue;
+//         for (const key of keys) {
+//             const points = chunkMap.get(key);
+//             if (!points || points.length === 0) continue;
 
-            const filtered = points.filter(([pos]) => {
-                const dx = pos.x - hitPoint.x;
-                const dz = pos.z - hitPoint.z;
-                return (dx * dx + dz * dz) > r2;
-            });
+//             const filtered = points.filter(([pos]) => {
+//                 const dx = pos.x - hitPoint.x;
+//                 const dz = pos.z - hitPoint.z;
+//                 return (dx * dx + dz * dz) > r2;
+//             });
 
-            if (filtered.length !== points.length) {
-                chunkMap.set(key, filtered);
-                touchedChunks.add(key);
-            }
-        }
+//             if (filtered.length !== points.length) {
+//                 chunkMap.set(key, filtered);
+//                 touchedChunks.add(key);
+//             }
+//         }
 
-        return [...touchedChunks];
-    }
+//         return [...touchedChunks];
+//     }
 
-    // ---------------- PLACE MODE ----------------
-    const area = Math.PI * radius * radius;
-    const count = Math.floor(area * density);
+//     // ---------------- PLACE MODE ----------------
+//     const area = Math.PI * radius * radius;
+//     const count = Math.floor(area * density);
 
-    for (let i = 0; i < count; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const r = Math.sqrt(Math.random()) * radius;
+//     for (let i = 0; i < count; i++) {
+//         const angle = Math.random() * Math.PI * 2;
+//         const r = Math.sqrt(Math.random()) * radius;
 
-        const x = hitPoint.x + Math.cos(angle) * r;
-        const z = hitPoint.z + Math.sin(angle) * r;
+//         const x = hitPoint.x + Math.cos(angle) * r;
+//         const z = hitPoint.z + Math.sin(angle) * r;
 
-        // Project top → down
-        raycaster.set(
-            new THREE.Vector3(x, hitPoint.y + 100, z),
-            new THREE.Vector3(0, -1, 0)
-        );
+//         // Project top → down
+//         raycaster.set(
+//             new THREE.Vector3(x, hitPoint.y + 100, z),
+//             new THREE.Vector3(0, -1, 0)
+//         );
 
-        const projected = raycaster.intersectObject(target, false);
-        if (!projected.length) continue;
+//         const projected = raycaster.intersectObject(target, false);
+//         if (!projected.length) continue;
 
-        const hit = projected[0];
+//         const hit = projected[0];
 
-        const position = hit.point.clone();
-        const normal = hit.face.normal.clone();
-        normal.transformDirection(target.matrixWorld);
+//         const position = hit.point.clone();
+//         const normal = hit.face.normal.clone();
+//         normal.transformDirection(target.matrixWorld);
 
-        const cx = Math.floor(position.x / chunkSize);
-        const cz = Math.floor(position.z / chunkSize);
-        const key = `${cx},${cz}`;
+//         const cx = Math.floor(position.x / chunkSize);
+//         const cz = Math.floor(position.z / chunkSize);
+//         const key = `${cx},${cz}`;
 
-        if (!chunkMap.has(key)) {
-            chunkMap.set(key, []);
-        }
+//         if (!chunkMap.has(key)) {
+//             chunkMap.set(key, []);
+//         }
 
-        chunkMap.get(key).push([position, normal]);
-        touchedChunks.add(key);
-    }
+//         chunkMap.get(key).push([position, normal]);
+//         touchedChunks.add(key);
+//     }
 
-    return [...touchedChunks];
-}
+//     return [...touchedChunks];
+// }
 
 
 

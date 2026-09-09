@@ -27,9 +27,14 @@ export default class RapierPhysicsPlugin extends Plugin {
     async onUpdate(dt: number) {
         if (!this.world) return;
 
-        // Option A: fixed time step
+        // Fixed time step
         this.world.timestep = Math.min(dt, 1/60);
-        this.world.step();
+        const eventQueue = this.app.pluginData?.physics?.eventQueue;
+        if (eventQueue) {
+            this.world.step(eventQueue);
+        } else {
+            this.world.step();
+        }
 
         // Option B (deterministic)
         // this.world.stepAsync(); 

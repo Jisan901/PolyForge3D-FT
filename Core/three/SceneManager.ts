@@ -42,6 +42,11 @@ export class SceneManager {
    
    public loader: AdvancedLoader;
    public exporter = new Baxporter();
+
+   public readonly onBeforeSave = new Set<(scene: THREE.Scene) => void>();
+   public readonly onSceneLoaded = new Set<(scene: THREE.Scene) => void>();
+   public readonly onBeforeSceneClear = new Set<() => void>();
+
   // pipe -> scene Manager -> engine
   constructor(registry: ThreeRegistry, loader: AdvancedLoader, private onSceneLoad:(e:THREE.Scene)=>void) {
     this.loader = loader;
@@ -98,15 +103,17 @@ export class SceneManager {
 
     // Remove previous scene objects from registry
     if (this.activeScene) {
-      this.registry.clear()
+      this.onBeforeSceneClear.forEach(cb => { try { cb(); } catch (e) { console.error(e); } });
+      this.registry.clear();
     }
 
-    this.activeScene = scene
+    this.activeScene = scene;
 
     // Register new scene tree
-    this.registry.register(scene, true)
+    this.registry.register(scene, true);
     
     this.onSceneLoad(scene);
+    this.onSceneLoaded.forEach(cb => { try { cb(scene); } catch (e) { console.error(e); } });
   }
 
   // =====================================================
@@ -124,12 +131,12 @@ export class SceneManager {
    */
   public async saveScene(filePath: string, scene?: THREE.Scene): Promise<void> {
 
-    const target = scene || this.activeScene
-    
+    const target = scene || this.activeScene;
+    this.onBeforeSave.forEach(cb => { try { cb(target); } catch (e) { console.error(e); } });
     
     await this.exporter.export(target, DEFINITION.scenesDir, '', filePath);
 
-    this.activeUrl = filePath
+    this.activeUrl = filePath;
   }
 
   /**

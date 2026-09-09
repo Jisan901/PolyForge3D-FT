@@ -119,6 +119,26 @@ export class ScriptExecutor {
   }
 
   /**
+   * Get all active script instances
+   */
+  getAllScripts(): BaseScript[] {
+    return Array.from(this.scripts.values());
+  }
+
+  /**
+   * Get all script instances attached to a specific Three.js Object3D or ID
+   */
+  getScriptsByObject(object: any): BaseScript[] {
+    const results: BaseScript[] = [];
+    for (const script of this.scripts.values()) {
+      if ((script as any).object === object || (script as any).id === object?.uuid) {
+        results.push(script);
+      }
+    }
+    return results;
+  }
+
+  /**
    * Enable a script by ID
    */
   enableScript(id: string): void {

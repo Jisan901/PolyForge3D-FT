@@ -23,7 +23,7 @@ export default class PlayerController extends Behavior {
     private velocity = { x: 0, y: 0, z: 0 };
     private moveSpeed = 5.0;
     private jumpForce = 5.0;
-    private isGrounded = false;
+    public isGrounded = false;
     private groundedBuffer = 0;
     private groundedBufferTime = 0.1;
     private snapDistance = 0.3;

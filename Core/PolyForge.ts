@@ -15,6 +15,15 @@ import { MeshBuilder } from "@/Core/three/MeshBuilder";
 
 import { Loaders } from "@/Core/Loaders";
 import { ScriptExecutor } from "@/Core/Script/ScriptExecutor";
+import { EntityManager } from "@/Core/ECS/EntityManager";
+import { 
+    TransformComponent, 
+    ScriptComponent, 
+    RigidbodyComponent, 
+    ColliderComponent 
+} from "@/Core/ECS/Components";
+import { Components } from "@/Core/Types/Components";
+import { ECSScenePlugin } from "@/Core/ECS/ECSScenePlugin";
 
 export class PolyForge {
     static instance: PolyForge;
@@ -24,6 +33,8 @@ export class PolyForge {
     readonly time: Time;
     readonly settings: Settings;
     readonly componentManager: ComponentManager;
+    readonly entityManager: EntityManager;
+    readonly ecsScenePlugin: ECSScenePlugin;
     readonly cfg: ConfigS;
     
     readonly JobSystem: ThreadPool;
@@ -49,19 +60,36 @@ export class PolyForge {
         this.cfg = new ConfigS({ path: DEFINITION.configFile, autoSave: true });
         this.cfg.load();
         this.settings = Settings.getInstance(DEFINITION.settingsFile);
-        this.componentManager = new ComponentManager(DEFINITION.componentTemplateFile) 
+        this.componentManager = new ComponentManager(DEFINITION.componentTemplateFile);
 
+        // Initialize Hybrid ECS Manager
+        this.entityManager = new EntityManager();
+        this.entityManager.registerComponent(TransformComponent, Components.TRANSFORM);
+        this.entityManager.registerComponent(RigidbodyComponent, Components.RIGIDBODY);
+        this.entityManager.registerComponent(ColliderComponent, Components.COLLIDER);
+        this.entityManager.registerComponent(ScriptComponent, Components.SCRIPT);
 
         this.scriptExecutor = new ScriptExecutor();
 
-        this.threeRegistry = new ThreeRegistry(() => true, () => true); // on register , unregister 
+        this.threeRegistry = new ThreeRegistry(
+            (item: any) => {
+                if (item?.isObject3D && item.userData?.components) {
+                    this.entityManager.getOrCreateEntity(item);
+                }
+                return true;
+            },
+            (item: any) => {
+                if (item?.isObject3D) {
+                    this.entityManager.removeEntity(item);
+                }
+                return true;
+            }
+        );
         this.engine = new Engine();
         this.loaders = new Loaders(this.threeRegistry);
         this.sceneManager = new SceneManager(this.threeRegistry, this.loaders.objectLoader , scene => this.engine.setScene(scene));
         this.builder = new MeshBuilder(this.threeRegistry);
-
-
-
+        this.ecsScenePlugin = new ECSScenePlugin(this);
     }
 
 
@@ -72,6 +100,7 @@ export class PolyForge {
         await this.settings.init();
         await this.componentManager.loadTemplates();
         await this.engine.init();
+        this.ecsScenePlugin.init();
         try{
             await this.sceneManager.loadScene(localStorage.getItem('lastActive')||DEFINITION.primaryScene);
         }catch(e){
@@ -84,12 +113,14 @@ export class PolyForge {
         }
     }
     
-    public async initScripting(){
+    public async initScripting(autoStart: boolean = true){
         const instances = await this.loaders.scriptLoader.initGlobalSystems(this);
         instances.forEach(instance => {
             this.scriptExecutor.addScript(instance);
         });
-        this.scriptExecutor.init();
+        if (autoStart) {
+            this.scriptExecutor.init();
+        }
     }
     
 

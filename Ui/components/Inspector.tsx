@@ -5,7 +5,8 @@ import { Vector3Input, Checkbox, ColorInput, NumberInput, TextInput, TextureInpu
 import ContextMenu, { MenuItem } from './ContextMenu';
 import { SelectorItem } from './ObjectSelector';
 import { useObjectSelector } from './Utils/useSelector';
-import { useEditorActions, useEditorStates } from '../contexts/EditorContext';
+import { useEditorStates } from '../contexts/EditorContext';
+import { ACTIONS } from '@/Editor/Actions';
 import { mutationCall } from "@/Editor/Mutation";
 
 import { Editor } from "@/Editor/Editor";
@@ -113,14 +114,13 @@ const CustomComponentRenderer: React.FC<CustomComponentProps> = ({
 const Inspector: React.FC = () => {
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; component: string } | null>(null);
   const { selectedObject: object, mappedObject } = useEditorStates();
-  const { onAddComponent, onRemoveComponent } = useEditorActions();
 
   // Use the custom hook for component selection
   const componentSelector = useObjectSelector({
     title: "Add Component",
     items: AVAILABLE_COMPONENTS,
     onSelect: (item) => {
-      onAddComponent?.(item.id);
+      ACTIONS.execute('add_component', item.id);
     },
   });
 
@@ -128,7 +128,7 @@ const Inspector: React.FC = () => {
 
   function getContextMenuItems(component: string): MenuItem[] {
     return [
-      { label: `Reset`, action: () => onAddComponent?.(parseInt(component), true) },
+      { label: `Reset`, action: () => ACTIONS.execute('add_component', { componentId: parseInt(component), reset: true }) },
       { separator: true, label: '', action: () => {} },
       { label: 'Copy Component', action: () => console.log('Copy Component') },
       { label: 'Paste Component Values', action: () => console.log('Paste Values'), disabled: true },
@@ -136,7 +136,7 @@ const Inspector: React.FC = () => {
       { label: 'Move Up', action: () => console.log('Move Up') },
       { label: 'Move Down', action: () => console.log('Move Down') },
       { separator: true, label: '', action: () => {} },
-      { label: 'Remove Component', danger: true, action: () => onRemoveComponent?.(component) },
+      { label: 'Remove Component', danger: true, action: () => ACTIONS.execute('remove_component', component) },
     ];
   }
 

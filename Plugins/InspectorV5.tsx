@@ -36,7 +36,7 @@ export default function App() {
         )}
 
         <InspectorPanel>
-          <DefinedInspector obj={globalInspector.currentObject} />
+          <DefinedInspector key={globalInspector.currentObject?.uuid || 'no-selection'} obj={globalInspector.currentObject} />
         </InspectorPanel>
     </div>
   );

@@ -46,11 +46,14 @@ class ComponentRegistryManager {
 
   getRenderer(keyOrNameCode: string | number): ComponentRenderer | undefined {
     const key = String(keyOrNameCode).toLowerCase();
-    return this.renderers.get(key);
+    if (this.renderers.has(key)) return this.renderers.get(key);
+    const base = key.split('_')[0];
+    return this.renderers.get(base);
   }
 
   getIcon(keyOrNameCode: string | number): LucideIcon {
-    const str = String(keyOrNameCode).toLowerCase();
+    const raw = String(keyOrNameCode).toLowerCase();
+    const str = raw.split('_')[0];
     if (str.includes('script') || str === '7') return FileCode;
     if (str.includes('rigidbody') || str === '5') return Activity;
     if (str.includes('collider') || str === '6') return BoxSelect;
@@ -66,13 +69,26 @@ class ComponentRegistryManager {
   }
 
   getTitle(componentKey: string, componentData: any): string {
-    if (componentData?.name) return componentData.name;
-    if (componentData?.key) {
-      return componentData.key.charAt(0).toUpperCase() + componentData.key.slice(1);
+    let baseTitle = '';
+    if (componentData?.name) {
+      baseTitle = componentData.name;
+    } else if (componentData?.key) {
+      baseTitle = componentData.key.charAt(0).toUpperCase() + componentData.key.slice(1);
+    } else {
+      const baseKey = componentKey.split('_')[0].toLowerCase();
+      const meta = this.metadata.get(baseKey);
+      if (meta?.name) {
+        baseTitle = meta.name;
+      } else {
+        baseTitle = baseKey.charAt(0).toUpperCase() + baseKey.slice(1);
+      }
     }
-    const meta = this.metadata.get(componentKey.toLowerCase());
-    if (meta?.name) return meta.name;
-    return componentKey.charAt(0).toUpperCase() + componentKey.slice(1);
+
+    if (componentKey.includes('_')) {
+      const idx = componentKey.split('_')[1];
+      return `${baseTitle} (${idx})`;
+    }
+    return baseTitle;
   }
 }
 

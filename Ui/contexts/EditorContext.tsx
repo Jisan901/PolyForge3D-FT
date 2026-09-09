@@ -1,7 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
-
+import React, { createContext, useContext, useState, useEffect } from "react";
 import { THREE } from '@/Core/lib/THREE';
-import {mutationCall} from "@/Editor/Mutation"
 import { MappedObject } from "@/Editor/ObjectMapper";
 import { Editor } from "@/Editor/Editor";
 
@@ -19,7 +17,7 @@ interface EditorStatesValue {
 
 const EditorStatesContext = createContext<EditorStatesValue | null>(null);
 
-export function EditorStatesProvider({ children }) {
+export function EditorStatesProvider({ children }: { children: React.ReactNode }) {
     const [scene, setScene] = useState<THREE.Scene[]>([]);
     const [selectedId, setSelectedId] = useState("");
     const [selectedObject, setSelectedObject] = useState<THREE.Object3D | null>(null);
@@ -31,7 +29,7 @@ export function EditorStatesProvider({ children }) {
     useEffect(() => {
         const active = Core?.sceneManager?.activeScene;
         setScene(active ? [active] : []);
-        
+
         return editor.api.buses.sceneUpdate.subscribe(() => {
             const active = Core?.sceneManager?.activeScene;
             setScene(active ? [active] : []);
@@ -48,7 +46,6 @@ export function EditorStatesProvider({ children }) {
     // Sync Selection
     useEffect(() => {
         return editor.api.buses.selectionUpdate.subscribe((target) => {
-            //const target = PolyForge.api.three.selectedObject;
             setSelectedId(target?.uuid || "");
             setSelectedObject(target || null);
             if (target) {
@@ -81,165 +78,10 @@ export function useEditorStates(): EditorStatesValue {
     return ctx;
 }
 
-
-
-
-
-
-const builder = Core.builder;
-
-interface EditorActionsValue {
-    addObject: (type: any, parentUuid?: string) => THREE.Object3D | null;
-    selectObject: (uuid?: string) => THREE.Object3D | null;
-    deleteObject: (uuid: string) => void;
-    onDuplicate: (uuid: string) => THREE.Object3D | null;
-    onAddComponent: (t: any, force?: boolean) => void;
-    onRemoveComponent: (t:any)=>void;
-}
-
-const EditorActionsContext = createContext<EditorActionsValue | null>(null);
-
-
-const sceneManager = Core.sceneManager;
-
-
-export function EditorActionsProvider({ children }) {
-    
-
-    const addObject = useCallback(
-        (type: any, parentUuid?: string) => {
-            const root = sceneManager.activeScene
-            if (!root) return null;
-
-            const parent = parentUuid
-                ? root?.getObjectByProperty("uuid", parentUuid)
-                : root;
-
-            if (!parent) return null;
-
-            const obj = builder.create(type);
-            editor.addObject(parent, obj);
-
-            return obj;
-        },
-        []
-    );
-
-    const onDuplicate = useCallback(
-        (uuid?: string) => {
-            const root = sceneManager.activeScene
-            if (!root) return null;
-
-            const target = uuid
-                ? root?.getObjectByProperty("uuid", uuid)
-                : null;
-            
-            if (!target) return null;
-
-            const parent = target.parent || root;
-            if (!parent) return null;
-
-            const obj = target.clone();
-            editor.addObject(parent, obj);
-            
-            return obj;
-        },
-        []
-    );
-
-    const selectObject = useCallback(
-        (uuid?: string) => {
-            const root = sceneManager.activeScene;
-            if (!root) return null;
-
-            const target = uuid
-                ? root?.getObjectByProperty("uuid", uuid)
-                : null;
-            
-            
-            if (editor.api.three.selectedObject?.uuid !== target?.uuid)
-                return editor.api.three.selectObject(target);
-                
-            //editor.api.three.selectObject(target);
-
-            return target;
-        },
-        []
-    );
-
-    const deleteObject = useCallback(
-        (uuid: string) => {
-            const root = sceneManager.activeScene;
-            if (!root||root.uuid === uuid) return;
-
-            const target = root?.getObjectByProperty("uuid", uuid);
-            if (!target) return;
-
-            editor.removeObject(target);
-        },
-        []
-    );
-    
-    const onAddComponent = useCallback((id,force=false)=>{
-        const target = editor.api.three.selectedObject;
-        if (target.userData.components&&target.userData.components[id]&&!force) return 
-        
-        const component = Core.componentManager.createComponent(id)
-        
-        if (target&&component){
-            target.userData.special = true;
-            target.userData.components??={}
-            target.userData.components[id]=component
-        }
-        editor.api.three.selectObject(target)
-        
-    },[])
-    
-    const onRemoveComponent = useCallback((id)=>{
-        const target = editor.api.three.selectedObject;
-        const component = target.userData.components[id]
-        
-        if (target&&component){
-            delete target.userData.components[id]
-            if (parseInt(id)===7) mutationCall(target,'userData.components.7')
-            if (Object.keys(target.userData.components).length===0) target.userData.special = false;
-        }
-        
-        editor.api.three.selectObject(target)
-        
-    },[])
-
-    const value: EditorActionsValue = {
-        addObject,
-        selectObject,
-        deleteObject,
-        onDuplicate,
-        onAddComponent,
-        onRemoveComponent
-    };
-
-    return (
-        <EditorActionsContext value={value}>
-            {children}
-        </EditorActionsContext>
-    );
-}
-
-export function useEditorActions(): EditorActionsValue {
-    const ctx = useContext(EditorActionsContext);
-    if (!ctx) throw new Error("useEditorActions must be inside <EditorActionsProvider>");
-    return ctx;
-}
-
-
-
-// 
-export default function EditorProviders({ children }) {
+export default function EditorProviders({ children }: { children: React.ReactNode }) {
     return (
         <EditorStatesProvider>
-            <EditorActionsProvider>
-                {children}
-            </EditorActionsProvider>
+            {children}
         </EditorStatesProvider>
     );
 }
