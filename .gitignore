@@ -27,4 +27,5 @@ dist-ssr
 #game assets
 
 Game/files/Assets/*
+Game/files/Terrain
 Game/files/Extra/*
