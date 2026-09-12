@@ -58,6 +58,7 @@ export function DragAndDropZone({
     // --- 3. Pointer Down (Start Drag OR Scroll) ---
     const handlePointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
         if (!payload || dragState.isDragging || !ref.current) return;
+        if (e.button !== 0) return; // Only allow left-click to start dragging
 
         const now = Date.now();
         const isMouse = e.pointerType === 'mouse';
@@ -96,6 +97,19 @@ export function DragAndDropZone({
             zone.style.backgroundColor = '';
         };
 
+        const findValidDropZone = (startEl: Element | null): HTMLElement | null => {
+            let curr = startEl?.closest('.drag-drop-zone') as HTMLElement | null;
+            while (curr) {
+                if (curr.dataset.dropId !== String(id) && curr.dataset.hasDropHandler === 'true') {
+                    return curr;
+                }
+                curr = curr.parentElement?.closest('.drag-drop-zone') as HTMLElement | null;
+            }
+            return null;
+        };
+
+        let ghost: HTMLElement | null = null;
+
         // --- 4. Pointer Move ---
         const handlePointerMove = (moveEvent: PointerEvent) => {
             if (!dragStartPos.current) return;
@@ -103,7 +117,7 @@ export function DragAndDropZone({
             const dx = Math.abs(moveEvent.clientX - dragStartPos.current.x);
             const dy = Math.abs(moveEvent.clientY - dragStartPos.current.y);
 
-            if (!dragState.isDragging && (dx > 10 || dy > 10)) {
+            if (!dragState.isDragging && (dx > 8 || dy > 8)) {
                 dragState.payload = payload;
                 dragState.sourceId = id;
                 dragState.isDragging = true;
@@ -111,44 +125,46 @@ export function DragAndDropZone({
                 const offsetX = moveEvent.clientX - rect.left;
                 const offsetY = moveEvent.clientY - rect.top;
 
-                const originalStyles: Partial<CSSStyleDeclaration> = {
-                    position: el.style.position,
-                    left: el.style.left,
-                    top: el.style.top,
-                    width: el.style.width,
-                    height: el.style.height,
-                    zIndex: el.style.zIndex,
-                    pointerEvents: el.style.pointerEvents,
-                    touchAction: el.style.touchAction 
-                };
+                // Create a floating clone ghost attached to document.body so the original element stays in place
+                ghost = el.cloneNode(true) as HTMLElement;
+                ghost.style.position = 'fixed';
+                ghost.style.zIndex = '99999';
+                ghost.style.pointerEvents = 'none';
+                ghost.style.width = `${rect.width}px`;
+                ghost.style.height = `${rect.height}px`;
+                ghost.style.left = `${moveEvent.clientX - offsetX}px`;
+                ghost.style.top = `${moveEvent.clientY - offsetY}px`;
+                ghost.style.opacity = '0.85';
+                ghost.style.transform = 'scale(1.02)';
+                ghost.style.boxShadow = '0 12px 28px rgba(0,0,0,0.5)';
+                ghost.style.transition = 'none';
+                ghost.style.margin = '0';
+                ghost.style.cursor = 'grabbing';
+                document.body.appendChild(ghost);
 
-                el.style.width = `${rect.width}px`;
-                el.style.height = `${rect.height}px`;
-                el.style.position = 'fixed';
-                el.style.zIndex = '9999';
-                el.style.pointerEvents = 'none';
-                el.style.left = `${moveEvent.clientX - offsetX}px`;
-                el.style.top = `${moveEvent.clientY - offsetY}px`;
+                // Dim the source element slightly without moving it or breaking its layout
+                el.style.opacity = '0.35';
 
                 const dragMoveActive = (dragEvent: PointerEvent) => {
                     // Prevent default only during active dragging to stop pull-to-refresh etc
                     dragEvent.preventDefault(); 
                     
-                    el.style.left = `${dragEvent.clientX - offsetX}px`;
-                    el.style.top = `${dragEvent.clientY - offsetY}px`;
+                    if (ghost) {
+                        ghost.style.left = `${dragEvent.clientX - offsetX}px`;
+                        ghost.style.top = `${dragEvent.clientY - offsetY}px`;
+                    }
 
                     const elementBelow = document.elementFromPoint(dragEvent.clientX, dragEvent.clientY);
-                    const newZone = elementBelow?.closest('.drag-drop-zone') as HTMLElement | null;
+                    const newZone = findValidDropZone(elementBelow);
 
                     if (activeDropZone.current && activeDropZone.current !== newZone) {
                         resetZoneStyles(activeDropZone.current);
                         activeDropZone.current = null;
                     }
 
-                    if (newZone && newZone.dataset.dropId !== String(id)) {
-                        const hasHandler = newZone.dataset.hasDropHandler === 'true';
+                    if (newZone) {
                         const shouldHighlight = newZone.dataset.highlight === 'true';
-                        if (hasHandler && shouldHighlight && newZone !== activeDropZone.current) {
+                        if (shouldHighlight && newZone !== activeDropZone.current) {
                             newZone.style.border = '1px solid #007bff';
                             newZone.style.backgroundColor = 'rgba(141,141,141,0.097)';
                             activeDropZone.current = newZone;
@@ -156,27 +172,28 @@ export function DragAndDropZone({
                     }
                 };
 
-                const dragEnd = (upEvent: PointerEvent) => {
+                const dragEnd = (upEvent: PointerEvent | MouseEvent) => {
                     if (activeDropZone.current) {
                         resetZoneStyles(activeDropZone.current);
                         activeDropZone.current = null;
                     }
 
                     const elementBelow = document.elementFromPoint(upEvent.clientX, upEvent.clientY);
-                    const targetZone = elementBelow?.closest('.drag-drop-zone') as HTMLElement | null;
+                    const targetZone = findValidDropZone(elementBelow);
 
-                    if (targetZone && targetZone.dataset.dropId !== String(id)) {
-                        if (targetZone.dataset.hasDropHandler === 'true') {
-                            if (dragState.payload) dragState.payload._$event = upEvent;
-                            targetZone.dispatchEvent(
-                                new CustomEvent('data', { bubbles: false, detail: dragState.payload })
-                            );
-                        }
+                    if (targetZone) {
+                        if (dragState.payload) dragState.payload._$event = upEvent;
+                        targetZone.dispatchEvent(
+                            new CustomEvent('data', { bubbles: false, detail: dragState.payload })
+                        );
                     }
 
-                    Object.entries(originalStyles).forEach(([key, value]) => {
-                        (el.style as any)[key] = value || '';
-                    });
+                    if (ghost && ghost.parentElement) {
+                        ghost.remove();
+                        ghost = null;
+                    }
+
+                    el.style.opacity = '';
 
                     // IMPORTANT: Restore scrolling ability after drag ends
                     resetTouchAction();
@@ -186,16 +203,18 @@ export function DragAndDropZone({
                     dragState.sourceId = null;
                     dragStartPos.current = null;
 
-                    window.removeEventListener('pointermove', dragMoveActive);
-                    window.removeEventListener('pointerup', dragEnd);
-                    window.removeEventListener('pointercancel', dragEnd);
+                    window.removeEventListener('pointermove', dragMoveActive, true);
+                    window.removeEventListener('pointerup', dragEnd, true);
+                    window.removeEventListener('pointercancel', dragEnd, true);
+                    window.removeEventListener('mouseup', dragEnd, true);
                 };
 
                 window.removeEventListener('pointermove', handlePointerMove);
                 window.removeEventListener('pointerup', handleEarlyUp);
-                window.addEventListener('pointermove', dragMoveActive, { passive: false });
-                window.addEventListener('pointerup', dragEnd, { passive: false });
-                window.addEventListener('pointercancel', dragEnd, { passive: false });
+                window.addEventListener('pointermove', dragMoveActive, { passive: false, capture: true });
+                window.addEventListener('pointerup', dragEnd, { capture: true });
+                window.addEventListener('pointercancel', dragEnd, { capture: true });
+                window.addEventListener('mouseup', dragEnd, { capture: true });
             }
         };
 
@@ -207,7 +226,7 @@ export function DragAndDropZone({
         };
 
         window.addEventListener('pointermove', handlePointerMove, { passive: false });
-        window.addEventListener('pointerup', handleEarlyUp, { passive: false });
+        window.addEventListener('pointerup', handleEarlyUp);
     }, [id, payload, resetTouchAction]);
 
 
@@ -234,7 +253,8 @@ export function DragAndDropZone({
             ref={ref}
             onPointerDown={handlePointerDown}
             onPointerUp={handlePointerUpPassive} // Listen for lift-off
-            
+            onDragStart={(e) => e.preventDefault()}
+            draggable={false}
             data-drop-id={id}
             data-has-drop-handler={!!onDrop}
             data-highlight={highlight}

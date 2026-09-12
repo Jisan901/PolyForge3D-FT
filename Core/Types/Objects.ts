@@ -10,6 +10,7 @@ export enum ObjectType {
   CYLINDER = 'CYLINDER',
   PLANE = 'PLANE',
   CAPSULE = 'CAPSULE',
+  TERRAIN = 'Terrain',
   
   // Additional Geometries
   CONE = 'CONE',

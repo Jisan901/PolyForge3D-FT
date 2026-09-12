@@ -1,6 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronRight } from 'lucide-react';
+import { MenuManager } from '@/Editor/MenuApi';
 
 export interface MenuItem {
   label?: string;
@@ -10,6 +11,7 @@ export interface MenuItem {
   type?: 'separator' | 'submenu' | string;
   danger?: boolean;
   disabled?: boolean;
+  icon?: React.ReactNode;
   submenu?: MenuItem[];
   children?: MenuItem[];
 }
@@ -45,9 +47,8 @@ const ContextMenuItem: React.FC<{
           w-full px-3 py-1.5 text-xs flex items-center justify-between
           ${item.disabled
             ? 'opacity-50 cursor-not-allowed text-[#a1a1aa]'
-            : `hover:bg-[#2563eb] hover:text-white ${
-                item.danger ? 'text-red-400' : 'text-[#d4d4d8]'
-              }`
+            : `hover:bg-[#2563eb] hover:text-white ${item.danger ? 'text-red-400' : 'text-[#d4d4d8]'
+            }`
           }
           ${active ? 'bg-[#2563eb] text-white' : ''}
         `}
@@ -62,8 +63,11 @@ const ContextMenuItem: React.FC<{
           }
         }}
       >
-        <span>{item.label}</span>
-        <span className="flex items-center gap-2">
+        <span className="flex items-center gap-1.5 truncate">
+          {item.icon && <span className="opacity-80 shrink-0">{item.icon}</span>}
+          <span className="truncate">{item.label}</span>
+        </span>
+        <span className="flex items-center gap-2 shrink-0 ml-2">
           {item.shortcut && (
             <span className="text-[9px] opacity-70">{item.shortcut}</span>
           )}
@@ -142,20 +146,20 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
       }
     }
 
-    setPosition({ 
-      top: Math.max(padding, top), 
-      left: Math.max(padding, left) 
+    setPosition({
+      top: Math.max(padding, top),
+      left: Math.max(padding, left)
     });
     setMaxHeight(calculatedMaxHeight);
   }, [x, y]);
-  
-  
+
+
   /* ---- Outside click handling (DELAYED) ---- */
   useEffect(() => {
     if (isSubmenu) return;
 
     const handleOutside = (e: MouseEvent) => {
-        
+
       const target = e.target as HTMLElement;
       if (!target.closest('.context-menu-root')) {
         onClose();
@@ -197,5 +201,108 @@ const ContextMenu: React.FC<ContextMenuProps> = ({
     document.body
   );
 };
+
+export interface UseContextMenuOptions<T = any> {
+  menuId?: string;
+  items?: MenuItem[] | ((data: T) => MenuItem[]);
+  onOpen?: (data?: T) => void;
+  onClose?: () => void;
+}
+
+/**
+ * Highly reusable hook for right-click and button-triggered context menus.
+ * Can consume items dynamically from MenuManager or direct props/generators.
+ */
+export function useContextMenu<T = any>(options?: UseContextMenuOptions<T>) {
+  const [menuState, setMenuState] = useState<{
+    isOpen: boolean;
+    x: number;
+    y: number;
+    data: T | null;
+  }>({
+    isOpen: false,
+    x: 0,
+    y: 0,
+    data: null,
+  });
+
+  const [updateTick, setUpdateTick] = useState(0);
+
+  // Subscribe to MenuManager updates if a menuId was specified
+  useEffect(() => {
+    if (!options?.menuId) return;
+    return MenuManager.getInstance().subscribe(() => {
+      setUpdateTick((t) => t + 1);
+    });
+  }, [options?.menuId]);
+
+  const openMenu = useCallback(
+    (e: React.MouseEvent | { clientX: number; clientY: number }, data?: T) => {
+      if ('preventDefault' in e && typeof e.preventDefault === 'function') {
+        e.preventDefault();
+      }
+      if ('stopPropagation' in e && typeof e.stopPropagation === 'function') {
+        e.stopPropagation();
+      }
+
+      setMenuState({
+        isOpen: true,
+        x: e.clientX,
+        y: e.clientY,
+        data: data ?? null,
+      });
+
+      options?.onOpen?.(data);
+    },
+    [options]
+  );
+
+  const closeMenu = useCallback(() => {
+    setMenuState((prev) => ({ ...prev, isOpen: false }));
+    options?.onClose?.();
+  }, [options]);
+
+  const resolvedItems = useMemo(() => {
+    if (!menuState.isOpen) return [];
+
+    if (typeof options?.items === 'function') {
+      return options.items(menuState.data as T);
+    }
+    if (Array.isArray(options?.items)) {
+      return options.items;
+    }
+    if (options?.menuId) {
+      return MenuManager.getInstance().getItems(options.menuId, menuState.data);
+    }
+    return [];
+  }, [menuState.isOpen, menuState.data, options, updateTick]);
+
+  const ContextMenuComponent: React.FC<{ items?: MenuItem[] }> = useCallback(
+    ({ items: overrideItems }) => {
+      if (!menuState.isOpen) return null;
+      const displayItems = overrideItems || resolvedItems;
+      if (!displayItems || displayItems.length === 0) return null;
+
+      return (
+        <ContextMenu
+          x={menuState.x}
+          y={menuState.y}
+          items={displayItems}
+          onClose={closeMenu}
+        />
+      );
+    },
+    [menuState.isOpen, menuState.x, menuState.y, resolvedItems, closeMenu]
+  );
+
+  return {
+    isOpen: menuState.isOpen,
+    menuState,
+    openMenu,
+    closeMenu,
+    items: resolvedItems,
+    ContextMenuComponent,
+  };
+}
 
 export default ContextMenu;

@@ -9,6 +9,7 @@ export function getMenu(addObject: AddObjectFunction, id: string): MenuItem[] {
     { label: 'Sphere', action: () => addObject(ObjectType.SPHERE, id) },
     { label: 'Cylinder', action: () => addObject(ObjectType.CYLINDER, id) },
     { label: 'Plane', action: () => addObject(ObjectType.PLANE, id) },
+    { label: 'Terrain', action: () => addObject(ObjectType.TERRAIN, id) },
     { label: 'Capsule', action: () => addObject(ObjectType.CAPSULE, id) },
     { label: 'Cone', action: () => addObject(ObjectType.CONE, id) },
     { type: 'separator' } as MenuItem,
@@ -97,6 +98,7 @@ export function getMenuFlat(addObject: AddObjectFunction, id: string): MenuItem[
     { label: 'Sphere', action: () => addObject(ObjectType.SPHERE, id) },
     { label: 'Cylinder', action: () => addObject(ObjectType.CYLINDER, id) },
     { label: 'Plane', action: () => addObject(ObjectType.PLANE, id) },
+    { label: 'Terrain', action: () => addObject(ObjectType.TERRAIN, id) },
     { label: 'Capsule', action: () => addObject(ObjectType.CAPSULE, id) },
     { label: 'Cone', action: () => addObject(ObjectType.CONE, id) },
     

@@ -1,6 +1,7 @@
 import { THREE } from '@/Core/lib/THREE'
 import { ObjectType } from '@/Core/Types/Objects'
-
+import { RectAreaLightTexturesLib } from 'three/examples/jsm/lights/RectAreaLightTexturesLib.js';
+THREE.RectAreaLightNode.setLTC(RectAreaLightTexturesLib.init());
 
 /**
  * MeshBuilder is a factory class for creating common Three.js objects.
@@ -22,9 +23,9 @@ import { ObjectType } from '@/Core/Types/Objects'
  * Unreal: Actor Factory
  */
 export class MeshBuilder {
-    
-    private _defaultMaterial = new THREE.MeshStandardMaterial({ color: 0xaaaaaa });
-    
+
+  private _defaultMaterial = new THREE.MeshStandardMaterial({ color: 0xaaaaaa });
+
   /**
    * Create MeshBuilder instance.
    *
@@ -64,6 +65,7 @@ export class MeshBuilder {
       case ObjectType.CYLINDER: return this.threeRegistry.register(this.cylinder())
       case ObjectType.PLANE: return this.threeRegistry.register(this.plane())
       case ObjectType.CAPSULE: return this.threeRegistry.register(this.capsule())
+      case ObjectType.TERRAIN: return this.threeRegistry.register(this.terrain())
 
       // -----------------------
       // Additional Geometries
@@ -188,6 +190,15 @@ export class MeshBuilder {
       new THREE.CapsuleGeometry(0.4, 1, 4, 8),
       this._defaultMaterial
     )
+  }
+
+  /**
+   * Create a terrain object.
+   */
+  terrain(): THREE.Object3D {
+    const terrain = new THREE.Group();
+    terrain.name = 'Terrain';
+    return terrain;
   }
 
   // =====================================================
@@ -383,7 +394,7 @@ export class MeshBuilder {
     const map = new THREE.CanvasTexture(this.generateSpriteTexture());
     const material = new THREE.SpriteMaterial({ map });
     const sprite = new THREE.Sprite(material);
-    sprite.geometry = new THREE.BufferGeometry() 
+    sprite.geometry = new THREE.BufferGeometry()
     sprite.geometry.copy(new THREE.PlaneGeometry());
     return sprite
   }

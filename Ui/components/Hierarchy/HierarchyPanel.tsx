@@ -7,7 +7,7 @@ import { mutate, toast } from "@/Editor/Mutation";
 import { Editor } from "@/Editor/Editor";
 import { useSceneObserver } from "../../Hooks";
 import { BusHub } from "@/Editor/Api";
-import { getMenu, getMenuFlat } from "../Utils/getMenu";
+import { getHierarchyContextMenuItems } from '@/Editor/HierarchyActions';
 import HierarchyToolbar from './HierarchyToolbar';
 import HierarchySearchBar from './HierarchySearchBar';
 import HierarchyTree from './HierarchyTree';
@@ -96,50 +96,9 @@ export const Hierarchy: React.FC = () => {
     toast(expand ? 'Expanded all' : 'Collapsed all');
   };
 
-  const getContextMenuItems = (id: string | null): MenuItem[] => {
-    const parentId = id || activeScene?.uuid;
-    const universalItems: MenuItem[] = [
-      { label: 'Create Empty / Group', action: () => ACTIONS.execute('add_object', { type: ObjectType.FOLDER, parentUuid: parentId }) },
-      {
-        label: '3D Object',
-        submenu: getMenuFlat(handleAddObject, parentId)
-      },
-      ...getMenu(handleAddObject, parentId)
-    ];
-
-    if (!id || id === activeScene?.uuid) {
-      return universalItems;
-    }
-
-    const targetedItems: MenuItem[] = [
-      { 
-        label: 'Focus in Viewport', 
-        shortcut: 'F', 
-        action: () => editor.api?.three?.focusSelected?.() 
-      },
-      { 
-        label: 'Rename', 
-        shortcut: 'F2', 
-        action: () => setRenamingId(id) 
-      },
-      { 
-        label: 'Duplicate', 
-        shortcut: 'Ctrl+D', 
-        action: () => ACTIONS.execute('duplicate_object', id) 
-      },
-      { 
-        label: 'Delete', 
-        shortcut: 'Del', 
-        danger: true, 
-        action: () => ACTIONS.execute('delete_object', id) 
-      },
-      { separator: true, label: '', action: () => {} },
-    ];
-
-    const defaultItems = [...targetedItems, ...universalItems];
-    (Editor.api?.buses?.hierarchyContextMenu?.emit as any)?.(id, defaultItems);
-    return defaultItems;
-  };
+  const getContextMenuItems = useCallback((id: string | null): MenuItem[] => {
+    return getHierarchyContextMenuItems(id, { setRenamingId, activeScene });
+  }, [activeScene, setRenamingId]);
 
   // Flatten all nodes for ENTITY list view
   const flattenedNodes = useMemo(() => {

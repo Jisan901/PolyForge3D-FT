@@ -12,6 +12,7 @@ import {BinarySerializer} from "@/Core/Plugins/Three.patch.plugin";
 import { FileAPI } from '@/Editor/FileApi';
 import { ThreeAPI } from '@/Editor/Three.helper';
 import { ViewportToolManager } from '@/Editor/ToolApi';
+import { MenuManager } from '@/Editor/MenuApi';
 import { AssetBrowserManager } from "@/Editor/AssetBrowser";
 import { mutationCall } from "@/Editor/Mutation";
 
@@ -19,12 +20,16 @@ export class Api {
     public file: FileAPI;
     public three: ThreeAPI;
     public toolService: ViewportToolManager;
+    public menu: MenuManager;
+    public menuService: MenuManager;
     public buses: typeof BusHub = BusHub;
     public binarySerializer = new BinarySerializer();
     constructor(private engine: Engine, private loader: MemoLoader) {
         this.file = new FileAPI();
         this.three = new ThreeAPI(this.buses, this.engine);
         this.toolService =  ViewportToolManager.getInstance();
+        this.menu = MenuManager.getInstance();
+        this.menuService = this.menu;
     }
     
     
@@ -100,6 +105,8 @@ export const BusHub = {
     viewportDrop: new Bus<[any, MouseEvent]>(),
     hierarchyContextMenu: new Bus<[any]>(),
     toolChange: new Bus<[string]>(),
+    menuUpdate: new Bus<[]>(),
+    menuOpen: new Bus<[string, any[]]>(),
 } as const;
 
 

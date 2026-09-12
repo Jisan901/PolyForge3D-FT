@@ -78,8 +78,12 @@ export default class TerrainEditorPlugin extends Plugin {
         
         
         globalInspector.setCustomResolverUI(
-    'Terrain',
-    (obj) => obj && obj.name=== "Terrain" , Ui )
-        
+            'Terrain',
+            (obj) => obj && (obj.name === "Terrain" || (obj as any).isTerrainChunkManager),
+            Ui
+        );
     }
 }
+
+export { TerrainChunkManager } from "./TerrainChunkManager";
+export { TerrainGenerationService } from "./TerrainGenerationService";

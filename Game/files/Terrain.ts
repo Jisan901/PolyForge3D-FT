@@ -1,10 +1,12 @@
-// game/scripts/Rotate.ts
 import { Behavior } from "@/Core/Behavior";
 import { THREE } from '@/Core/lib/THREE';
 import { INumber, IRef } from '@/Editor/ITypes';
-
+import fs from '@/Core/lib/fs';
+import { TerrainChunkManager } from '@/Editor/Plugins/Terrain/TerrainChunkManager';
+import terrainMaterial from "./TerrainMaterial";
 
 import { Noise, NoiseDetail } from "./Utils/perlin.js"
+import { getRef } from "@/Core/Functions.js";
 NoiseDetail(10)
 
 
@@ -429,27 +431,44 @@ export default class Terrain extends Behavior {
     @INumber()
     speed: number = 50;
     @IRef()
-    target: THREE.Object3D = null;
+    target: THREE.Camera = null;
 
-    onStart() {
+    private chunkManager: TerrainChunkManager | null = null;
+
+    async onStart() {
+        this.target = getRef(this.target);
         console.log('Terrain started', this.speed, this.target);
+        const manifestPath = '/Game/files/Terrain/Terrain_manifest.json';
+
+        try {
+            if (await fs.exists(manifestPath)) {
+                this.chunkManager = new TerrainChunkManager(terrainMaterial);
+                await this.chunkManager.loadFromManifest(manifestPath);
+                this.object.add(this.chunkManager);
+                return;
+            }
+        } catch (err) {
+            console.warn('[Terrain] Manifest not found or error loading, generating fallback chunks:', err);
+        }
+
         let chunkSize = 32;
-        let geoBuilder = new ChunkGenerator(4, chunkSize)
-        const material = new THREE.MeshStandardMaterial({ color: 0xffffff, wireframe: false })
-        for (let z = 0; z < 6; z++) {
-            for (let x = 0; x < 6; x++) {
+        let geoBuilder = new ChunkGenerator(4, chunkSize);
+        const material = terrainMaterial;
+        for (let z = 0; z < 4; z++) {
+            for (let x = 0; x < 4; x++) {
                 let chunk = new THREE.Mesh(
-                    geoBuilder.build(1, [x * (chunkSize + 2), z * (chunkSize + 2)]),
+                    geoBuilder.build(1, [x * chunkSize, z * chunkSize]),
                     material
-                )
-                chunk.position.set(x * (chunkSize + 2), 0, z * (chunkSize + 2))
-                this.object.add(chunk)
+                );
+                chunk.position.set(x * chunkSize, 0, z * chunkSize);
+                this.object.add(chunk);
             }
         }
     }
 
     onUpdate(dt: number) {
-        //if (this.target) this.target.rotation.y += dt * this.speed||0.002;
-        //if (this.object) this.object.rotation.y += dt * this.speed||0.002;
+        if (this.chunkManager) {
+            this.chunkManager.update(this.target);
+        }
     }
 }

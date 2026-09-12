@@ -60,7 +60,7 @@ ACTIONS.registerGlobal("add_object", (payload: { type: any; parentUuid?: string 
 
     const parent = parentUuid
         ? root.getObjectByProperty("uuid", parentUuid)
-        : root;
+        : (sceneManager.isObjectMode && sceneManager.activeObjectRoot ? sceneManager.activeObjectRoot : root);
 
     if (!parent) return null;
 
@@ -236,5 +236,9 @@ ACTIONS.registerGlobal("remove_component", (payload: string | { key?: string; id
 export function executeAction<R = any, P = any>(id: ActionId | string, payload?: P): R {
     return ACTIONS.execute<R, P>(id, payload);
 }
+
+// Modular Domain Actions & Context Menus
+export * from '@/Editor/HierarchyActions';
+export * from '@/Editor/AssetBrowserActions';
 
 export default ACTIONS;

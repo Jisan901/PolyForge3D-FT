@@ -1,0 +1,74 @@
+{
+  "name": "RangeTerrain",
+  "numChunksX": 2,
+  "numChunksZ": 2,
+  "chunkSize": 32,
+  "minLod": 2,
+  "maxLod": 4,
+  "lodLevels": 3,
+  "lodDistances": [
+    64,
+    128
+  ],
+  "maxDistance": 800,
+  "width": 64,
+  "depth": 64,
+  "minHeight": -3,
+  "maxHeight": 15,
+  "noiseOffsetX": 25,
+  "noiseOffsetZ": -40,
+  "chunks": [
+    {
+      "cx": 0,
+      "cz": 0,
+      "center": [
+        -16,
+        -16
+      ],
+      "lods": {
+        "2": "/Game/files/TerrainRangeTest/RangeTerrain_X0_Z0_LOD2.geo.bin",
+        "3": "/Game/files/TerrainRangeTest/RangeTerrain_X0_Z0_LOD3.geo.bin",
+        "4": "/Game/files/TerrainRangeTest/RangeTerrain_X0_Z0_LOD4.geo.bin"
+      }
+    },
+    {
+      "cx": 1,
+      "cz": 0,
+      "center": [
+        16,
+        -16
+      ],
+      "lods": {
+        "2": "/Game/files/TerrainRangeTest/RangeTerrain_X1_Z0_LOD2.geo.bin",
+        "3": "/Game/files/TerrainRangeTest/RangeTerrain_X1_Z0_LOD3.geo.bin",
+        "4": "/Game/files/TerrainRangeTest/RangeTerrain_X1_Z0_LOD4.geo.bin"
+      }
+    },
+    {
+      "cx": 0,
+      "cz": 1,
+      "center": [
+        -16,
+        16
+      ],
+      "lods": {
+        "2": "/Game/files/TerrainRangeTest/RangeTerrain_X0_Z1_LOD2.geo.bin",
+        "3": "/Game/files/TerrainRangeTest/RangeTerrain_X0_Z1_LOD3.geo.bin",
+        "4": "/Game/files/TerrainRangeTest/RangeTerrain_X0_Z1_LOD4.geo.bin"
+      }
+    },
+    {
+      "cx": 1,
+      "cz": 1,
+      "center": [
+        16,
+        16
+      ],
+      "lods": {
+        "2": "/Game/files/TerrainRangeTest/RangeTerrain_X1_Z1_LOD2.geo.bin",
+        "3": "/Game/files/TerrainRangeTest/RangeTerrain_X1_Z1_LOD3.geo.bin",
+        "4": "/Game/files/TerrainRangeTest/RangeTerrain_X1_Z1_LOD4.geo.bin"
+      }
+    }
+  ]
+}

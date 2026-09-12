@@ -23,87 +23,99 @@ export default class DragAndDropHandlersPlugin extends Plugin {
         
         
         Editor.api.buses.viewportDrop.subscribe(async (e: any, mouseEvent: MouseEvent) => {
-            console.log(e)
-            if (e.type === 'Asset'){
+            if (e.type === 'Asset' && e.data) {
+                const scene = editor.core.sceneManager.activeScene;
+                const hit = mouseEvent ? three.getHitFromMouse(mouseEvent) : null;
+                const target: any = three.selectedObject;
 
-            const hit = three.getHitFromMouse(mouseEvent);
-            const target_object: any = hit?.object;
-            const scene = editor.core.sceneManager.activeScene;
-            const target: any = three.selectedObject;
-            
-            if(e.data.type === 'model'){
-            const object = await editor.api.loadObjectFile(e.data.fullPath,false);
-            // Position and orient object based on hit point
-            if (hit) {
-                const normal = hit.normal.clone().normalize();
-                const quat = new THREE.Quaternion().setFromUnitVectors(object.up, normal);
-                object.position.copy(hit.point);
-                object.quaternion.copy(quat);
-            }
-            // Add to scene or selected object
-            
-            
-            editor.addObject(target??scene, object);
-            mutationCall(scene, 'children');
-            toast('Loaded and placed');
-            }
-            if(e.data.type === 'material'){
-            const material = await core.loaders.objectLoader.loadMaterial(e.data.fullPath);
-            
-            if(target){
-                target.material = material
-            }
-            else if (hit) {
-                (hit.object as any).material = material
-            }
-            
-            
-            if (target_object?.material) mutationCall(target_object.material, 'material');
-            toast('Material placed');
-            }
-            if(e.data.type === 'geometry'){
-            const geometry = await core.loaders.objectLoader.loadGeometry(e.data.fullPath);
-            
-            if(target){
-                target.geometry = geometry
-            }
-            else if (hit) {
-                (hit.object as any).geometry = geometry
-            }
-            
-            
-            if (target_object?.geometry) mutationCall(target_object.geometry, 'geometry');
-            toast('geometry placed');
-            }
-            if(e.data.type === 'texture'){
-            const map = await core.loaders.objectLoader.loadTexture(e.data.fullPath);
-            
-            
-            
-            if(target?.material){
-                target.material.map = map
-            }
-            else if (hit?.object) {
-                (hit.object as any).material.map = map
-            }
-            
-            
-            if (target_object?.material?.map) mutationCall(target_object.material.map, 'material.map');
-            toast('texture placed');
-            }
-            if(e.data.type === 'animation'){
-            const anims = await core.loaders.objectLoader.loadAnimation(e.data.fullPath);
-            //console.log(anims)
-            if (hit) {
-            }
-            if (target?.animations) {
-                target.animations.push(...Object.values(anims))
-            }
-            
-            
-            if (target_object?.animations) mutationCall(target_object.animations, 'animations');
-            toast('animations added');
-            }
+                if (e.data.type === 'model') {
+                    let object = await editor.api.loadObjectFile(e.data.fullPath, false);
+                    if (!object) return;
+
+                    // Unwrap if legacy Scene wrapper
+                    if ((object as any).isScene) {
+                        const userObjects = (object.children || []).filter(
+                            (c: any) => c.name !== 'Editor_Helpers_Root' && !c.userData?.hiddenOnEditor && !c.userData?.isEditorHelper
+                        );
+                        if (userObjects.length === 1) {
+                            object = userObjects[0];
+                            object.removeFromParent();
+                        } else if (userObjects.length > 1) {
+                            const group = new THREE.Group();
+                            const baseName = e.data.name?.replace(/\.(object|bin)+$/, '') || 'Object';
+                            group.name = baseName;
+                            while (userObjects.length > 0) {
+                                group.add(userObjects.shift()!);
+                            }
+                            object = group;
+                        }
+                    }
+
+                    // Remove any legacy Editor_Helpers_Root
+                    const helperChild = object.getObjectByName('Editor_Helpers_Root');
+                    if (helperChild) helperChild.removeFromParent();
+
+                    // Position object at hit point or ground plane (Y=0)
+                    if (hit) {
+                        object.position.copy(hit.point);
+                    } else {
+                        const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+                        const dropPoint = new THREE.Vector3();
+                        const raycaster = (three as any)._raycaster;
+                        if (raycaster && raycaster.ray.intersectPlane(groundPlane, dropPoint)) {
+                            object.position.copy(dropPoint);
+                        } else if (three.editorCamera) {
+                            const dir = new THREE.Vector3();
+                            three.editorCamera.getWorldDirection(dir);
+                            object.position.copy(three.editorCamera.position).add(dir.multiplyScalar(5));
+                        }
+                    }
+
+                    // Add to active scene and select it
+                    editor.addObject(scene, object);
+                    three.selectObject(object);
+                    mutationCall(scene, 'children');
+                    toast(`Loaded "${object.name || e.data.name || 'Object'}"`);
+                }
+                else if (e.data.type === 'material') {
+                    const material = await core.loaders.objectLoader.loadMaterial(e.data.fullPath);
+                    const meshTarget = (hit?.object as any) || target;
+                    if (meshTarget) {
+                        meshTarget.material = material;
+                        if (meshTarget.material) meshTarget.material.needsUpdate = true;
+                        mutationCall(meshTarget, 'material');
+                        toast('Material placed');
+                    }
+                }
+                else if (e.data.type === 'geometry') {
+                    const geometry = await core.loaders.objectLoader.loadGeometry(e.data.fullPath);
+                    const meshTarget = (hit?.object as any) || target;
+                    if (meshTarget && 'geometry' in meshTarget) {
+                        meshTarget.geometry = geometry;
+                        mutationCall(meshTarget, 'geometry');
+                        toast('Geometry placed');
+                    }
+                }
+                else if (e.data.type === 'texture' || e.data.type === 'image') {
+                    const map = await core.loaders.objectLoader.loadTexture(e.data.fullPath);
+                    const meshTarget = (hit?.object as any) || target;
+                    if (meshTarget?.material) {
+                        meshTarget.material.map = map;
+                        meshTarget.material.needsUpdate = true;
+                        mutationCall(meshTarget.material, 'material.map');
+                        toast('Texture placed');
+                    }
+                }
+                else if (e.data.type === 'animation') {
+                    const anims = await core.loaders.objectLoader.loadAnimation(e.data.fullPath);
+                    const meshTarget = (hit?.object as any) || target;
+                    if (meshTarget) {
+                        meshTarget.animations = meshTarget.animations || [];
+                        meshTarget.animations.push(...Object.values(anims));
+                        mutationCall(meshTarget, 'animations');
+                        toast('Animations added');
+                    }
+                }
             }
         })
     }

@@ -13,6 +13,7 @@ import { TransformControlHistoryHandler } from "@/Editor/Three/TransformControlH
 import { toast } from "@/Editor/Mutation";
 
 import { ImportManager } from '@/Editor/Importer';
+import { MenuManager } from "@/Editor/MenuApi";
 
 import { refreshScriptVariables } from "@/Editor/Utils";
 import ScriptSystem from "@/Core/Systems/Script.system";
@@ -29,6 +30,9 @@ export class EditorClass {
     public actionRegistry: ActionRegistry;
     public importer: ImportManager;
     public gamePad: LightGamePad;
+    public get menu(): MenuManager {
+        return this.api?.menu || MenuManager.getInstance();
+    }
     
     // animation
     private rafId: number | null = null;

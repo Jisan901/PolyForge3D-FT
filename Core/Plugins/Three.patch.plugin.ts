@@ -10,9 +10,9 @@ import fs from "@/Core/lib/fs";
 export default class ThreeJsPatchPlugin extends Plugin {
     async init() {
         const originalMatToJSON = THREE.Material.prototype.toJSON;
-        THREE.Material.prototype.toJSON = function(meta1){
+        THREE.Material.prototype.toJSON = function (meta1) {
             let meta = meta1;
-            if (this.userData.url){
+            if (this.userData.url) {
                 meta = {
                     geometries: {},
                     images: {},
@@ -28,12 +28,12 @@ export default class ThreeJsPatchPlugin extends Plugin {
             if (this.userData.url) data.meta = meta
             return data;
         }
-        
-        
+
+
         const originalTexToJSON = THREE.Texture.prototype.toJSON;
-        THREE.Texture.prototype.toJSON = function(meta1){
+        THREE.Texture.prototype.toJSON = function (meta1) {
             let meta = meta1;
-            if (this.userData.url){
+            if (this.userData.url) {
                 meta = {
                     geometries: {},
                     images: {},
@@ -49,8 +49,8 @@ export default class ThreeJsPatchPlugin extends Plugin {
             if (this.userData.url) data.meta = meta
             return data;
         }
-        
-        
+
+
         // ── AnimationClip patch ────────────────────────────────────────────
         THREE.AnimationClip.toJSON = function (clip) {
             const tracks = [];
@@ -113,7 +113,7 @@ export default class ThreeJsPatchPlugin extends Plugin {
 
             return data;
         };
-        
+
 
         // ── Source patch ───────────────────────────────────────────────────
         if (THREE.Source) {
@@ -142,49 +142,148 @@ export default class ThreeJsPatchPlugin extends Plugin {
 // Image helper – converts an HTMLImageElement / HTMLCanvasElement / ImageData
 // to an ArrayBuffer-backed Blob.
 // ─────────────────────────────────────────────────────────────────────────────
-let _canvas;
+let _canvas: HTMLCanvasElement | undefined;
 
-async function getBuffer(image, type = "image/png") {
-    if (/^data:/i.test(image.src)) {
-        return (await fetch(image.src)).blob();
+function getOrCreateCanvas(width: number, height: number): HTMLCanvasElement {
+    if (_canvas === undefined) {
+        _canvas = document.createElement("canvas");
     }
+    _canvas.width = Math.max(1, width || 1);
+    _canvas.height = Math.max(1, height || 1);
+    return _canvas;
+}
 
-    if (typeof HTMLCanvasElement === "undefined") {
-        return (await fetch(image.src)).blob();
-    }
-
-    let canvas;
-
-    if (image instanceof HTMLCanvasElement) {
-        canvas = image;
-    } else {
-        if (_canvas === undefined) {
-            _canvas = document.createElementNS(
-                "http://www.w3.org/1999/xhtml",
-                "canvas"
-            );
-        }
-        _canvas.width = image.width;
-        _canvas.height = image.height;
-
-        const context = _canvas.getContext("2d");
-
-        if (image instanceof ImageData) {
-            context.putImageData(image, 0, 0);
-        } else {
-            context.drawImage(image, 0, 0, image.width, image.height);
-        }
-
-        canvas = _canvas;
-    }
-
-    return new Promise((resolve, reject) => {
+function createFallbackBlob(): Promise<Blob> {
+    const canvas = document.createElement("canvas");
+    canvas.width = 1;
+    canvas.height = 1;
+    return new Promise((resolve) => {
         canvas.toBlob(blob => {
-            blob
-                ? resolve(blob)
-                : reject(new Error("canvas.toBlob failed: returned null"));
-        }, type);
+            resolve(blob || new Blob([], { type: "image/png" }));
+        }, "image/png");
     });
+}
+
+async function getBuffer(image: any, type = "image/png"): Promise<Blob> {
+    try {
+        if (!image) {
+            return await createFallbackBlob();
+        }
+
+        // 1. Already a Blob or File
+        if (image instanceof Blob) {
+            return image;
+        }
+
+        // 2. Data URL or direct URL string
+        if (typeof image === "string") {
+            try {
+                return await (await fetch(image)).blob();
+            } catch {
+                return await createFallbackBlob();
+            }
+        }
+
+        // 3. Object with .src string (e.g. data: or blob: or http URL)
+        if (image.src && typeof image.src === "string") {
+            try {
+                return await (await fetch(image.src)).blob();
+            } catch {
+                // fall through to canvas conversion
+            }
+        }
+
+        if (typeof HTMLCanvasElement === "undefined") {
+            if (image.src) {
+                return (await fetch(image.src)).blob();
+            }
+            return await createFallbackBlob();
+        }
+
+        // 4. HTMLCanvasElement
+        if (image instanceof HTMLCanvasElement) {
+            return new Promise((resolve) => {
+                image.toBlob((blob: Blob | null) => {
+                    resolve(blob || createFallbackBlob());
+                }, type);
+            });
+        }
+
+        // 5. ImageData
+        if (image instanceof ImageData) {
+            const canvas = getOrCreateCanvas(image.width, image.height);
+            const context = canvas.getContext("2d");
+            if (context) {
+                context.putImageData(image, 0, 0);
+                return new Promise((resolve) => {
+                    canvas.toBlob((blob: Blob | null) => resolve(blob || createFallbackBlob()), type);
+                });
+            }
+            return await createFallbackBlob();
+        }
+
+        // 6. Three.js DataTexture format: { data: TypedArray, width, height }
+        if (image.data && (image.width || image.height)) {
+            const w = image.width || 1;
+            const h = image.height || 1;
+            const canvas = getOrCreateCanvas(w, h);
+            const context = canvas.getContext("2d");
+            if (context) {
+                let clamped: Uint8ClampedArray;
+                if (image.data instanceof Uint8ClampedArray) {
+                    clamped = image.data;
+                } else if (image.data instanceof Uint8Array) {
+                    clamped = new Uint8ClampedArray(image.data.buffer, image.data.byteOffset, image.data.byteLength);
+                } else if (ArrayBuffer.isView(image.data)) {
+                    clamped = new Uint8ClampedArray(image.data.buffer, image.data.byteOffset, Math.min(image.data.byteLength, w * h * 4));
+                } else {
+                    clamped = new Uint8ClampedArray(w * h * 4);
+                }
+
+                if (clamped.length >= w * h * 4) {
+                    const imgData = new ImageData(new Uint8ClampedArray(clamped.subarray(0, w * h * 4)), w, h);
+                    context.putImageData(imgData, 0, 0);
+                } else {
+                    context.fillStyle = "rgba(0,0,0,0)";
+                    context.fillRect(0, 0, w, h);
+                }
+                return new Promise((resolve) => {
+                    canvas.toBlob((blob: Blob | null) => resolve(blob || createFallbackBlob()), type);
+                });
+            }
+            return await createFallbackBlob();
+        }
+
+        // 7. Check if valid CanvasImageSource (HTMLImageElement, ImageBitmap, OffscreenCanvas, etc.)
+        const isDrawable =
+            (typeof HTMLImageElement !== "undefined" && image instanceof HTMLImageElement) ||
+            (typeof ImageBitmap !== "undefined" && image instanceof ImageBitmap) ||
+            (typeof OffscreenCanvas !== "undefined" && image instanceof OffscreenCanvas) ||
+            (typeof SVGImageElement !== "undefined" && image instanceof SVGImageElement) ||
+            (typeof HTMLVideoElement !== "undefined" && image instanceof HTMLVideoElement);
+
+        if (isDrawable) {
+            const w = image.width || (image as any).naturalWidth || 1;
+            const h = image.height || (image as any).naturalHeight || 1;
+            const canvas = getOrCreateCanvas(w, h);
+            const context = canvas.getContext("2d");
+            if (context) {
+                context.clearRect(0, 0, w, h);
+                context.drawImage(image, 0, 0, w, h);
+                return new Promise((resolve) => {
+                    canvas.toBlob((blob: Blob | null) => resolve(blob || createFallbackBlob()), type);
+                });
+            }
+            return await createFallbackBlob();
+        }
+
+        // 8. Fallback for unrecognized image structures
+        console.warn("[Three.patch.plugin] getBuffer: unhandled image source type, returning fallback", image);
+        return await createFallbackBlob();
+    } catch (err) {
+        console.warn("[Three.patch.plugin] getBuffer error:", err);
+        return await createFallbackBlob();
+    }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -229,7 +328,7 @@ export class BinarySerializer {
     // =========================================================================
     serializeAnimations(animations) {
         if (!animations?.length) return animations;
-        
+
         animations.forEach(anim => {
             anim.tracks.forEach(track => {
                 const rawTimes = track.times;
@@ -333,7 +432,7 @@ export class BinarySerializer {
     async serializeObject(object3d) {
         this.reset();
         const json = object3d.toJSON();
-        
+
         this.serializeAnimations(json.animations);
         this.serializeGeometries(json.geometries);
         await this.serializeMaterials(json.materials, json.images);
@@ -342,7 +441,7 @@ export class BinarySerializer {
     }
     async serializeJsonObject(json) {
         this.reset();
-        
+
         this.serializeAnimations(json.animations);
         this.serializeGeometries(json.geometries);
         await this.serializeMaterials(json.materials, json.images);
@@ -547,13 +646,13 @@ function resolveBlobIndex(blobRef, blobs) {
 
 
 
-(window as any).FSM = function(){
+(window as any).FSM = function () {
     let s = (window as any).editor?.api?.three?.selectedObject;
     if (!s) return;
     console.log(s)
     const bones: any[] = [];
-    s.parent.traverse((child: any)=>{
-        if(child.isBone){
+    s.parent.traverse((child: any) => {
+        if (child.isBone) {
             bones.push(child)
         }
     })

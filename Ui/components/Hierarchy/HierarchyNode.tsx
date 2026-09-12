@@ -28,8 +28,15 @@ export const HierarchyNode: React.FC<HierarchyNodeProps> = ({
   useTargetObserver(node);
   const isSelected = useValidatedSelection(node?.uuid);
 
+  if (!node || node.userData?.hiddenOnEditor || node.userData?.isEditorHelper || node.name === 'Editor_Helpers_Root') {
+    return null;
+  }
+
   const isExpanded = expandedProp !== false;
-  const hasChildren = Boolean(node?.children && node.children.length > 0);
+  const hasChildren = Boolean(
+    node?.children &&
+    node.children.some((c: any) => !c.userData?.hiddenOnEditor && !c.userData?.isEditorHelper && c.name !== 'Editor_Helpers_Root')
+  );
   const isRenaming = renamingId === node?.uuid;
 
   // Filter visibility when searching
@@ -225,18 +232,20 @@ export const HierarchyNode: React.FC<HierarchyNodeProps> = ({
         {/* Child Subtree */}
         {!isFlat && hasChildren && effectiveExpanded && (
           <div className="relative">
-            {node.children.map((child: any, i: number) => (
-              <HierarchyNodeMemo
-                key={child.uuid || `${node.uuid}-child-${i}`}
-                node={child}
-                depth={depth + 1}
-                isFlat={false}
-                searchQuery={searchQuery}
-                handleContextMenu={handleContextMenu}
-                renamingId={renamingId}
-                setRenamingId={setRenamingId}
-              />
-            ))}
+            {node.children
+              .filter((child: any) => !child.userData?.hiddenOnEditor && !child.userData?.isEditorHelper && child.name !== 'Editor_Helpers_Root')
+              .map((child: any, i: number) => (
+                <HierarchyNodeMemo
+                  key={child.uuid || `${node.uuid}-child-${i}`}
+                  node={child}
+                  depth={depth + 1}
+                  isFlat={false}
+                  searchQuery={searchQuery}
+                  handleContextMenu={handleContextMenu}
+                  renamingId={renamingId}
+                  setRenamingId={setRenamingId}
+                />
+              ))}
           </div>
         )}
       </div>

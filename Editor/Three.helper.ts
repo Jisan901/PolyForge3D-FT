@@ -227,12 +227,8 @@ export class ThreeAPI {
 
         // 1. Setup Editor Group (Hidden from game logic via flag)
         this.editorGroup.userData.hiddenOnEditor = true;
+        this.editorGroup.userData.isEditorHelper = true;
         this.editorGroup.name = 'Editor_Helpers_Root';
-        this.editorGroup.toJSON = () => {
-            const object = new THREE.Object3D()
-            object.name = 'Editor_Helpers_Root';
-            return object.toJSON()
-        }
 
         this.editorGroup.add(this.editorHelperGroup);
 
@@ -270,17 +266,14 @@ export class ThreeAPI {
     * Maps the API to a new scene. Handles moving the editor group and refreshing helpers.
     */
     setScene(newScene: THREE.Scene) {
-
-        if (newScene.userData.helperSceneId) {
-            const previous = newScene.getObjectByName(newScene.userData.helperSceneId);
-            if (previous) {
-                previous.removeFromParent();
-                ThreeHelpers.freeGPU(previous);
-            }
+        // Strip legacy or duplicate helper roots from incoming scene
+        let existingHelper = newScene.getObjectByName('Editor_Helpers_Root');
+        while (existingHelper && existingHelper !== this.editorGroup) {
+            existingHelper.removeFromParent();
+            ThreeHelpers.freeGPU(existingHelper);
+            existingHelper = newScene.getObjectByName('Editor_Helpers_Root');
         }
-
-
-        newScene.userData.helperSceneId = 'Editor_Helpers_Root';
+        delete (newScene.userData as any).helperSceneId;
 
         // Remove from old
         this.editorGroup.removeFromParent();
@@ -288,7 +281,6 @@ export class ThreeAPI {
         this.scene = newScene;
 
         // Add to new (Always ensure editor group is part of the scene graph)
-
         this.helpers.refreshHelpers(newScene);
 
         this.scene.add(this.editorGroup);
